@@ -10,30 +10,50 @@ const FilteredReadingPlan = () => {
     setSelectedDate(event.target.value);
   };
 
-  console.log(`${import.meta.env.API_KEY}`);
-  useEffect(() => {
-    axios
-      .get("https://api.scripture.api.bible/v1/bibles", { headers: { "api-key": `${import.meta.env.VITE_API_BIBLE}` } })
-      .then((res) => console.log(res.data));
-  }, []);
+  const getStartOfWeek = (date) => {
+    const currentDate = new Date(date);
+    const day = currentDate.getDay();
+    const diff = currentDate.getDate() - day;
+    return new Date(currentDate.setDate(diff));
+  };
 
-  const todayReading = readingPlan.find((entry) => entry.Date === selectedDate);
+  const getEndOfWeek = (date) => {
+    const startOfWeek = getStartOfWeek(date);
+    return new Date(startOfWeek.setDate(startOfWeek.getDate() + 6));
+  };
+
+  const startOfWeek = getStartOfWeek(selectedDate);
+  const endOfWeek = getEndOfWeek(selectedDate);
+
+  const weeklyReadings = readingPlan.filter((entry) => {
+    const entryDate = new Date(entry.Date);
+    return entryDate >= startOfWeek && entryDate <= endOfWeek;
+  });
 
   return (
     <div>
-      <h2>{selectedDate}</h2>
+      <h2>{new Date(selectedDate).toLocaleDateString()}</h2>
       <h1>Ozark Reading Plan</h1>
       <label htmlFor="date-picker">Select a date: </label>
       <input type="date" id="date-picker" value={selectedDate} onChange={handleDateChange} />
-      {todayReading ? (
+      {weeklyReadings.length > 0 ? (
         <div>
-          {todayReading.Passage.split("; ").map((passage, index) => (
-            <ReadingItem key={index} passage={passage} />
-          ))}
+          {weeklyReadings.map((reading, index) => {
+            return (
+              reading.Passage && (
+                <div key={index}>
+                  <h3>{new Date(reading.Date).toLocaleDateString()}</h3>
+                  {reading.Passage.split("; ").map((passage, i) => (
+                    <ReadingItem key={i} passage={passage} />
+                  ))}
+                </div>
+              )
+            );
+          })}
         </div>
       ) : (
-        <p>No reading scheduled for this date.</p>
-      )}{" "}
+        <p>No readings scheduled for this week.</p>
+      )}
     </div>
   );
 };

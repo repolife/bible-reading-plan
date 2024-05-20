@@ -1,13 +1,11 @@
 import React from "react";
 
 const ReadingItem = ({ passage }) => {
-  const passageLink = `https://www.biblegateway.com/passage/?search=${passage.replace(" ", "+")}&version=ESV`;
-
-  console.log(passageLink);
+  const blueLetter = `https://www.blueletterbible.org/esv/${passage.replace(" ", "/")}`;
 
   return (
     <a
-      href={passageLink}
+      href={blueLetter}
       target="_blank"
       rel="noopener noreferrer"
       style={{ cursor: "pointer", color: "blue", textDecoration: "underline", margin: "0 5px" }}

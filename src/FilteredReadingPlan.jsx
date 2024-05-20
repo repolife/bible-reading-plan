@@ -26,7 +26,7 @@ const FilteredReadingPlan = () => {
   const endOfWeek = getEndOfWeek(selectedDate);
 
   const weeklyReadings = readingPlan.filter((entry) => {
-    const entryDate = new Date(entry.Date);
+    const entryDate = new Date(entry.date);
     return entryDate >= startOfWeek && entryDate <= endOfWeek;
   });
 
@@ -40,10 +40,10 @@ const FilteredReadingPlan = () => {
         <div>
           {weeklyReadings.map((reading, index) => {
             return (
-              reading.Passage && (
+              reading.passage && (
                 <div key={index}>
-                  <h3>{new Date(reading.Date).toLocaleDateString()}</h3>
-                  {reading.Passage.split("; ").map((passage, i) => (
+                  <h3>{new Date(reading.date).toLocaleDateString()}</h3>
+                  {reading.passage.split("; ").map((passage, i) => (
                     <ReadingItem key={i} passage={passage} />
                   ))}
                 </div>

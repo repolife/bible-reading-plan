@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import readingPlan from "../bible_plan.json";
 import axios from "axios";
 import ReadingItem from "./ReadingItem";
+import Navbar from "./NavBar";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]); // Default to today's date
@@ -32,6 +33,7 @@ const FilteredReadingPlan = () => {
 
   return (
     <div>
+      <Navbar />
       <h2>{new Date(selectedDate).toLocaleDateString()}</h2>
       <h1>Ozark Reading Plan</h1>
       <label htmlFor="date-picker">Select a date: </label>

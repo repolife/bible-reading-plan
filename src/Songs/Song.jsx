@@ -5,7 +5,7 @@ import { useState } from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import Navbar from "../NavBar";
 
-const env = await import.meta.env;
+const env = import.meta.env;
 
 const client = createClient({
   space: env.VITE_SPACE_ID,

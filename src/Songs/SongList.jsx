@@ -3,7 +3,7 @@ import { createClient } from "contentful";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
 
-const env = await import.meta.env;
+const env = import.meta.env;
 
 const client = createClient({
   space: env.VITE_SPACE_ID,

@@ -4,7 +4,6 @@ import viteLogo from "/vite.svg";
 import FilteredReadingPlan from "./FilteredReadingPlan";
 import { createClient } from "contentful";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-import { Nav } from "./Nav";
 import { Fragment } from "react";
 import "./App.css";
 import { Song } from "./Songs/Song";

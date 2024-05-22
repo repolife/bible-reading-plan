@@ -38,11 +38,20 @@ export const Song = () => {
   }
 
   console.log(song);
-
+  const options = {
+    renderText: (text) => {
+      return text.split("\n").reduce((children, textSegment, index) => {
+        return [...children, index > 0 && <br key={index} />, textSegment];
+      }, []);
+    },
+  };
   return (
-    <>
-      <Navbar />
-      {documentToReactComponents(song)}
-    </>
+    <div>
+      <div style={{ fontSize: "2rem" }}>
+        {" "}
+        <Navbar />
+        {documentToReactComponents(song, options)}
+      </div>
+    </div>
   );
 };

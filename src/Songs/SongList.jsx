@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createClient } from "contentful";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
+import Navbar from "../NavBar";
 
 const env = import.meta.env;
 
@@ -51,6 +52,7 @@ export const SongList = () => {
 
   return (
     <>
+      <Navbar />
       <input type="text" placeholder="Type to filter" value={inputValue} onChange={handleInputChange} />{" "}
       {filteredSongs.length > 0 &&
         filteredSongs.map((song, index) => (

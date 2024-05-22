@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 const Navbar = () => {
   return (
     <nav>
-      <ul>
+      <ul style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
         <li style={{ listStyle: "none" }}>
-          <Link to="/">Home</Link>
+          <Link to="/">Reading Plan</Link>
         </li>
         <li style={{ listStyle: "none" }}>
           <Link to="/Songs">Songs</Link>

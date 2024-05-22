@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import FilteredReadingPlan from "./FilteredReadingPlan.jsx";
 import { SongList } from "./Songs/SongList.jsx";
 import { Song } from "./Songs/Song.jsx";
+import Calendar from "./calendar.jsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <FilteredReadingPlan /> },
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: "songs/:songId",
     element: <Song />,
+  },
+  {
+    path: "events",
+    element: <Calendar />,
   },
 ]);
 

@@ -47,11 +47,9 @@ export const Song = () => {
   };
   return (
     <div>
-      <div style={{ fontSize: "2rem" }}>
-        {" "}
-        <Navbar />
-        {documentToReactComponents(song, options)}
-      </div>
+      <Navbar />
+
+      <div style={{ fontSize: "2rem" }}> {documentToReactComponents(song, options)}</div>
     </div>
   );
 };

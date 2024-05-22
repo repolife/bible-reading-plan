@@ -2,12 +2,12 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
 import "./index.css";
-import { createHashRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import FilteredReadingPlan from "./FilteredReadingPlan.jsx";
 import { SongList } from "./Songs/SongList.jsx";
 import { Song } from "./Songs/Song.jsx";
 
-const router = createHashRouter([
+const router = createBrowserRouter([
   { path: "/", element: <FilteredReadingPlan /> },
   {
     path: "songs",

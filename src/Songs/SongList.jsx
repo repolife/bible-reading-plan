@@ -45,8 +45,9 @@ export const SongList = () => {
     if (songs.length <= 0) return [];
     if (inputValue === "") songs;
 
-    const meh = songs.filter((item) => item.title.toLowerCase().includes(inputValue.toLowerCase()));
-    console.log(meh);
+    const meh = songs
+      .filter((item) => item.title.toLowerCase().includes(inputValue.toLowerCase()))
+      .sort((a, b) => a.title.localeCompare(b.title));
     return meh;
   }, [songs, inputValue]);
 
@@ -55,7 +56,7 @@ export const SongList = () => {
       <Navbar />
       <input type="text" placeholder="Type to filter" value={inputValue} onChange={handleInputChange} />{" "}
       {filteredSongs.length > 0 &&
-        filteredSongs.map((song, index) => (
+        filteredSongs.sort().map((song, index) => (
           <ul key={index}>
             <Link to={song.id}>{song.title}</Link>
           </ul>

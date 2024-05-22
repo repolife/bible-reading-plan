@@ -8,7 +8,7 @@ const ReadingItem = ({ passage }) => {
       href={blueLetter}
       target="_blank"
       rel="noopener noreferrer"
-      style={{ cursor: "pointer", color: "blue", textDecoration: "underline", margin: "0 5px" }}
+      style={{ cursor: "pointer", color: "blue", textDecoration: "underline", margin: "1.5px", padding: "1em" }}
     >
       {passage}
     </a>

@@ -4,6 +4,7 @@ import { createClient } from "contentful";
 import { useState } from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import Navbar from "../NavBar";
+import Layout from "../Layout";
 
 const env = import.meta.env;
 
@@ -46,10 +47,10 @@ export const Song = () => {
     },
   };
   return (
-    <div>
+    <Layout>
       <Navbar />
 
       <div style={{ fontSize: "2rem" }}> {documentToReactComponents(song, options)}</div>
-    </div>
+    </Layout>
   );
 };

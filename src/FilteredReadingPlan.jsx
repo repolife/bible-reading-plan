@@ -3,6 +3,7 @@ import readingPlan from "../bible_plan.json";
 import axios from "axios";
 import ReadingItem from "./ReadingItem";
 import Navbar from "./NavBar";
+import Layout from "./Layout";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
@@ -46,9 +47,8 @@ const FilteredReadingPlan = () => {
   let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;
 
   return (
-    <div>
+    <Layout>
       <Navbar />
-
       <h1>Ozark Reading Plan</h1>
       <label htmlFor="date-picker">Select a date: </label>
       <input type="date" id="date-picker" value={selectedDate} onChange={handleDateChange} />
@@ -71,7 +71,7 @@ const FilteredReadingPlan = () => {
       ) : (
         <p>No readings scheduled for this week.</p>
       )}
-    </div>
+    </Layout>
   );
 };
 

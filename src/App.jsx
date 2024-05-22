@@ -12,7 +12,6 @@ import { Song } from "./Songs/Song";
 function App() {
   return (
     <Router>
-      <Navbar />
       <Route exact path="/" Component={<FilteredReadingPlan />} />
       <Route exact path="/songs:id" Component={<Song />} />
     </Router>

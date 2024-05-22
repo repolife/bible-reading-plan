@@ -43,13 +43,16 @@ const FilteredReadingPlan = () => {
     return filteredPlan;
   }, [selectedDate, readingPlan]);
 
+  let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;
+
   return (
     <div>
       <Navbar />
-      <h2>{selectedDate}</h2>
+
       <h1>Ozark Reading Plan</h1>
       <label htmlFor="date-picker">Select a date: </label>
       <input type="date" id="date-picker" value={selectedDate} onChange={handleDateChange} />
+      <h3>{dateRange}</h3>
       {weeklyReadings && weeklyReadings.length > 0 ? (
         <div>
           {weeklyReadings.map((reading, index) => {

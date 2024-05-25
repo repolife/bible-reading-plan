@@ -27,6 +27,10 @@ const FilteredReadingPlan = () => {
   const startOfWeek = getStartOfWeek(selectedDate);
   const endOfWeek = getEndOfWeek(selectedDate);
 
+  const isShabbat = endOfWeek.getDay() == new Date().getDay();
+
+  console.log(isShabbat);
+
   const weeklyReadings = useMemo(() => {
     if (readingPlan.lenght <= 0) return [];
 
@@ -49,9 +53,10 @@ const FilteredReadingPlan = () => {
   return (
     <Layout>
       <Navbar />
-      <h1>Ozark Reading Plan</h1>
+      <h2>[Insert Generic Fellowship name] Reading Plan</h2>
       <label htmlFor="date-picker">Select a date: </label>
       <input type="date" id="date-picker" value={selectedDate} onChange={handleDateChange} />
+      <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
       <h3>{dateRange}</h3>
       {weeklyReadings && weeklyReadings.length > 0 ? (
         <div>

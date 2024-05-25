@@ -25,7 +25,7 @@ export const SongList = () => {
           title: item.fields.title,
           id: item.sys.id,
           item: item,
-          isShabbat: item.fields.isShabbat,
+          isShabbat: item.fields.isShabbat == undefined ? false : item.fields.isShabbat,
         }));
 
         setSongs(data);
@@ -48,10 +48,13 @@ export const SongList = () => {
 
     const meh = songs
       .filter((item) => item.title.toLowerCase().includes(inputValue.toLowerCase()))
-      .sort((a, b) => b.isShabbat == true || a.title.localeCompare(b.title));
+      .sort((item) => item.isShabbat)
+      .sort((a, b) => b.isShabbat - a.isShabbat || a.title.localeCompare(b.title));
 
     return meh;
-  }, [songs, inputValue]);
+  }, [songs, inputValue, setSongs]);
+
+  console.log(songs);
 
   return (
     <>
@@ -60,7 +63,10 @@ export const SongList = () => {
       {filteredSongs.length > 0 &&
         filteredSongs.sort().map((song, index) => (
           <ul key={index}>
-            <Link to={song.id}>{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
+            <Link
+              title={song.isShabbat ? "Shabbat song!" : ""}
+              to={song.id}
+            >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
           </ul>
         ))}
     </>

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import Navbar from "../NavBar";
 import Layout from "../Layout";
+import { SongList } from "./SongList";
 
 const env = import.meta.env;
 
@@ -17,6 +18,7 @@ const client = createClient({
 export const Song = () => {
   const { songId } = useParams();
   const [song, setSong] = useState(null);
+  const [songtitle, setSongTitle] = useState("");
 
   useEffect(() => {
     if (songId === undefined) return;
@@ -24,6 +26,8 @@ export const Song = () => {
     const fetchReadingPlan = async () => {
       try {
         const response = await client.getEntry(songId);
+        const title = response.fields.title;
+        setSongTitle(title);
         const data = response.fields.lyrics;
         setSong(data);
       } catch (error) {
@@ -38,7 +42,6 @@ export const Song = () => {
     return null;
   }
 
-  console.log(song);
   const options = {
     renderText: (text) => {
       return text.split("\n").reduce((children, textSegment, index) => {
@@ -50,7 +53,8 @@ export const Song = () => {
     <Layout>
       <Navbar />
 
-      <div style={{ fontSize: "2rem" }}> {documentToReactComponents(song, options)}</div>
+      {songtitle !== "" ? <h4>{songtitle}</h4> : null}
+      <div style={{ fontSize: "1em" }}> {documentToReactComponents(song, options)}</div>
     </Layout>
   );
 };

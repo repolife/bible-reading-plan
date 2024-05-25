@@ -25,6 +25,7 @@ export const SongList = () => {
           title: item.fields.title,
           id: item.sys.id,
           item: item,
+          isShabbat: item.fields.isShabbat,
         }));
 
         setSongs(data);
@@ -47,7 +48,8 @@ export const SongList = () => {
 
     const meh = songs
       .filter((item) => item.title.toLowerCase().includes(inputValue.toLowerCase()))
-      .sort((a, b) => a.title.localeCompare(b.title));
+      .sort((a, b) => b.isShabbat == true || a.title.localeCompare(b.title));
+
     return meh;
   }, [songs, inputValue]);
 
@@ -58,7 +60,7 @@ export const SongList = () => {
       {filteredSongs.length > 0 &&
         filteredSongs.sort().map((song, index) => (
           <ul key={index}>
-            <Link to={song.id}>{song.title}</Link>
+            <Link to={song.id}>{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
           </ul>
         ))}
     </>

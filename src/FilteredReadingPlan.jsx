@@ -4,6 +4,7 @@ import axios from "axios";
 import ReadingItem from "./ReadingItem";
 import Navbar from "./NavBar";
 import Layout from "./Layout";
+import { Link } from "react-router-dom";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
@@ -72,6 +73,7 @@ const FilteredReadingPlan = () => {
               )
             );
           })}
+          <Link to="/plan">Full 2 year reading plan</Link>
         </div>
       ) : (
         <p>No readings scheduled for this week.</p>

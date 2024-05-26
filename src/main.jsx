@@ -7,6 +7,7 @@ import FilteredReadingPlan from "./FilteredReadingPlan.jsx";
 import { SongList } from "./Songs/SongList.jsx";
 import { Song } from "./Songs/Song.jsx";
 import Calendar from "./calendar.jsx";
+import ReadingTable from "./Songs/Bible-Reading-Plan/ReadingTable.jsx";
 
 const router = createBrowserRouter([
   { path: "/", element: <FilteredReadingPlan /> },
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
   {
     path: "events",
     element: <Calendar />,
+  },
+  {
+    path: "plan",
+    element: <ReadingTable />,
   },
 ]);
 

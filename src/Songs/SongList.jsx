@@ -62,7 +62,7 @@ export const SongList = () => {
       <input type="text" placeholder="Type to filter" value={inputValue} onChange={handleInputChange} />{" "}
       {filteredSongs.length > 0 &&
         filteredSongs.sort().map((song, index) => (
-          <ul key={index}>
+          <ul style={{ margin: "1em" }} key={index}>
             <Link
               title={song.isShabbat ? "Shabbat song!" : ""}
               to={song.id}

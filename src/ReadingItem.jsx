@@ -10,7 +10,7 @@ const ReadingItem = ({ passage }) => {
       rel="noopener noreferrer"
       style={{
         cursor: "pointer",
-        color: "white",
+        color: "gray",
         ":visited": "red",
         textDecoration: "underline",
         margin: "1.5px",

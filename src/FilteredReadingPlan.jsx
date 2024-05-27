@@ -54,30 +54,32 @@ const FilteredReadingPlan = () => {
   return (
     <Layout>
       <Navbar />
-      <h2>[Insert Generic Fellowship name] Reading Plan</h2>
-      <label htmlFor="date-picker">Select a date: </label>
-      <input type="date" id="date-picker" value={selectedDate} onChange={handleDateChange} />
-      <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
-      <h3>{dateRange}</h3>
-      {weeklyReadings && weeklyReadings.length > 0 ? (
-        <div>
-          {weeklyReadings.map((reading, index) => {
-            return (
-              reading.passage && (
-                <div key={index} style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  {/* <h3>{new Date(reading.date).toLocaleDateString()}</h3> */}
-                  {reading.passage.split("; ").map((passage, i) => (
-                    <ReadingItem key={i} passage={passage} />
-                  ))}
-                </div>
-              )
-            );
-          })}
-          <Link to="/plan">Full 2 year reading plan</Link>
-        </div>
-      ) : (
-        <p>No readings scheduled for this week.</p>
-      )}
+      <div style={{ display: "grid", gap: "1em" }}>
+        <h2>[Insert Generic Fellowship name] Reading Plan</h2>
+        <label htmlFor="date-picker">Select a date: </label>
+        <input type="date" id="date-picker" value={selectedDate} onChange={handleDateChange} />
+        <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
+        <h3>{dateRange}</h3>
+        {weeklyReadings && weeklyReadings.length > 0 ? (
+          <div>
+            {weeklyReadings.map((reading, index) => {
+              return (
+                reading.passage && (
+                  <div key={index} style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                    {/* <h3>{new Date(reading.date).toLocaleDateString()}</h3> */}
+                    {reading.passage.split("; ").map((passage, i) => (
+                      <ReadingItem key={i} passage={passage} />
+                    ))}
+                  </div>
+                )
+              );
+            })}
+            <Link to="/plan">Full 2 year reading plan</Link>
+          </div>
+        ) : (
+          <p>No readings scheduled for this week.</p>
+        )}
+      </div>
     </Layout>
   );
 };

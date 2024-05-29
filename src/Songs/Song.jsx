@@ -8,6 +8,7 @@ import { BLOCKS, MARKS } from "@contentful/rich-text-types";
 import Navbar from "../NavBar";
 import Layout from "../Layout";
 import { SongList } from "./SongList";
+import ScrollToTop from "../Shared/ScrollToTop";
 
 const env = import.meta.env;
 
@@ -49,7 +50,7 @@ export const Song = () => {
     renderText: (text) => {
       return text.split("\n").reduce((children, textSegment, index) => {
         console.log(textSegment.length);
-        return [...children, index > 0 && <br key={index} />, <>{textSegment}</>];
+        return [...children, index > 0 && <br key={index} />, textSegment];
       }, []);
     },
   };
@@ -95,6 +96,7 @@ export const Song = () => {
       {songtitle !== "" ? <h4>{songtitle}</h4> : null}
       <br />
       <div style={{ fontSize: "1em", minWidth: "50vw" }}> {documentToReactComponents(song, options)}</div>
+      <ScrollToTop />
     </Layout>
   );
 };

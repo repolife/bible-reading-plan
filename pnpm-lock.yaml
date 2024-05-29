@@ -8,6 +8,9 @@ dependencies:
   '@contentful/rich-text-react-renderer':
     specifier: ^15.19.6
     version: 15.19.6(react-dom@18.3.1)(react@18.3.1)
+  '@contentful/rich-text-types':
+    specifier: ^16.5.2
+    version: 16.5.2
   '@headlessui/react':
     specifier: ^2.0.3
     version: 2.0.3(react-dom@18.3.1)(react@18.3.1)
@@ -440,13 +443,13 @@ packages:
       react: ^16.8.6 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.6 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@contentful/rich-text-types': 16.3.5
+      '@contentful/rich-text-types': 16.5.2
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     dev: false
 
-  /@contentful/rich-text-types@16.3.5:
-    resolution: {integrity: sha512-ZLq6p5uyQXg+i1XGDFu4tAc2VYS12S1KA/jIOyyZjNgC1DvDajsi1JzuiBuOuMEhi1sKEUy6Ry3Yr9jsQtOKuQ==}
+  /@contentful/rich-text-types@16.5.2:
+    resolution: {integrity: sha512-qD98Amp/vWxCYMtv7yprh4Ry3QHFX50sf+i3E6e/WRquz+aUW2ilqmQqW6ucb4F2dlatUxMbOOhZOFazv2XLjg==}
     engines: {node: '>=6.0.0'}
     dev: false
 
@@ -1705,7 +1708,7 @@ packages:
     engines: {node: '>=18'}
     dependencies:
       '@contentful/content-source-maps': 0.5.0
-      '@contentful/rich-text-types': 16.3.5
+      '@contentful/rich-text-types': 16.5.2
       axios: 1.6.8
       contentful-resolve-response: 1.8.1
       contentful-sdk-core: 8.1.2

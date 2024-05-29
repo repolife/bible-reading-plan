@@ -74,11 +74,16 @@ const FilteredReadingPlan = () => {
                 )
               );
             })}
-            <Link to="/plan">Full 2 year reading plan</Link>
           </div>
         ) : (
           <p>No readings scheduled for this week.</p>
         )}
+        <p style={{ display: "flex", flexDirection: "column" }}>
+          To use mobile. You need to install YouVersion{" "}
+          <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">Android</a>{" "}
+          <a href="https://app.bible.com/app-ios">iOS</a>
+        </p>
+        <Link to="/plan">Full 2 year reading plan</Link>
       </div>
     </Layout>
   );

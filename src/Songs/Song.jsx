@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { createClient } from "contentful";
 import { useState } from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+import { BLOCKS, MARKS } from "@contentful/rich-text-types";
+
 import Navbar from "../NavBar";
 import Layout from "../Layout";
 import { SongList } from "./SongList";
@@ -30,6 +32,7 @@ export const Song = () => {
         setSongTitle(title);
         const data = response.fields.lyrics;
         setSong(data);
+        console.log(data);
       } catch (error) {
         console.error("Error fetching data from Contentful", error);
       }
@@ -45,16 +48,53 @@ export const Song = () => {
   const options = {
     renderText: (text) => {
       return text.split("\n").reduce((children, textSegment, index) => {
-        return [...children, index > 0 && <br key={index} />, textSegment];
+        console.log(textSegment.length);
+        return [...children, index > 0 && <br key={index} />, <>{textSegment}</>];
       }, []);
     },
   };
+
+  /*
+  textSegment.length > 10 ? (
+            <div>
+              {" "}
+              <p>{textSegment}</p> <br />
+            </div>
+          ) : (
+            textSegment
+          ),
+          */
+
+  // const Bold = ({ children }) => <p className="bold">{children}</p>;
+
+  // const Text = ({ children }) => <p className="align-center">{children}</p>;
+
+  // const options = {
+  //   renderMark: {
+  //     [MARKS.BOLD]: (text) => <Bold>{text}</Bold>,
+  //   },
+  //   renderNode: {
+  //     [BLOCKS.PARAGRAPH]: (node, children) => {
+  //       console.log(node.content.length);
+  //       return node.content.length == 1 ? (
+  //         <>
+  //           <Text>{children}</Text> <br />
+  //         </>
+  //       ) : (
+  //         <span style={{ display: "flex", justifyContent: "space-around", color: "gray" }}>{children}</span>
+  //       );
+  //     },
+  //   },
+  //   renderText: (text) => text.replace("Gsus4G", "?"),
+  // };
+
   return (
     <Layout>
       <Navbar />
 
       {songtitle !== "" ? <h4>{songtitle}</h4> : null}
-      <div style={{ fontSize: "1em" }}> {documentToReactComponents(song, options)}</div>
+      <br />
+      <div style={{ fontSize: "1em", minWidth: "50vw" }}> {documentToReactComponents(song, options)}</div>
     </Layout>
   );
 };

@@ -3,6 +3,7 @@ import { createClient } from "contentful";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import Navbar from "../NavBar";
+import ScrollToTop from "../Shared/ScrollToTop";
 
 const env = import.meta.env;
 
@@ -69,6 +70,7 @@ export const SongList = () => {
             >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
           </ul>
         ))}
+      <ScrollToTop />
     </>
   );
 };

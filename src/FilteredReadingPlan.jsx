@@ -54,10 +54,16 @@ const FilteredReadingPlan = () => {
   return (
     <Layout>
       <Navbar />
-      <div style={{ display: "grid", gap: "1em" }}>
+      <div style={{ display: "grid", gap: "1em", paddingBottom: "2em" }}>
         <h2>[Insert Generic Fellowship name] Reading Plan</h2>
         <label htmlFor="date-picker">Select a date: </label>
-        <input type="date" id="date-picker" value={selectedDate} onChange={handleDateChange} />
+        <input
+          type="date"
+          id="date-picker"
+          style={{ display: "flex", justifyContent: "center" }}
+          value={selectedDate}
+          onChange={handleDateChange}
+        />
         <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
         <h3>{dateRange}</h3>
         {weeklyReadings && weeklyReadings.length > 0 ? (
@@ -66,7 +72,6 @@ const FilteredReadingPlan = () => {
               return (
                 reading.passage && (
                   <div key={index} style={{ display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                    {/* <h3>{new Date(reading.date).toLocaleDateString()}</h3> */}
                     {reading.passage.split("; ").map((passage, i) => (
                       <ReadingItem key={i} passage={passage} />
                     ))}
@@ -79,8 +84,12 @@ const FilteredReadingPlan = () => {
           <p>No readings scheduled for this week.</p>
         )}
         <p style={{ display: "flex", flexDirection: "column" }}>
-          To use mobile. You need to install YouVersion{" "}
-          <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">Android</a>{" "}
+          To use mobile, you need to install YouVersion
+          <br />
+          <br />
+          <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">
+            Android
+          </a>{" "}
           <a href="https://app.bible.com/app-ios">iOS</a>
         </p>
         <Link to="/plan">Full 2 year reading plan</Link>

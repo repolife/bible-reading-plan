@@ -10,7 +10,7 @@ const ReadingItem = ({ passage }) => {
 
   console.log;
 
-  let audioBible = `https://bible.com/bible/59/${filteredBook[0].code}.${chapter}.ESV`;
+  let audioBible = `https://www.bible.com/bible/59/${filteredBook[0].code}.${chapter}.ESV`;
 
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

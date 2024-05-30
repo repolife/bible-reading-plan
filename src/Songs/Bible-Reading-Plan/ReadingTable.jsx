@@ -1,36 +1,56 @@
 import Layout from "../../Layout";
 import readingPlan from "../../../bible_plan.json";
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Navbar from "../../NavBar";
 import ScrollToTop from "../../Shared/ScrollToTop";
 
+// Function to group readings by date
+const groupByDate = (readings) => {
+  return readings.reduce((groupedReadings, reading) => {
+    const { date, passage } = reading;
+    if (!groupedReadings[date]) {
+      groupedReadings[date] = [];
+    }
+    groupedReadings[date].push(passage);
+    return groupedReadings;
+  }, {});
+};
+
 export default function ReadingTable() {
+  const groupedReadings = groupByDate(readingPlan);
+
   return (
     <Layout>
       <Navbar />
       <table
         style={{
-          width: "100%",
           borderCollapse: "collapse",
           fontSize: "10px", // Reduce font size
           media: "print",
+          display: "flex",
+          alignItems: "baseline",
+          flexWrap: "wrap",
+          width: "100vw",
         }}
       >
-        <thead>
-          <tr>
-            <th style={{ border: "solid 1px black", padding: "4px" }}>Book</th>
-            <th style={{ border: "solid 1px black", padding: "4px" }}>Week of</th>
-          </tr>
-        </thead>
-        <tbody>
-          {readingPlan.map((reading, index) => (
-            <tr key={index}>
-              <td style={{ border: "solid 1px black", padding: "4px" }}>{reading.passage}</td>
-              <td style={{ border: "solid 1px black", padding: "4px" }}>{reading.date}</td>
-            </tr>
-          ))}
-        </tbody>
+        {Object.keys(groupedReadings).map((date) => (
+          <div key={date} style={{ border: "solid 1px" }}>
+            <thead>
+              <tr>
+                <td style={{ padding: "5px", border: "solid 1px", fontWeight: "bolder", fontSize: "1.5em" }}>
+                  Week of {date}
+                </td>
+              </tr>
+            </thead>
+            <tbody>
+              {groupedReadings[date].map((passage, index) => (
+                <tr>
+                  <td style={{ padding: "4px", fontSize: "1.2em" }}>{passage}</td>
+                </tr>
+              ))}
+            </tbody>
+          </div>
+        ))}
       </table>
       <ScrollToTop />
 

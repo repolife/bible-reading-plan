@@ -8,7 +8,7 @@ const ReadingItem = ({ passage }) => {
   let chapter = passage.split(" ")[1];
   let filteredBook = youVersion.filter((book) => book.name === parsedBook);
 
-  let audioBible = `https://www.bible.com/bible/111/${filteredBook[0].code}.${chapter}.ESV`;
+  let audioBible = `https://www.bible.com/bible/111/${filteredBook[0].code}.${chapter}`;
 
   return (
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>

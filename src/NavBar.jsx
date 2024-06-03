@@ -11,9 +11,6 @@ const Navbar = () => {
         <li style={{ listStyle: "none", padding: "20px" }}>
           <Link to="/Songs">Songs</Link>
         </li>
-        <li style={{ listStyle: "none", padding: "20px" }}>
-          <Link to="/events">Events</Link>
-        </li>
       </ul>
     </nav>
   );

@@ -31,6 +31,7 @@ export default function ReadingTable() {
           alignItems: "baseline",
           flexWrap: "wrap",
           width: "100vw",
+          alignItems: "stretch",
         }}
       >
         {Object.keys(groupedReadings).map((date) => (

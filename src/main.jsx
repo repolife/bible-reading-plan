@@ -8,6 +8,8 @@ import { SongList } from "./Songs/SongList.jsx";
 import { Song } from "./Songs/Song.jsx";
 import Calendar from "./calendar.jsx";
 import ReadingTable from "./Songs/Bible-Reading-Plan/ReadingTable.jsx";
+import { Bible } from "./Study/Bible.jsx";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const router = createBrowserRouter([
   { path: "/", element: <FilteredReadingPlan /> },
@@ -27,10 +29,19 @@ const router = createBrowserRouter([
     path: "plan",
     element: <ReadingTable />,
   },
+  {
+    path: "study",
+    element: <Bible />,
+  },
+  { path: "study/:book/:chapter/:verse", element: <Bible /> },
 ]);
+
+const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+    </QueryClientProvider>
   </React.StrictMode>
 );

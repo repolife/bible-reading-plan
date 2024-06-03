@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from "react";
 import readingPlan from "../bible_plan.json";
-import axios from "axios";
 import ReadingItem from "./ReadingItem";
 import Navbar from "./NavBar";
 import Layout from "./Layout";
@@ -87,10 +86,10 @@ const FilteredReadingPlan = () => {
           To use mobile, you need to install YouVersion
           <br />
           <br />
-          <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">
-            Android
-          </a>{" "}
-          <a href="https://app.bible.com/app-ios">iOS</a>
+          <section style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
+            <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">Android</a>{" "}
+            <a href="https://app.bible.com/app-ios">iOS</a>
+          </section>
         </p>
         <Link to="/plan">Full 2 year reading plan</Link>
       </div>

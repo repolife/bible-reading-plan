@@ -1,15 +1,14 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import axios from "axios";
 import "./bible.css";
-import { useEffect } from "react";
-import { useMemo } from "react";
 import hebrewDef from "../../hebrew.json";
 import testament from "../../testament.json";
 import greek from "../../greek.json";
 import { useParams } from "react-router-dom";
+import { Badge, Card, CardHeader, CardBody, Typography } from "@material-tailwind/react";
 
-export const Bible = () => {
+export const Verse = () => {
   const [strongsCode, setStrongsCode] = useState("");
   const [strongsNumber, setStrongsNumber] = useState("");
   const [dataText, setDataText] = useState("");
@@ -54,16 +53,15 @@ export const Bible = () => {
     text.replace(regex, (match, p1, p2, offset) => {
       parts.push(text.slice(lastIndex, offset));
       parts.push(
-        <span
+        <Badge
+          className="text-xs"
+          // content={`${strongsCode}${p1}`}
+          color="blue-gray"
           key={offset}
-          style={p1 ? { fontWeight: "bold" } : {}}
           onClick={() => handleStrongsDef(p1, p2)}
-          className="tooltip"
           data-strongs={p1}
-        >
-          {p2}
-          <span className="tooltiptext">Strong's #{p1}</span>
-        </span>
+          children={<Typography className="text-xl"> {p2}</Typography>}
+        />
       );
       lastIndex = offset + match.length;
     });
@@ -97,39 +95,38 @@ export const Bible = () => {
     if (strongsObj !== undefined) return Object.entries(strongsObj);
   }, [strongsNumber, filteredTestament]);
 
-  console.log(strongsDef);
-
   if (!data) {
     return <h2>no</h2>;
   }
 
   return (
-    <div className="verse-container">
-      <h1>
-        {data.book} {data.chapter}:{data.verses} ({data.version})
-      </h1>
-      <p>{renderVerseText(data.text)}</p>
-      <br />
+    <Card>
+      <CardBody>
+        <Typography variant="h4">
+          {data.book} {data.chapter}:{data.verses} ({data.version})
+        </Typography>
+        <Typography className="text-2xl pt-4"> {renderVerseText(data.text)}</Typography>
+        <br />
 
-      {strongsDef && strongsDef.length > 0 && (
-        <div>
-          <h4>{strongsCode}</h4>
-          {strongsDef.map(([key, value]) => {
-            console.log(value);
-            return (
-              <p key={key}>
-                <span>{`${key}: `}</span>
-                <span>{`${value}`}</span>
-              </p>
-            );
-          })}
-        </div>
-      )}
-    </div>
+        {strongsDef && strongsDef.length > 0 && (
+          <div>
+            <h4>{strongsCode}</h4>
+            {strongsDef.map(([key, value]) => {
+              console.log(value);
+              return (
+                <p key={key}>
+                  <span>{`${key}: `}</span>
+                  <span>{`${value}`}</span>
+                </p>
+              );
+            })}
+          </div>
+        )}
+      </CardBody>
+    </Card>
   );
 };
 
 /*https://jsonbible.com/search/ref.php?keyword=jn 3:16
 https://jsonbible.com/search/verses-w-strongs.php?&keyword=jn+3
 */
-4;

@@ -3,6 +3,7 @@ import readingPlan from "../../../bible_plan.json";
 import React from "react";
 import Navbar from "../../NavBar";
 import ScrollToTop from "../../Shared/ScrollToTop";
+import { Card, Typography } from "@material-tailwind/react";
 
 // Function to group readings by date
 const groupByDate = (readings) => {
@@ -21,32 +22,19 @@ export default function ReadingTable() {
 
   return (
     <Layout>
-      <Navbar />
-      <table
-        style={{
-          borderCollapse: "collapse",
-          fontSize: "10px", // Reduce font size
-          media: "print",
-          display: "flex",
-          alignItems: "baseline",
-          flexWrap: "wrap",
-          width: "100vw",
-          alignItems: "stretch",
-        }}
-      >
-        {Object.keys(groupedReadings).map((date) => (
-          <div key={date} style={{ border: "solid 1px" }}>
+      <Navbar className="print:hidden" />
+      <table className=" text-l print:block flex flex-wrap flex-row w-screen items-stretch print:flex print:border-collapse print:text-sm">
+        {Object.keys(groupedReadings).map((date, index) => (
+          <div key={index} className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 border border-slate-500 w-max">
             <thead>
               <tr>
-                <td style={{ padding: "5px", border: "solid 1px", fontWeight: "bolder", fontSize: "1.5em" }}>
-                  Week of {date}
-                </td>
+                <td className=" border-b text-xl print:text-xs">Week of {date}</td>
               </tr>
             </thead>
             <tbody>
               {groupedReadings[date].map((passage, index) => (
-                <tr>
-                  <td style={{ padding: "4px", fontSize: "1.2em" }}>{passage}</td>
+                <tr key={index}>
+                  <td className="p-2 text-xs">{passage}</td>
                 </tr>
               ))}
             </tbody>
@@ -54,22 +42,6 @@ export default function ReadingTable() {
         ))}
       </table>
       <ScrollToTop />
-
-      <style>
-        {`
-          @media print {
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              font-size: 10px;
-            }
-            th, td {
-              border: 1px solid black;
-              padding: 4px;
-            }
-          }
-        `}
-      </style>
     </Layout>
   );
 }

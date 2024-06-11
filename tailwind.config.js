@@ -1,12 +1,21 @@
-/** @type {import('tailwindcss').Config} */
-module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
-  theme: {
-    minWidth: "w-screen",
-    lineHeight: 1.5,
+const withMT = require("@material-tailwind/react/utils/withMT");
+const { default: daisyui } = require("daisyui");
 
-    fontFamily: { sans: ["Inter", "system-ui", "Avenir", "Helvetica", "Arial", "sans-serif"] },
+module.exports = withMT({
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts,jsx,tsx}",
+    "node_modules/@material-tailwind/react/components/**/*.{js,ts,jsx,tsx}",
+    "node_modules/@material-tailwind/react/theme/components/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
     extend: {},
+    container: {
+      center: true,
+    },
   },
-  plugins: [],
-};
+  plugins: [require("@tailwindcss/typography"), require("daisyui")],
+  daisyui: {
+    themes: ["dim"],
+  },
+});

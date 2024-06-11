@@ -8,8 +8,10 @@ import { SongList } from "./Songs/SongList.jsx";
 import { Song } from "./Songs/Song.jsx";
 import Calendar from "./calendar.jsx";
 import ReadingTable from "./Songs/Bible-Reading-Plan/ReadingTable.jsx";
-import { Bible } from "./Study/Bible.jsx";
+import { Verse } from "./Study/Verse.jsx";
+import { Bible } from "./Components/Bible/Bible.jsx";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ThemeProvider } from "@material-tailwind/react";
 
 const router = createBrowserRouter([
   { path: "/", element: <FilteredReadingPlan /> },
@@ -33,7 +35,8 @@ const router = createBrowserRouter([
     path: "study",
     element: <Bible />,
   },
-  { path: "study/:book/:chapter/:verse", element: <Bible /> },
+
+  { path: "study/:book/:chapter/:verse", element: <Verse /> },
 ]);
 
 const queryClient = new QueryClient();
@@ -41,7 +44,9 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
+      <ThemeProvider>
+        <RouterProvider router={router} />
+      </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );

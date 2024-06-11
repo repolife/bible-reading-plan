@@ -1,19 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Navbar = () => {
+const Nav = () => {
   return (
-    <nav>
-      <ul style={{ display: "flex", flexDirection: "row", justifyContent: "center" }}>
-        <li style={{ listStyle: "none", padding: "20px" }}>
-          <Link to="/">Reading Plan</Link>
-        </li>
-        <li style={{ listStyle: "none", padding: "20px" }}>
-          <Link to="/Songs">Songs</Link>
-        </li>
-      </ul>
-    </nav>
+    <div className="navbar bg-base-100 w-screen flex flex-row items-center">
+      <div className="flex-1">
+        <Link to="/" className="btn btn-ghost text-xl">
+          Reading Plan
+        </Link>
+      </div>
+      <div className="flex-none">
+        <ul className="menu menu-horizontal px-1">
+          <li>
+            <Link to="/songs">Songs</Link>
+          </li>
+        </ul>
+      </div>
+    </div>
   );
 };
 
-export default Navbar;
+export default Nav;

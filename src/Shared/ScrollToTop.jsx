@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-
+import { ChevronDoubleUpIcon } from "@heroicons/react/24/solid";
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -27,24 +27,13 @@ export default function ScrollToTop() {
   }, []);
 
   return (
-    <button
+    <div
       type="button"
       title="Return to top"
       onClick={scrollToTop}
-      style={{
-        position: "fixed",
-        bottom: "50px",
-        right: "30px",
-        display: isVisible ? "inline" : "none",
-        backgroundColor: "#000",
-        color: "#fff",
-        border: "none",
-        padding: "10px",
-        cursor: "pointer",
-        fontSize: "20px",
-      }}
+      className={`fixed bottom-10 right-20 bg-info-content p-6 cursor-pointer rounded-full ${isVisible ? "inline" : "hidden"}`}
     >
-      ↑
-    </button>
+      <ChevronDoubleUpIcon className="text-accent text-3xl w-6 h-6" />
+    </div>
   );
 }

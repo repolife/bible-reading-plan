@@ -16,14 +16,7 @@ const ReadingItem = ({ passage }) => {
         href={blueLetter}
         target="_blank"
         rel="noopener noreferrer"
-        style={{
-          cursor: "pointer",
-          color: "gray",
-          ":visited": "red",
-          textDecoration: "underline",
-          margin: "1.5px",
-          padding: "1em",
-        }}
+        className="link link-primary visited:link-success m-1 p-1"
       >
         {passage}
       </a>
@@ -31,14 +24,7 @@ const ReadingItem = ({ passage }) => {
         href={audioBible}
         target="_blank"
         rel="noopener noreferrer"
-        style={{
-          cursor: "pointer",
-          color: "gray",
-          ":visited": "red",
-          textDecoration: "underline",
-          margin: "1.5px",
-          padding: "1em",
-        }}
+        className="link link-primary visited:link-success m-1 p-1"
       >
         Mobile
       </a>

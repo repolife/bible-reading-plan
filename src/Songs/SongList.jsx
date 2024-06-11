@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { useMemo } from "react";
 import Navbar from "../NavBar";
 import ScrollToTop from "../Shared/ScrollToTop";
+import Layout from "../Layout";
 
 const env = import.meta.env;
 
@@ -15,6 +16,7 @@ const client = createClient({
 export const SongList = () => {
   const [songs, setSongs] = useState([]);
   const [inputValue, setInputValue] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchReadingPlan = async () => {
@@ -30,6 +32,8 @@ export const SongList = () => {
         }));
 
         setSongs(data);
+        setIsLoading(false);
+        set;
       } catch (error) {
         console.error("Error fetching data from Contentful", error);
       }
@@ -55,22 +59,33 @@ export const SongList = () => {
     return meh;
   }, [songs, inputValue, setSongs]);
 
-  console.log(songs);
+  if (isLoading) {
+    return <h2>Loading...</h2>;
+  }
 
   return (
     <>
+      {" "}
       <Navbar />
-      <input type="text" placeholder="Type to filter" value={inputValue} onChange={handleInputChange} />{" "}
-      {filteredSongs.length > 0 &&
-        filteredSongs.sort().map((song, index) => (
-          <ul style={{ margin: "1em" }} key={index}>
-            <Link
-              title={song.isShabbat ? "Shabbat song!" : ""}
-              to={song.id}
-            >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
-          </ul>
-        ))}
-      <ScrollToTop />
+      <Layout>
+        <input
+          className="p-2 m-2 border border-secondary focus:outline-none focus:border-accent w-full"
+          type="text"
+          placeholder="Filter songs"
+          value={inputValue}
+          onChange={handleInputChange}
+        />
+        {filteredSongs.length > 0 &&
+          filteredSongs.sort().map((song, index) => (
+            <ul className="m-4 text-lg link link-primary no-underline" key={index}>
+              <Link
+                title={song.isShabbat ? "Shabbat song!" : ""}
+                to={song.id}
+              >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
+            </ul>
+          ))}
+        <ScrollToTop />
+      </Layout>
     </>
   );
 };

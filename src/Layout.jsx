@@ -1,5 +1,5 @@
 import React from "react";
 
 export default function Layout({ children }) {
-  return <div style={{ height: "100vh", width: "100vw", maxWidth: "min-content", padding: "2em" }}>{children}</div>;
+  return <div className="container mx-auto px-4 flex flex-col w-fit m-auto">{children}</div>;
 }

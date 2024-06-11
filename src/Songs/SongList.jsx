@@ -64,21 +64,28 @@ export const SongList = () => {
   }
 
   return (
-    <Layout>
+    <>
+      {" "}
       <Navbar />
-      <input type="text" placeholder="Type to filter" value={inputValue} onChange={handleInputChange} />{" "}
-      <div>
+      <Layout>
+        <input
+          className="p-2 m-2 border border-secondary focus:outline-none focus:border-accent w-full"
+          type="text"
+          placeholder="Filter songs"
+          value={inputValue}
+          onChange={handleInputChange}
+        />
         {filteredSongs.length > 0 &&
           filteredSongs.sort().map((song, index) => (
-            <ul style={{ margin: "1em" }} key={index}>
+            <ul className="m-4 text-lg link link-primary no-underline" key={index}>
               <Link
                 title={song.isShabbat ? "Shabbat song!" : ""}
                 to={song.id}
               >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
             </ul>
           ))}
-      </div>
-      <ScrollToTop />
-    </Layout>
+        <ScrollToTop />
+      </Layout>
+    </>
   );
 };

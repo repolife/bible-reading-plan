@@ -90,13 +90,16 @@ export const Song = () => {
   // };
 
   return (
-    <Layout>
+    <>
+      {" "}
       <Navbar />
-
-      {songtitle !== "" ? <h4>{songtitle}</h4> : null}
-      <br />
-      <div style={{ fontSize: "1em", minWidth: "50vw" }}> {documentToReactComponents(song, options)}</div>
-      <ScrollToTop />
-    </Layout>
+      <Layout>
+        <containter className="flex flex-col justify-center content-center items-center">
+          {songtitle !== "" ? <h4 className="text-3xl mb-12 text-accent">{songtitle}</h4> : null}
+          <div className="text-xl"> {documentToReactComponents(song, options)}</div>
+        </containter>
+        <ScrollToTop />
+      </Layout>
+    </>
   );
 };

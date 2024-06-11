@@ -1,11 +1,11 @@
 import React from "react";
 import FilteredReadingPlan from "./FilteredReadingPlan";
-import "./App.css";
 import { Song } from "./Songs/Song";
 import ReadingTable from "./Songs/Bible-Reading-Plan/ReadingTable";
-import { useQuery, QueryClientProvider, QueryClient } from "react-query";
+import { QueryClientProvider, QueryClient } from "react-query";
 import { Verse } from "./Study/Verse";
 import { Bible } from "./Components/Bible/Bible";
+import "./App.css";
 
 const queryClient = new QueryClient();
 

@@ -23,18 +23,21 @@ export default function ReadingTable() {
   return (
     <Layout>
       <Navbar className="print:hidden" />
-      <table className=" text-l print:block flex flex-wrap flex-row w-screen items-stretch print:flex print:border-collapse print:text-sm">
+      <table className="flex flex-wrap flex-row w-screen items-stretch print:flex print:border-collapse print:text-sm ">
         {Object.keys(groupedReadings).map((date, index) => (
-          <div key={index} className="border-b border-blue-gray-100 bg-blue-gray-50 p-4 border border-slate-500 w-max">
+          <div
+            key={index}
+            className=" w-fit bg-blue-gray-50 text-accent-content  border-solid border-1 m-1 border-black p-2"
+          >
             <thead>
               <tr>
-                <td className=" border-b text-xl print:text-xs">Week of {date}</td>
+                <td className="print:text-xs text-xs font-bold pb-1 print:no-underline">Week of {date}</td>
               </tr>
             </thead>
             <tbody>
               {groupedReadings[date].map((passage, index) => (
                 <tr key={index}>
-                  <td className="p-2 text-xs">{passage}</td>
+                  <td className="p-1  text-xs text-center">{passage}</td>
                 </tr>
               ))}
             </tbody>

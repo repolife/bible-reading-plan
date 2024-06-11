@@ -1,4 +1,5 @@
 const withMT = require("@material-tailwind/react/utils/withMT");
+const { default: daisyui } = require("daisyui");
 
 module.exports = withMT({
   content: [
@@ -9,6 +10,12 @@ module.exports = withMT({
   ],
   theme: {
     extend: {},
+    container: {
+      center: true,
+    },
   },
-  plugins: [],
+  plugins: [require("@tailwindcss/typography"), require("daisyui")],
+  daisyui: {
+    themes: ["dim"],
+  },
 });

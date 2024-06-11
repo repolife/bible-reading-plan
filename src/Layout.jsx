@@ -1,5 +1,5 @@
 import React from "react";
 
 export default function Layout({ children }) {
-  return <div className="h-screen w-screen max-w-max p-2">{children}</div>;
+  return <div className="container mx-auto px-4 flex flex-col w-fit m-auto">{children}</div>;
 }

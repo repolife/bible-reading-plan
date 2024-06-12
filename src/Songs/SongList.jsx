@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import Navbar from "../NavBar";
 import ScrollToTop from "../Shared/ScrollToTop";
 import Layout from "../Layout";
+import { Typography } from "@material-tailwind/react";
 
 const env = import.meta.env;
 
@@ -33,7 +34,6 @@ export const SongList = () => {
 
         setSongs(data);
         setIsLoading(false);
-        set;
       } catch (error) {
         console.error("Error fetching data from Contentful", error);
       }
@@ -64,12 +64,15 @@ export const SongList = () => {
   }
 
   return (
-    <>
-      {" "}
+    <Layout>
       <Navbar />
-      <Layout>
+
+      <div className="flex flex-col justify-center align-center text-center items-center">
+        <Typography variant="h4" className="text-primary mb-5">
+          Songs
+        </Typography>
         <input
-          className="p-2 m-2 border border-secondary focus:outline-none focus:border-accent w-full"
+          className="p-2 m-2 border border-secondary focus:outline-none focus:border-accent w-1/2"
           type="text"
           placeholder="Filter songs"
           value={inputValue}
@@ -84,8 +87,8 @@ export const SongList = () => {
               >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
             </ul>
           ))}
-        <ScrollToTop />
-      </Layout>
-    </>
+      </div>
+      <ScrollToTop />
+    </Layout>
   );
 };

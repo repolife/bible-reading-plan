@@ -45,17 +45,7 @@ export const Song = () => {
   if (!song) {
     return null;
   }
-  // const options = {
-  //   renderMark: {
-  //     [MARKS.BOLD]: (text) => <span>{text}</span>,
-  //   },
-  //   renderNode: {
-  //     [BLOCKS.PARAGRAPH]: (node, children) => <span>{children}</span>,
-  //   },
-  //   renderText: (text) => text.replace("!", "?"),
-  // };
-
-  const Text = ({ children }) => <p className="text-center mb-4">{children}</p>;
+  const Text = ({ children }) => <p className="text-center  pb-10">{children}</p>;
 
   const options = {
     renderNode: {
@@ -67,59 +57,15 @@ export const Song = () => {
       }, []),
   };
 
-  // const options = {
-  //   renderText: (text) => {
-  //     return text.split("\n").reduce((children, textSegment, index) => {
-  //       return [...children, index > 0 && <p key={index} />, textSegment];
-  //     }, []);
-  //   },
-  // };
-
-  /*
-  textSegment.length > 10 ? (
-            <div>
-              {" "}
-              <p>{textSegment}</p> <br />
-            </div>
-          ) : (
-            textSegment
-          ),
-          */
-
-  // const Bold = ({ children }) => <p className="bold">{children}</p>;
-
-  // const Text = ({ children }) => <p className="align-center">{children}</p>;
-
-  // const options = {
-  //   renderMark: {
-  //     [MARKS.BOLD]: (text) => <Bold>{text}</Bold>,
-  //   },
-  //   renderNode: {
-  //     [BLOCKS.PARAGRAPH]: (node, children) => {
-  //       console.log(node.content.length);
-  //       return node.content.length == 1 ? (
-  //         <>
-  //           <Text>{children}</Text> <br />
-  //         </>
-  //       ) : (
-  //         <span style={{ display: "flex", justifyContent: "space-around", color: "gray" }}>{children}</span>
-  //       );
-  //     },
-  //   },
-  //   renderText: (text) => text.replace("Gsus4G", "?"),
-  // };
-
   return (
-    <>
-      {" "}
+    <Layout>
       <Navbar />
-      <Layout>
-        <div className="flex flex-col justify-center content-center items-center mb-6">
-          {songtitle !== "" ? <h4 className="text-3xl mb-12 text-accent">{songtitle}</h4> : null}
-          <div className="text-2xl text-center w-screen h-screen"> {documentToReactComponents(song, options)}</div>
-        </div>
-        <ScrollToTop />
-      </Layout>
-    </>
+
+      <div className="flex flex-col justify-center content-center items-center ">
+        {songtitle !== "" ? <h4 className="text-3xl mb-4 text-accent">{songtitle}</h4> : null}
+        <div className="text-2xl text-center w-screen h-screen  p-4"> {documentToReactComponents(song, options)}</div>
+      </div>
+      <ScrollToTop />
+    </Layout>
   );
 };

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { ChevronDoubleUpIcon } from "@heroicons/react/24/solid";
+import { IconButton } from "@material-tailwind/react";
+
 export default function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
 
   const toggleVisibility = () => {
-    if (window.pageYOffset > 300) {
+    if (window.scrollY > 300) {
       setIsVisible(true);
     } else {
       setIsVisible(false);
@@ -25,15 +27,22 @@ export default function ScrollToTop() {
       window.removeEventListener("scroll", toggleVisibility);
     };
   }, []);
-
+  //bg-info-content
   return (
-    <div
-      type="button"
-      title="Return to top"
-      onClick={scrollToTop}
-      className={`fixed bottom-5 right-0 mr-4 bg-info-content p-2 cursor-pointer rounded-full ${isVisible ? "inline" : "hidden"}`}
-    >
-      <ChevronDoubleUpIcon className="text-accent text-2xl w-6 h-6" />
+    <div className={`fixed bottom-2 right-0 mr-0 pr-2  cursor-pointer rounded-full ${isVisible ? "inline" : "hidden"}`}>
+      <IconButton className=" bg-info-content text-blue-gray-50" type="button" variant="outlined" onClick={scrollToTop}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="size-6"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5" />
+        </svg>
+      </IconButton>
     </div>
   );
 }

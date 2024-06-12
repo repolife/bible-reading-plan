@@ -4,6 +4,7 @@ import ReadingItem from "./ReadingItem";
 import Navbar from "./NavBar";
 import Layout from "./Layout";
 import { Link } from "react-router-dom";
+import { Typography } from "@material-tailwind/react";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
@@ -49,59 +50,59 @@ const FilteredReadingPlan = () => {
   let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;
 
   return (
-    <>
+    <Layout>
       <Navbar />
 
-      <Layout>
-        <div className="grid grid-flow-row gap-2 pb-2">
-          <h2>[Insert Generic Fellowship name] Reading Plan</h2>
-          <label htmlFor="date-picker">Select a date: </label>
-          <input
-            type="date"
-            id="date-picker"
-            style={{ display: "flex", justifyContent: "center" }}
-            value={selectedDate}
-            onChange={handleDateChange}
-          />
-          <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
-          <h3>{dateRange}</h3>
-          {weeklyReadings && weeklyReadings.length > 0 ? (
-            <div>
-              {weeklyReadings.map((reading, index) => {
-                return (
-                  reading.passage && (
-                    <div key={index} className="flex flex-col justify-center">
-                      {reading.passage.split("; ").map((passage, i) => (
-                        <ReadingItem key={i} passage={passage} />
-                      ))}
-                    </div>
-                  )
-                );
-              })}
-            </div>
-          ) : (
-            <p>No readings scheduled for this week.</p>
-          )}
-          <section className="grid gap-5 mt-20">
-            <p>To use mobile, you need to install YouVersion</p>
-            <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
-              <a
-                className="link link-accent"
-                href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US"
-              >
-                Android
-              </a>{" "}
-              <a className="link link-accent" href="https://app.bible.com/app-ios">
-                iOS
-              </a>
-            </div>
-            <Link className="link link-info text-center mt-2" to="/plan">
-              Full 2 year reading plan
-            </Link>
-          </section>
-        </div>
-      </Layout>
-    </>
+      <div className="grid grid-flow-row gap-6 pb-2 text-center m-auto">
+        <Typography variant="h4" className="text-primary">
+          Reading Plan
+        </Typography>
+        <label htmlFor="date-picker">Select a date: </label>
+        <input
+          type="date"
+          id="date-picker"
+          style={{ display: "flex", justifyContent: "center" }}
+          value={selectedDate}
+          onChange={handleDateChange}
+        />
+        <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
+        <h3>{dateRange}</h3>
+        {weeklyReadings && weeklyReadings.length > 0 ? (
+          <div>
+            {weeklyReadings.map((reading, index) => {
+              return (
+                reading.passage && (
+                  <div key={index} className="flex flex-col justify-center">
+                    {reading.passage.split("; ").map((passage, i) => (
+                      <ReadingItem key={i} passage={passage} />
+                    ))}
+                  </div>
+                )
+              );
+            })}
+          </div>
+        ) : (
+          <p>No readings scheduled for this week.</p>
+        )}
+        <section className="grid gap-5 mt-20">
+          <p>To use mobile, you need to install YouVersion</p>
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
+            <a
+              className="link link-accent"
+              href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US"
+            >
+              Android
+            </a>{" "}
+            <a className="link link-accent" href="https://app.bible.com/app-ios">
+              iOS
+            </a>
+          </div>
+          <Link className="link link-info text-center mt-2" to="/plan">
+            Full 2 year reading plan
+          </Link>
+        </section>
+      </div>
+    </Layout>
   );
 };
 

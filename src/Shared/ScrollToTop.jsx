@@ -31,9 +31,9 @@ export default function ScrollToTop() {
       type="button"
       title="Return to top"
       onClick={scrollToTop}
-      className={`fixed bottom-10 right-20 bg-info-content p-6 cursor-pointer rounded-full ${isVisible ? "inline" : "hidden"}`}
+      className={`fixed bottom-5 right-0 mr-4 bg-info-content p-2 cursor-pointer rounded-full ${isVisible ? "inline" : "hidden"}`}
     >
-      <ChevronDoubleUpIcon className="text-accent text-3xl w-6 h-6" />
+      <ChevronDoubleUpIcon className="text-accent text-2xl w-6 h-6" />
     </div>
   );
 }

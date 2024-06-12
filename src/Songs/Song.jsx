@@ -45,15 +45,35 @@ export const Song = () => {
   if (!song) {
     return null;
   }
+  // const options = {
+  //   renderMark: {
+  //     [MARKS.BOLD]: (text) => <span>{text}</span>,
+  //   },
+  //   renderNode: {
+  //     [BLOCKS.PARAGRAPH]: (node, children) => <span>{children}</span>,
+  //   },
+  //   renderText: (text) => text.replace("!", "?"),
+  // };
+
+  const Text = ({ children }) => <p className="text-center mb-4">{children}</p>;
 
   const options = {
-    renderText: (text) => {
-      return text.split("\n").reduce((children, textSegment, index) => {
-        console.log(textSegment.length);
-        return [...children, index > 0 && <br key={index} />, textSegment];
-      }, []);
+    renderNode: {
+      [BLOCKS.PARAGRAPH]: (node, children) => <Text>{children}</Text>,
     },
+    renderText: (text) =>
+      text.split("\n").reduce((children, textSegment, index) => {
+        return [...children, index > 0 && <br key={index} />, textSegment];
+      }, []),
   };
+
+  // const options = {
+  //   renderText: (text) => {
+  //     return text.split("\n").reduce((children, textSegment, index) => {
+  //       return [...children, index > 0 && <p key={index} />, textSegment];
+  //     }, []);
+  //   },
+  // };
 
   /*
   textSegment.length > 10 ? (
@@ -94,10 +114,10 @@ export const Song = () => {
       {" "}
       <Navbar />
       <Layout>
-        <containter className="flex flex-col justify-center content-center items-center">
+        <div className="flex flex-col justify-center content-center items-center mb-6">
           {songtitle !== "" ? <h4 className="text-3xl mb-12 text-accent">{songtitle}</h4> : null}
-          <div className="text-xl"> {documentToReactComponents(song, options)}</div>
-        </containter>
+          <div className="text-2xl text-center w-screen h-screen"> {documentToReactComponents(song, options)}</div>
+        </div>
         <ScrollToTop />
       </Layout>
     </>

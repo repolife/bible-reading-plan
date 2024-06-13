@@ -5,6 +5,8 @@ import Navbar from "./NavBar";
 import Layout from "./Layout";
 import { Link } from "react-router-dom";
 import { Typography } from "@material-tailwind/react";
+import { DayPicker } from "react-day-picker";
+import { Input } from "@material-tailwind/react";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
@@ -61,7 +63,7 @@ const FilteredReadingPlan = () => {
         <input
           type="date"
           id="date-picker"
-          style={{ display: "flex", justifyContent: "center" }}
+          className="flex flex-col jusitfy-center text-center items-center"
           value={selectedDate}
           onChange={handleDateChange}
         />

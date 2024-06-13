@@ -2,11 +2,10 @@ import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import axios from "axios";
 import "./bible.css";
-import hebrewDef from "../../hebrew.json";
 import testament from "../../testament.json";
-import greek from "../../greek.json";
 import { useParams } from "react-router-dom";
 import { Badge, Card, CardHeader, CardBody, Typography } from "@material-tailwind/react";
+import strongs from "strongs";
 
 export const Verse = () => {
   const [strongsCode, setStrongsCode] = useState("");
@@ -81,7 +80,7 @@ export const Verse = () => {
       let hebrewCode = `H${strongsNumber}`;
 
       setStrongsCode(hebrewCode);
-      strongsObj = hebrewDef[hebrewCode];
+      strongsObj = strongs[hebrewCode];
     }
 
     if (filteredTestament === "NT") {
@@ -89,7 +88,7 @@ export const Verse = () => {
 
       setStrongsCode(greekCode);
 
-      strongsObj = greek[greekCode];
+      strongsObj = strongs[greekCode];
     }
 
     if (strongsObj !== undefined) return Object.entries(strongsObj);
@@ -112,11 +111,10 @@ export const Verse = () => {
           <div>
             <h4>{strongsCode}</h4>
             {strongsDef.map(([key, value]) => {
-              console.log(value);
               return (
                 <p key={key}>
-                  <span>{`${key}: `}</span>
-                  <span>{`${value}`}</span>
+                  <h3>{`${key}: `}</h3>
+                  <h2>{`${value}`}</h2>
                 </p>
               );
             })}

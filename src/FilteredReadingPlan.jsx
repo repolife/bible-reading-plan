@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import { Typography } from "@material-tailwind/react";
 import { DayPicker } from "react-day-picker";
 import { Input } from "@material-tailwind/react";
+import { IconButton } from "@material-tailwind/react";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split("T")[0]);
@@ -56,8 +57,22 @@ const FilteredReadingPlan = () => {
       <Navbar />
 
       <div className="grid grid-flow-row gap-6 pb-2 text-center m-auto">
-        <Typography variant="h4" className="text-primary">
+        <Typography variant="h4" className="text-primary flex flex-row items-center justify-between">
           Reading Plan
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+            />
+          </svg>
         </Typography>
         <label htmlFor="date-picker">Select a date: </label>
         <input
@@ -89,15 +104,15 @@ const FilteredReadingPlan = () => {
         <section className="grid gap-5 mt-20">
           <p>To use mobile, you need to install YouVersion</p>
           <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-evenly" }}>
-            <a
+            <IconButton
               className="link link-accent"
               href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US"
             >
-              Android
-            </a>{" "}
-            <a className="link link-accent" href="https://app.bible.com/app-ios">
-              iOS
-            </a>
+              <i className="fa-brands fa-google-play text-3xl text-accent" />
+            </IconButton>{" "}
+            <IconButton className="link link-primary" href="https://app.bible.com/app-ios">
+              <i className="fa-brands fa-app-store-ios text-3xl text-accent" />
+            </IconButton>
           </div>
           <Link className="link link-info text-center mt-2" to="/plan">
             Full 2 year reading plan

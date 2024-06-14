@@ -2,12 +2,18 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Navbar, Collapse, Typography, Button, IconButton } from "@material-tailwind/react";
 
-const Nav = () => {
+const Nav = ({ classes }) => {
   const [openNav, setOpenNav] = useState(false);
 
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
-      <Typography as="li" variant="small" color="blue-gray" className="flex items-center gap-x-2 p-1 font-medium">
+      <Typography
+        as="a"
+        href="/"
+        variant="small"
+        color="blue-gray"
+        className="flex items-center gap-x-2 p-1 font-medium"
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -22,10 +28,7 @@ const Nav = () => {
             d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
           />
         </svg>
-
-        <Link to="/" className="flex items-center">
-          Reading Plan
-        </Link>
+        Reading Plan
       </Typography>
       <Typography
         as="a"
@@ -54,10 +57,10 @@ const Nav = () => {
   );
 
   return (
-    <Navbar className="mx-auto w-screen px-4 py-2 lg:px-8 lg:py-4 bg-accent border rounded-none navbar">
+    <Navbar className={`mx-auto w-screen px-4 py-2 lg:px-8 lg:py-4 bg-accent border rounded-none navbar ${classes}`}>
       <div className="container mx-auto flex items-center justify-between text-blue-gray-900">
         <Typography as="a" href="/" className="mr-4 cursor-pointer py-1.5 font-medium text-lg">
-          Generic Fellowship
+          Generic Fellowship Name
         </Typography>
         <div className="hidden lg:block">{navList}</div>
 

@@ -23,32 +23,26 @@ export default function ReadingTable() {
 
   return (
     <Layout>
-      <Navbar className="print:hidden" />
-      <Typography variant="h4" className="text-center print:hidden text-secondary">
+      <Navbar classes="print:hidden" />
+      <Typography variant="h4" className="text-center text-secondary">
         Full 2 year reading plan
       </Typography>
 
-      <table className="flex flex-wrap flex-row w-fit items-stretch print:flex print:border-collapse print:text-sm justify-start m-1">
+      <div className="flex flex-wrap flex-row w-fit items-stretch print:flex print:border-collapse print:text-sm justify-center print:m-0 mx-8">
         {Object.keys(groupedReadings).map((date, index) => (
           <div
             key={index}
-            className=" min-w-fit w-32 bg-blue-gray-50 text-accent-content  border-solid border-1 m-1 border-black p-2"
+            className=" min-w-fit w-32 bg-blue-gray-50 text-accent-content  border-solid border-1 m-1 border-black p-2 flex flex-col"
           >
-            <thead>
-              <tr>
-                <td className="print:text-xs text-xs font-bold pb-1 print:no-underline">Week of {date}</td>
-              </tr>
-            </thead>
-            <tbody>
-              {groupedReadings[date].map((passage, index) => (
-                <tr key={index}>
-                  <td className="p-1  text-xs text-center">{passage}</td>
-                </tr>
-              ))}
-            </tbody>
+            <p className="print:text-xs text-xs font-bold pb-1 print:no-underline">Week of {date}</p>
+            {groupedReadings[date].map((passage, index) => (
+              <p key={index} className="p-1  text-xs text-center">
+                {passage}
+              </p>
+            ))}
           </div>
         ))}
-      </table>
+      </div>
       <ScrollToTop />
     </Layout>
   );

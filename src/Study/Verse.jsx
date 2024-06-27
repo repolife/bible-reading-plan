@@ -6,6 +6,7 @@ import testament from "../../testament.json";
 import { useParams } from "react-router-dom";
 import { Badge, Card, CardHeader, CardBody, Typography } from "@material-tailwind/react";
 import strongs from "strongs";
+import { matchContext } from "@tanstack/react-router";
 
 export const Verse = () => {
   const [strongsCode, setStrongsCode] = useState("");
@@ -19,13 +20,16 @@ export const Verse = () => {
 
   const bibleQuery = `/search/verses-w-strongs.php? `;
 
-  const url = `https://jsonbible.com/search/verses-w-strongs.php?json={ "book": "${formatedBook}",  "chapter": "${chapter}", "verse": "${verse}", "found": 1, "next_chapter": "read-joh-4" }`;
-
+  const config = {
+    url: `https://jsonbible.com/search/verses-w-strongs.php?json={ "book": "${formatedBook}",  "chapter": "${chapter}", "verse": "${verse}", "found": -1, "next_chapter": "read-joh-4" }`,
+    matchContext: "Infinity",
+    method: "post",
+  };
   const { data, isPending, isError, error } = useQuery({
     queryKey: ["todos"],
     enabled: (book && chapter && verse) !== undefined,
     queryFn: async () => {
-      const res = await axios.get(url);
+      const res = await axios.request(config);
       return res.data;
     },
   });
@@ -53,7 +57,7 @@ export const Verse = () => {
       parts.push(text.slice(lastIndex, offset));
       parts.push(
         <Badge
-          className="text-xs"
+          className="mb-4 min-h-1 min-w-1 cursor-pointer"
           // content={`${strongsCode}${p1}`}
           color="blue-gray"
           key={offset}

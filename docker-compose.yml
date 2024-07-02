@@ -1,0 +1,13 @@
+services:
+  app:
+    container_name: bible-app
+    image: bible-app    
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - '5174:5174'
+    volumes:
+      - .:/app
+    command: sh -c "pnpm install && pnpm dev"
+    env_file: ".env"

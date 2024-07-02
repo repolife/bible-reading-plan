@@ -1,15 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import FilteredReadingPlan from "./FilteredReadingPlan.jsx";
-import { SongList } from "./Songs/SongList.jsx";
-import { Song } from "./Songs/Song.jsx";
-import Calendar from "./calendar.jsx";
-import ReadingTable from "./Songs/Bible-Reading-Plan/ReadingTable.jsx";
-import { Verse } from "./Study/Verse.jsx";
-import { Bible } from "./Components/Bible/Bible.jsx";
+import FilteredReadingPlan from "components/ReadingPlan/FilteredReadingPlan/FilteredReadingPlan.jsx";
+import { SongList } from "components/Songs/SongList.jsx";
+import { Song } from "components/Songs/Song.jsx";
+import ReadingTable from "./Components/Songs/Bible-Reading-Plan/ReadingTable.jsx";
+import { Verse } from "components/Study/Verse.jsx";
+import { Bible } from "components/Bible/Bible.jsx";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ThemeProvider } from "@material-tailwind/react";
 
@@ -22,10 +20,6 @@ const router = createBrowserRouter([
   {
     path: "songs/:songId",
     element: <Song />,
-  },
-  {
-    path: "events",
-    element: <Calendar />,
   },
   {
     path: "plan",
@@ -48,5 +42,5 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <RouterProvider router={router} />
       </ThemeProvider>
     </QueryClientProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

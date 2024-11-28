@@ -8,6 +8,7 @@ import { Typography } from "@material-tailwind/react";
 import { DayPicker } from "react-day-picker";
 import { Input } from "@material-tailwind/react";
 import { IconButton } from "@material-tailwind/react";
+import { ErrorBoundary } from "react-error-boundary";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(
@@ -96,7 +97,9 @@ const FilteredReadingPlan = () => {
                 reading.passage && (
                   <div key={index} className="flex flex-col justify-center">
                     {reading.passage.split("; ").map((passage, i) => (
-                      <ReadingItem key={i} passage={passage} />
+                      <ErrorBoundary FallbackComponent={ErrorBoundary}>
+                        <ReadingItem key={i} passage={passage} />
+                      </ErrorBoundary>
                     ))}
                   </div>
                 )

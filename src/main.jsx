@@ -33,12 +33,23 @@ const router = createBrowserRouter([
   { path: "study/:book/:chapter/:verse", element: <Verse /> },
 ]);
 
+const theme = {
+  badge: {
+    colors: {
+      info: {
+        background: "bg-info",
+        color: "text-info"
+      }
+    }
+  }
+}
+
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
+      <ThemeProvider value={theme}>
         <RouterProvider router={router} />
       </ThemeProvider>
     </QueryClientProvider>

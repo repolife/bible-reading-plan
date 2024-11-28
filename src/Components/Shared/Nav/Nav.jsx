@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Navbar, Collapse, Typography, Button, IconButton } from "@material-tailwind/react";
+import {
+  Navbar,
+  Collapse,
+  Typography,
+  Button,
+  IconButton,
+} from "@material-tailwind/react";
 
 export const Nav = ({ classes }) => {
   const [openNav, setOpenNav] = useState(false);
 
   const navList = (
-    <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
+    <ul className="h-fit mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography
         as="a"
         href="/"
@@ -57,9 +63,15 @@ export const Nav = ({ classes }) => {
   );
 
   return (
-    <Navbar className={`mx-auto w-screen px-5 py-2 lg:px-8 lg:py-4 bg-accent border rounded-none navbar ${classes}`}>
+    <Navbar
+      className={`mx-auto w-screen px-5 py-2 lg:px-8 lg:py-4 bg-accent border rounded-none navbar ${classes}`}
+    >
       <div className="container mx-auto flex items-center justify-between text-blue-gray-901">
-        <Typography as="a" href="/" className="mr-5 cursor-pointer py-1.5 font-medium text-lg">
+        <Typography
+          as="a"
+          href="/"
+          className="mr-5 cursor-pointer py-1.5 font-medium text-lg"
+        >
           Generic Fellowship Name
         </Typography>
         <div className="hidden lg:block">{navList}</div>
@@ -79,7 +91,11 @@ export const Nav = ({ classes }) => {
               stroke="currentColor"
               strokeWidth={1}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M5 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M5 18L18 6M6 6l12 12"
+              />
             </svg>
           ) : (
             <svg
@@ -89,7 +105,11 @@ export const Nav = ({ classes }) => {
               stroke="currentColor"
               strokeWidth={1}
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3 6h16M4 12h16M4 18h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 6h16M4 12h16M4 18h16"
+              />
             </svg>
           )}
         </IconButton>

@@ -14,14 +14,16 @@ export default defineConfig({
   server: {
     port: 5174,
     host: true,
-    strictPort: true,
+    strictPort: false,
+    watch: {
+      usePolling: true,
+    },
   },
   preview: {
     port: 5714,
-    strictPort: true, 
+    strictPort: true,
     host: true,
-
-  }, 
+  },
   resolve: {
     alias: {
       shared: path.resolve(__dirname, "src/Components/Shared"),

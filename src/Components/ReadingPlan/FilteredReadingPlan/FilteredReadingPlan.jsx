@@ -39,18 +39,15 @@ const FilteredReadingPlan = () => {
   const weeklyReadings = useMemo(() => {
     if (readingPlan.lenght <= 0) return [];
 
-    let filteredPlan = [];
-    readingPlan.filter((entry) => {
+    return readingPlan.filter((entry) => {
       const entryDate = new Date(entry.date);
 
       if (entryDate === undefined) {
         console.log("empty", entry);
+        return false;
       }
-      if (entryDate >= startOfWeek && entryDate <= endOfWeek) {
-        filteredPlan = [...filteredPlan, entry];
-      }
+      return entryDate >= startOfWeek && entryDate <= endOfWeek;
     });
-    return filteredPlan;
   }, [selectedDate, readingPlan]);
 
   let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;

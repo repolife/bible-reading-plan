@@ -94,8 +94,11 @@ const FilteredReadingPlan = () => {
                 reading.passage && (
                   <div key={index} className="flex flex-col justify-center">
                     {reading.passage.split("; ").map((passage, i) => (
-                      <ErrorBoundary FallbackComponent={ErrorBoundary}>
-                        <ReadingItem key={i} passage={passage} />
+                      <ErrorBoundary
+                        key={`${index}-${i}`}
+                        FallbackComponent={ErrorBoundary}
+                      >
+                        <ReadingItem key={`${index}-${i}`} passage={passage} />
                       </ErrorBoundary>
                     ))}
                   </div>

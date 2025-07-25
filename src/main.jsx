@@ -10,41 +10,62 @@ import { Verse } from "components/Study/Verse.jsx";
 import { Bible } from "components/Bible/Bible.jsx";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { ThemeProvider } from "@material-tailwind/react";
-import { Auth } from "@supabase/auth-ui-react";
 import { Calendar } from "./Components/Calendar/Calendar.jsx";
-import { supabase } from "./supabaseClient.js";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
+import { ProtectedRoute } from "./Components/ProtectedRoute/ProtectedRoute.jsx";
+import { Nav } from "./Components/Shared/Nav/Nav.jsx";
+import { useAuthStore } from "@store/useAuthStore";
+import { Outlet } from "react-router-dom";
+import Layout from "shared/Layout/Layout";
+
+
+useAuthStore.getState().initAuthListener();
+
+
+const RootLayout = () => {
+  return (
+    <Layout>
+      <Nav />
+      <Outlet/>
+    </Layout>
+  )
+}
+
 
 const router = createBrowserRouter([
-  { path: "/", element: <FilteredReadingPlan /> },
-  {
-    path: "songs",
-    element: <SongList />,
-  },
-  {
-    path: "songs/:songId",
-    element: <Song />,
-  },
-  {
-    path: "plan",
-    element: <ReadingTable />,
-  },
-  {
-    path: "study",
-    element: <Bible />,
-  },
-  {
-    path: "login",
-    element: (
-      <Auth
-        supabaseClient={supabase}
-        appearance={{ theme: ThemeSupa }}
-        providers={["google", "facebook", "apple", ""]}
-      >
-        <Calendar />
-      </Auth>
-    ),
-  },
+  { path: "/", element: <RootLayout />,
+    children: [
+      {
+        index: true,
+        element: <FilteredReadingPlan />,
+      },
+      {
+        path: "songs",
+        element: <SongList />,
+      },
+      {
+        path: "songs/:songId",
+        element: <Song />,
+      },
+      {
+        path: "plan",
+        element: <ReadingTable />,
+      },
+      {
+        path: "study",
+        element: <Bible />,
+      },
+      {
+        path: "calendar",
+        element: (
+          <ProtectedRoute
+          >
+            <Calendar />
+          </ProtectedRoute>
+        ),
+      },
+    ]
+   },
+  
 
   { path: "study/:book/:chapter/:verse", element: <Verse /> },
 ]);
@@ -53,7 +74,7 @@ const theme = {
   badge: {
     colors: {
       info: {
-        background: "bg-info",
+        oackground: "bg-info",
         color: "text-info",
       },
     },
@@ -61,6 +82,8 @@ const theme = {
 };
 
 const queryClient = new QueryClient();
+
+ 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -71,3 +94,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </QueryClientProvider>
   </React.StrictMode>
 );
+

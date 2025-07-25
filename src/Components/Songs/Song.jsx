@@ -60,8 +60,7 @@ export const Song = () => {
   };
 
   return (
-    <Layout>
-      <Nav />
+    <>
 
       <div className="flex flex-col justify-center content-center items-center ">
         {songtitle !== "" ? (
@@ -73,6 +72,6 @@ export const Song = () => {
         </div>
       </div>
       <ScrollToTop />
-    </Layout>
+    </>
   );
 };

@@ -6,6 +6,7 @@ import Nav from "shared/Nav/Nav";
 import ScrollToTop from "../Shared/ScrollToTop";
 import Layout from "shared/Layout/Layout";
 import { Typography } from "@material-tailwind/react";
+import { Spinner } from "@material-tailwind/react";
 
 const env = import.meta.env;
 
@@ -59,15 +60,11 @@ export const SongList = () => {
     return meh;
   }, [songs, inputValue, setSongs]);
 
-  if (isLoading) {
-    return <h2>Loading...</h2>;
-  }
 
   return (
-    <Layout>
-      <Nav/>
 
-      <div className="flex flex-col justify-center align-center text-center items-center">
+<>
+{!isLoading ? <div className="flex flex-col justify-center align-center text-center items-center">
         <Typography variant="h4" className="text-primary mb-5">
           Songs
         </Typography>
@@ -87,8 +84,7 @@ export const SongList = () => {
               >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
             </ul>
           ))}
-      </div>
-      <ScrollToTop />
-    </Layout>
+      </div> : <Spinner className="w-full h-[10vh]"/>}
+      <ScrollToTop /></>
   );
 };

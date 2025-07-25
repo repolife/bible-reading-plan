@@ -26,6 +26,8 @@ export default defineConfig({
       shared: path.resolve(__dirname, "src/Components/Shared"),
       data: path.resolve(__dirname, "data"),
       components: path.resolve(__dirname, "src/Components"),
+      "@store": path.resolve(__dirname, "src/store"),
+      "@": path.resolve(__dirname, "src"),
     },
   },
 });

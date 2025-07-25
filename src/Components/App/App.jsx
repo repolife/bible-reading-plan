@@ -9,6 +9,9 @@ import "../../App.css";
 import { useEffect } from "react";
 import { useAuthStore } from "@store/useAuthStore";
 import { Router, Route } from "react-router-dom";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+
 const queryClient = new QueryClient();
 
 function App() {

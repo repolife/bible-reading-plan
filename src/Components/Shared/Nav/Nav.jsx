@@ -96,7 +96,7 @@ export const Nav = ({ classes }) => {
             fill="#90A4AE"
           />
         </svg>
-        <a href="#" className="flex items-center">
+        <a href="/profile" className="flex items-center">
           Account
         </a>
       </Typography>

@@ -16,6 +16,7 @@ import { Nav } from "./Components/Shared/Nav/Nav.jsx";
 import { useAuthStore } from "@store/useAuthStore";
 import { Outlet } from "react-router-dom";
 import Layout from "shared/Layout/Layout";
+import { AccountProfile } from "./Components/Profile/AccountProfile.jsx";
 
 
 useAuthStore.getState().initAuthListener();
@@ -60,6 +61,15 @@ const router = createBrowserRouter([
           <ProtectedRoute
           >
             <Calendar />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute
+          >
+            <AccountProfile />
           </ProtectedRoute>
         ),
       },

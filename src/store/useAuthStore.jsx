@@ -38,7 +38,9 @@ export const useAuthStore = create((set, get) => ({
   },
 
   fetchAndSetUserProfile: async (userId = null) => {
-   const {isAuthenticated, user} = get()
+   const {isAuthenticated} = get()
+
+   if(!isAuthenticated) return
 
    if(!userId) {
     console.warn('fetchAndSetUserProfile called without a user ID, clearing profile')

@@ -6,10 +6,21 @@ import { QueryClientProvider, QueryClient } from "react-query";
 import { Verse } from "./Study/Verse";
 import { Bible } from "../Bible/Bible";
 import "../../App.css";
+import { useEffect } from "react";
+import { useAuthStore } from "@store/useAuthStore";
+import { Router, Route } from "react-router-dom";
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 const queryClient = new QueryClient();
 
 function App() {
+
+  useEffect(() => {
+    useAuthStore.getState().initAuthListener();
+}, []); // Runs once on component mount
+
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router>

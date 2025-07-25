@@ -53,8 +53,7 @@ const FilteredReadingPlan = () => {
   let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;
 
   return (
-    <Layout>
-      <Nav />
+  
 
       <div className="grid grid-flow-row gap-6 pb-2 text-center m-auto">
         <Typography
@@ -134,7 +133,6 @@ const FilteredReadingPlan = () => {
           </Link>
         </section>
       </div>
-    </Layout>
   );
 };
 

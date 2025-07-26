@@ -11,7 +11,7 @@ import Autocomplete from 'react-google-autocomplete';
 
 import { useAuthStore } from "@store/useAuthStore";
 import { supabase } from '@/supabaseClient'; // Corrected Supabase client import path
-import { ToastContainer, toast } from 'react-toastify';
+import {  toast } from 'react-toastify';
 
 const env = import.meta.env;
 
@@ -32,7 +32,7 @@ export const AccountProfile = () => {
         setValue,
         watch,
         reset, // Use reset to pre-fill the form
-        formState: { errors, isSubmitting }
+        formState: { errors, isSubmitting, isDirty }
     } = useForm({
         defaultValues: {
             family_last_name: '',
@@ -40,7 +40,8 @@ export const AccountProfile = () => {
             birthday: '',
             food_allergies: '',
             house_rules: '',
-        }
+        },
+        mode: 'onChange'
     });
 
     // Watch the family_last_name input field for filtering suggestions
@@ -145,12 +146,11 @@ export const AccountProfile = () => {
                     toast.success('Error updating profile: ' + error.message);
                 }
             } else {
-                toast.success('Profile updated successfully!');
+                toast.success('Profile updated successfully!, Welcome to the cult! 🕎');
                 // IMPORTANT: Re-fetch the user's profile in the store to reflect changes
                 // This updates the 'profile' state in your Zustand store,
                 // ensuring other components get the latest data.
-                // useAuthStore.getState().fetchAndSetUserProfile(user.id);
-                toast.success('Profile updated successfully!');
+                useAuthStore.getState().fetchAndSetUserProfile(user.id);
 
             }
         } catch (error) {
@@ -337,11 +337,10 @@ export const AccountProfile = () => {
 
                 </div>
 
-                <Button className="mt-6" fullWidth type="submit" disabled={isSubmitting}>
+                <Button className="mt-6" fullWidth type="submit" disabled={isSubmitting || !isDirty}>
                     {isSubmitting ? 'Saving...' : 'Update Profile'}
                 </Button>
             </form>
-            <ToastContainer/>
         </Card>
     );
 };

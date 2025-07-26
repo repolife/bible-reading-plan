@@ -17,6 +17,10 @@ import { useAuthStore } from "@store/useAuthStore";
 import { Outlet } from "react-router-dom";
 import Layout from "shared/Layout/Layout";
 import { AccountProfile } from "./Components/Profile/AccountProfile.jsx";
+import { Login } from "./Components/auth/Login.jsx";
+import { Signup } from "./Components/auth/Signup.jsx";
+import { ToastContainer } from 'react-toastify';
+import { ProfileGuard } from "./Components/ProtectedRoute/ProfileGuard.jsx";
 
 
 useAuthStore.getState().initAuthListener();
@@ -26,6 +30,8 @@ const RootLayout = () => {
   return (
     <Layout>
       <Nav />
+      <ToastContainer/>
+      <ProfileGuard/>
       <Outlet/>
     </Layout>
   )
@@ -54,6 +60,14 @@ const router = createBrowserRouter([
       {
         path: "study",
         element: <Bible />,
+      },
+      {
+        path: "signup",
+        element: <Signup />,
+      },
+      {
+        path: "login",
+        element: <Login />,
       },
       {
         path: "calendar",

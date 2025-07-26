@@ -37,59 +37,40 @@ export const useAuthStore = create((set, get) => ({
    
   },
 
-  fetchAndSetUserProfile: async (userId = null) => {
-   const {isAuthenticated} = get()
-
-   if(!isAuthenticated) return
-
-   if(!userId) {
-    console.warn('fetchAndSetUserProfile called without a user ID, clearing profile')
-    set({profile: null,loading: false})
-    return
-   }
-
-
- 
-
-
-    set({loading: true})
-   
-    const {data: allProfiles, error: proiflesError} = await supabase.from('profiles').select('*')
-
-    if(proiflesError) {
-      set({error: proiflesError.message, profiles: [], loading: false})
-    } 
-
-    if(allProfiles) {
-      set({profiles: allProfiles, loading: false})
-      let currentUser = null
-      if(userId) {
-        currentUser = allProfiles.find(p => p.id === userId)
+  fetchAndSetUserProfile: async (userId) => {
+    const { isAuthenticated } = get();
   
-          if(!currentUser) {
-            console.warn(`User proifle not found: ${userId}`)
-          }
+    if (!isAuthenticated) return;
   
-      }    
-  
-      set({profile: currentUser, loading: false})
-    } else  {
-      set({porifles: [], profile: null, loading: false})
+    if (!userId) {
+      console.warn('No user ID provided — clearing profile.');
+      set({ profile: null, loading: false });
+      return;
     }
-   
-
   
+    set({ loading: true });
+  
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single();
+  
+    if (error) {
+      console.error('Error fetching profile:', error.message);
+      set({ error: error.message, profile: null, loading: false });
+      return;
+    }
+  
+    if (!data) {
+      console.warn(`No profile found for userId: ${userId}`);
+      set({ profile: null, loading: false });
+      return;
+    }
+  
+    set({ profile: data, loading: false });
+  },
 
-
-
-   
-
-
-
-
-  }
-
-  // ... (login and logout functions) ...
 }));
 
 // Initializing the listener in App.tsx or index.tsx

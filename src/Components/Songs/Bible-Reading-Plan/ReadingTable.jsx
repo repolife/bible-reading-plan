@@ -21,8 +21,7 @@ export default function ReadingTable() {
   const groupedReadings = groupByDate(readingPlan);
 
   return (
-    <Layout>
-      <Nav classes="print:hidden" />
+    <>
       <Typography variant="h4" className="text-center text-secondary">
         Full 2 year reading plan
       </Typography>
@@ -45,6 +44,6 @@ export default function ReadingTable() {
         ))}
       </div>
       <ScrollToTop />
-    </Layout>
+    </>
   );
 }

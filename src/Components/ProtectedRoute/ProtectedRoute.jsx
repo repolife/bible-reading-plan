@@ -1,14 +1,35 @@
 import { useEffect } from 'react'; // Keep useEffect if needed for other things, but not for auth listener here
 import {useAuthStore} from "@store/useAuthStore"; // Ensure correct path
 import { Auth } from '@supabase/auth-ui-react'  
-import { ThemeSupa } from '@supabase/auth-ui-shared'
-import { supabase } from '@/supabaseClient'; // Make sure this path is correct
-import { ProfileForm } from '../Form/ProfileForm';
 import { Loader } from '../Shared/Loader';
+import { useNavigate, useLocation } from 'react-router-dom';
 export const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading, profile, profiles, user } = useAuthStore(); 
+  const { isAuthenticated, loading, profile,  user } = useAuthStore(); 
 
 
+  console.log('proifle', profile)
+
+  const navigate = useNavigate()
+  const location = useLocation();
+
+
+
+
+useEffect(() => {
+  if (loading) return; 
+  if (!isAuthenticated) {
+    navigate('/signup');  }
+}, [isAuthenticated, loading, navigate]);
+
+useEffect(() => {
+  if (loading) return;
+
+  const alreadyOnProfileRoute = location.pathname === '/profile';
+  
+  if (!profile && !alreadyOnProfileRoute) {
+    navigate('/profile');
+  }
+}, [profile, loading, location.pathname, navigate]);
 
 useEffect(() => {
   if(!user) return
@@ -19,17 +40,9 @@ useEffect(() => {
 if (loading) {
   return <Loader/>;
 }
-  // If not authenticated, redirect to login
-  if (!isAuthenticated) {
-      return (<Auth supabaseClient={supabase} appearance={{ theme: ThemeSupa }} providers={['']} />)  }
-
 
       
-     
 
-      if(!profile) {
-       return  <ProfileForm/>
-        }
 
   return children;
 };

@@ -27,7 +27,7 @@ export const ProfileForm = () => {
     const {
         register,
         handleSubmit,
-        control,
+              control,
         setValue, // Use setValue to manually set form field values
         watch,    // Use watch to get current input values for debounce
         formState: { errors, isSubmitting },
@@ -40,7 +40,8 @@ export const ProfileForm = () => {
             food_allergies: '',
             house_rules: '', // Added house_rules
             // Note: Password is typically handled separately for updates, not stored directly in profile
-        }
+        },
+        mode: 'onChange'
     });
 
     // Watch the family_last_name input field for filtering suggestions
@@ -147,9 +148,9 @@ export const ProfileForm = () => {
                     throw error;
                 }
             } else {
-              toast('Welcome to the cult! 🕎');
+              toast('Profile updated! 🕎');
                 // Optionally, re-fetch the user's profile in the store to reflect changes
-                useAuthStore.getState().fetchSpecificUserProfile(user.id);
+                useAuthStore.getState().fetchAndSetUserProfile(user.id);
             }
         } catch (error) {
             console.error('Error updating profile:', error.message);

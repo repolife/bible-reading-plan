@@ -18,6 +18,8 @@ import { useMemo } from 'react';
 import { Chip } from '@material-tailwind/react';
 import { useProfileStore } from '../../store/useProfileStore';
 
+const env = import.meta.env;
+
 
 export const FamilyGroupForm = () => {
     // Get user, profile (existing data), loading state, and allFamilyGroups for suggestions
@@ -277,7 +279,7 @@ export const FamilyGroupForm = () => {
                         rules={{ required: "Home Address is required" }}
                         render={({ field }) => (
                             <Autocomplete
-                                // apiKey={env.VITE_ADDRESS_VALIDATION}
+                                apiKey={env.VITE_ADDRESS_VALIDATION}
                                 value={field.value}
                                 onPlaceSelected={(place) => {
                                     field.onChange(place.formatted_address || '');

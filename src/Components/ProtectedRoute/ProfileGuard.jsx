@@ -11,8 +11,9 @@ export const ProfileGuard = () => {
     if (loading) return;
 
     const alreadyOnProfileRoute = location.pathname === '/profile';
+    console.log('protected')
 
-    if (!profile && !alreadyOnProfileRoute && isAuthenticated) {
+    if (profile === undefined && !alreadyOnProfileRoute && isAuthenticated) {
       navigate('/profile');
     }
   }, [profile, loading, location.pathname, navigate, isAuthenticated]);

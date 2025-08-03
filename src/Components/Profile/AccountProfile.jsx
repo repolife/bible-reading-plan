@@ -1,29 +1,33 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import React, { useMemo, useEffect, useCallback, useRef } from 'react';
+import { useForm } from 'react-hook-form';
 import {
     Input,
     Button,
     Typography,
-    Textarea,
     Card
 } from "@material-tailwind/react";
-import Autocomplete from 'react-google-autocomplete';
 
 import { useAuthStore } from "@store/useAuthStore";
 import { supabase } from '@/supabaseClient'; // Corrected Supabase client import path
 import {  toast } from 'react-toastify';
+import { useFamilyStore } from '@store/useFamilyGroupStore';
+import { FamilyGroupForm } from '../Form/FamilyGroupForm';
+import { useProfileStore } from '@store/useProfileStore';
 
-const env = import.meta.env;
 
 export const AccountProfile = () => {
     // Get user, profile (existing data), loading state, and allProfiles for suggestions
-    const { user, profile: existingProfile, loading: authLoading, allProfiles } = useAuthStore();
+    const { user, loading: authLoading,  } = useAuthStore();
+    const { profile: existingProfile, loading: profileLoading, allProfiles} = useProfileStore()
+    const { fetchFamilyGroup, familyGroup, } = useFamilyStore()
 
-    // State for autocomplete suggestions for family last name
-    const [familySuggestions, setFamilySuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const autocompleteContainerRef = useRef(null);
 
+
+    useEffect(() => {
+        if(user.id) {
+            fetchFamilyGroup(user.id)
+        }
+    }, [user?.id])
 
     const {
         register,
@@ -40,12 +44,12 @@ export const AccountProfile = () => {
             birthday: '',
             food_allergies: '',
             house_rules: '',
+            email_alerts: '',
+            name: ''
         },
         mode: 'onChange'
     });
 
-    // Watch the family_last_name input field for filtering suggestions
-    const familyLastNameValue = watch("family_last_name");
 
     // Effect to pre-fill the form with existing profile data
     useEffect(() => {
@@ -53,11 +57,8 @@ export const AccountProfile = () => {
             // Format birthday for input type="date" (YYYY-MM-DD)
             const formattedBirthday = existingProfile.birthday ? existingProfile.birthday.split('T')[0] : '';
             reset({
-                family_last_name: existingProfile.family_last_name || '',
-                address: existingProfile.address || '',
                 birthday: formattedBirthday,
-                food_allergies: existingProfile.food_allergies || '',
-                house_rules: existingProfile.house_rules || '',
+                name: existingProfile.name || ''
             });
         }
     }, [existingProfile, reset]); // Reset form when existingProfile changes
@@ -70,20 +71,9 @@ export const AccountProfile = () => {
         );
     }, [allProfiles]);
 
-    // Effect to filter family name suggestions as the user types
-    useEffect(() => {
-        const currentInput = familyLastNameValue ? familyLastNameValue.toLowerCase() : '';
-        if (currentInput.length > 0) {
-            const filtered = uniqueFamilyNames().filter(name =>
-                name.toLowerCase().includes(currentInput)
-            );
-            setFamilySuggestions(filtered);
-            setShowSuggestions(true);
-        } else {
-            setFamilySuggestions([]);
-            setShowSuggestions(false);
-        }
-    }, [familyLastNameValue, uniqueFamilyNames]);
+    console.log('all', allProfiles)
+
+
 
     // Effect to handle clicks outside the autocomplete to hide suggestions
     useEffect(() => {
@@ -97,6 +87,8 @@ export const AccountProfile = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
+
+ 
 
     // Handle selecting a suggestion
     const handleSelectSuggestion = (suggestion) => {
@@ -121,13 +113,11 @@ export const AccountProfile = () => {
 
         const profileData = {
             id: user.id, // Link profile to Supabase auth user ID
-            family_last_name: data.family_last_name,
-            address: data.address,
+          
             birthday: data.birthday, // YYYY-MM-DD string
-            food_allergies: data.food_allergies,
-            house_rules: data.house_rules,
-            // You might also set isOnboarded: true here if this is the final onboarding step
-            // isOnboarded: true,
+            name: data.name
+
+       
         };
 
         try {
@@ -146,11 +136,11 @@ export const AccountProfile = () => {
                     toast.success('Error updating profile: ' + error.message);
                 }
             } else {
-                toast.success('Profile updated successfully!, Welcome to the cult! 🕎');
+                toast.success('Profile updated successfully! 🕎');
                 // IMPORTANT: Re-fetch the user's profile in the store to reflect changes
                 // This updates the 'profile' state in your Zustand store,
                 // ensuring other components get the latest data.
-                useAuthStore.getState().fetchAndSetUserProfile(user.id);
+                useProfileStore.getState().fetchAndSetUserProfile(user.id);
 
             }
         } catch (error) {
@@ -185,7 +175,8 @@ export const AccountProfile = () => {
             <Typography color="gray" className="mt-1 font-normal">
                 Update your details below.
             </Typography>
-            <form className="mt-8 mb-2 w-80" onSubmit={handleSubmit(onSubmit)}>
+        <div>
+        <form className="mt-8 mb-2 w-80" onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-1 flex flex-col gap-6">
                     <Typography variant="h6" color="blue-gray" className="-mb-3">
                         Email (Cannot be changed here)
@@ -195,7 +186,6 @@ export const AccountProfile = () => {
                         size="lg"
                         placeholder="user@example.com"
                         value={user.email || ''}
-                        disabled // Make it read-only
                         className="!border-t-blue-gray-200 focus:!border-t-gray-900"
                         labelProps={{
                             className: "before:content-none after:content-none",
@@ -203,84 +193,23 @@ export const AccountProfile = () => {
                     />
 
                     <Typography variant="h6" color="blue-gray" className="-mb-3">
-                        Family Last Name
+                        Name
                     </Typography>
-                    <div className="relative" ref={autocompleteContainerRef}>
-                        <Input
-                            size="lg"
-                            placeholder="Type family last name"
-                            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                            labelProps={{
-                                className: "before:content-none after:content-none",
-                            }}
-                            {...register("family_last_name", {
-                                required: "Family Last Name is required",
-                                validate: validateFamilyName
-                            })}
-                            onFocus={() => {
-                                if (familyLastNameValue && familyLastNameValue.length > 0) {
-                                    setShowSuggestions(true);
-                                }
-                            }}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
-                        />
-                        {errors.family_last_name && (
-                            <Typography color="red" variant="small">
-                                {errors.family_last_name.message}
-                            </Typography>
-                        )}
-                        {showSuggestions && familySuggestions.length > 0 && (
-                            <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-48 overflow-y-auto shadow-lg">
-                                {familySuggestions.map((suggestion, index) => (
-                                    <li
-                                        key={index}
-                                        className="p-2 cursor-pointer hover:bg-gray-100"
-                                        onMouseDown={() => handleSelectSuggestion(suggestion)}
-                                    >
-                                        {suggestion}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                    </div>
-
-                    <Typography variant="h6" color="blue-gray" className="-mb-3">
-                        Home Address
-                    </Typography>
-                    <Controller
-                        name="address"
-                        control={control}
-                        rules={{ required: "Home Address is required" }}
-                        render={({ field }) => (
-                            <Autocomplete
-                                apiKey={env.VITE_ADDRESS_VALIDATION}
-                                value={field.value}
-                                onPlaceSelected={(place) => {
-                                    field.onChange(place.formatted_address || '');
-                                    console.log('Place selected:', place);
-                                }}
-                                onChange={(e) => {
-                                    field.onChange(e.target.value);
-                                }}
-                                options={{
-                                    types: ['address'],
-                                    componentRestrictions: { country: 'us' },
-                                }}
-                                className="peer w-full h-full bg-transparent text-blue-gray-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2 border-t border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-gray-900"
-                                placeholder="Enter your home address"
-                            />
-                        )}
+                    <Input
+                        size="lg"
+                        placeholder="name"
+                        className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+                        labelProps={{
+                            className: "before:content-none after:content-none",
+                        }}
+                        {...register('name')}
                     />
-                    {errors.address && (
-                        <Typography color="red" variant="small">
-                            {errors.address.message}
-                        </Typography>
-                    )}
-
+      
                     <Typography variant="h6" color="blue-gray" className="-mb-3">
                         Birthday
                     </Typography>
                     <Input
+                    disabled={!familyGroup}
                         type="date"
                         size="lg"
                         placeholder="YYYY-MM-DD"
@@ -307,40 +236,16 @@ export const AccountProfile = () => {
                         <Typography color="red" variant="small">
                             {errors.birthday.message}
                         </Typography>
-                    )}
-
-                    <Typography variant="h6" color="blue-gray" className="-mb-3">
-                        Food Allergies
-                    </Typography>
-                    <Textarea
-                        size="lg"
-                        placeholder="e.g., Peanuts, Gluten"
-                        className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                        labelProps={{
-                            className: "before:content-none after:content-none",
-                        }}
-                        {...register("food_allergies")}
-                    />
-
-                    <Typography variant="h6" color="blue-gray" className="-mb-3">
-                        House Rules
-                    </Typography>
-                    <Textarea
-                        size="lg"
-                        placeholder="e.g., No shoes"
-                        className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                        labelProps={{
-                            className: "before:content-none after:content-none",
-                        }}
-                        {...register("house_rules")}
-                    />
+                    )}        
 
                 </div>
+                {familyGroup &&  <Button className="mt-6" fullWidth type="submit" disabled={isSubmitting || !isDirty}>
+                {isSubmitting ? 'Saving...' : 'Update Profile'}
+            </Button>}   
 
-                <Button className="mt-6" fullWidth type="submit" disabled={isSubmitting || !isDirty}>
-                    {isSubmitting ? 'Saving...' : 'Update Profile'}
-                </Button>
             </form>
+            {<FamilyGroupForm/>}                      
+        </div>
         </Card>
     );
 };

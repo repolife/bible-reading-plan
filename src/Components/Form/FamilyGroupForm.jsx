@@ -1,75 +1,116 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react'; // Added useState, useEffect, useCallback, useRef
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import {
     Input,
     Button,
     Typography,
     Textarea,
-    Card,
+    Card
 } from "@material-tailwind/react";
 import Autocomplete from 'react-google-autocomplete';
+
 import { useAuthStore } from "@store/useAuthStore";
 import { supabase } from '@/supabaseClient'; // Corrected Supabase client import path
-import { toast } from 'react-toastify';
-import { Toast } from '../Shared/Layout/Notify/Toast';
-import { useProfileStore } from '@store/useProfileStore';
+import {  toast } from 'react-toastify';
+import { useFamilyStore } from '@store/useFamilyGroupStore';
+import { Spinner } from '@material-tailwind/react';
+import { useMemo } from 'react';
+import { Chip } from '@material-tailwind/react';
+import { useProfileStore } from '../../store/useProfileStore';
 
 const env = import.meta.env;
 
-export const ProfileForm = () => {
-    // Get all profiles and the current user's specific profile/user from your store
-    const { profiles: allProfiles, user, profile: existingProfile } = useProfileStore(); // Renamed 'profile' to 'existingProfile' for clarity
+
+export const FamilyGroupForm = () => {
+    // Get user, profile (existing data), loading state, and allFamilyGroups for suggestions
+    const {  error, loading, allFamilyGroups, fetchAllFamilyGroups, familyGroup, fetchFamilyGroup } = useFamilyStore()
+    const { user } = useAuthStore();
+    const {profiles, fetchAllUserProfiles, profile} = useProfileStore()
+
 
     // State for autocomplete suggestions for family last name
     const [familySuggestions, setFamilySuggestions] = useState([]);
-    const [showSuggestions, setShowSuggestions] = useState(false); // To control dropdown visibility
-    const autocompleteContainerRef = useRef(null); // Ref to manage clicks outside
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const autocompleteContainerRef = useRef(null);
+
+
+    useEffect(() => {
+        if(user.id) {
+            console.log('Fetching family groups and profiles...');
+            fetchAllFamilyGroups();
+        }
+    }, [user])
+
+    useEffect(() => {
+        if(profile.family_id) {
+            fetchFamilyGroup(profile.family_id)
+        }
+    }, [profile])
+
+   useEffect(() => {
+    fetchAllUserProfiles
+
+   }, [])
+
+   console.log('ggg', familyGroup)
+
+   
+
 
     const {
         register,
-        handleSubmit,
-              control,
-        setValue, // Use setValue to manually set form field values
-        watch,    // Use watch to get current input values for debounce
-        formState: { errors, isSubmitting },
-        reset // To reset form with default values or existing profile data
+        handleSubmit: handleFamily,
+        control,
+        setValue,
+        watch,
+        reset, // Use reset to pre-fill the form
+        formState: { errors, isSubmitting, isDirty }
     } = useForm({
         defaultValues: {
-            family_last_name: '',
+            family_last_name: familyGroup?.family_last_name || '',
             address: '',
-            birthday: '', // Added birthday
             food_allergies: '',
-            house_rules: '', // Added house_rules
-            // Note: Password is typically handled separately for updates, not stored directly in profile
+            house_rules: '',
         },
         mode: 'onChange'
     });
 
+    useEffect(() => {
+        if(familyGroup) {
+            reset({
+                family_last_name: familyGroup.family_last_name
+            })
+        }
+       }, [])
+    
+
+   
     // Watch the family_last_name input field for filtering suggestions
     const familyLastNameValue = watch("family_last_name");
 
-    // Populate form with existing profile data when it loads
+    // Effect to pre-fill the form with existing profile data
     useEffect(() => {
-        if (existingProfile) {
+        if (familyGroup) {
+            // Format birthday for input type="date" (YYYY-MM-DD)
             reset({
-                family_last_name: existingProfile.family_last_name || '',
-                address: existingProfile.address || '',
-                birthday: existingProfile.birthday ? existingProfile.birthday.split('T')[0] : '', // Format date for input type="date"
-                food_allergies: existingProfile.food_allergies || '',
-                house_rules: existingProfile.house_rules || '',
-                // Do NOT pre-fill password for security reasons
+                family_last_name: familyGroup.family_last_name || '',
+                address: familyGroup.address || '',
+                food_allergies: familyGroup.food_allergies || '',
+                house_rules: familyGroup.house_rules || '',
             });
         }
-    }, [existingProfile, reset]);
+    }, [familyGroup, reset]); 
+
+   
 
 
-    // Extract unique family names from allProfiles for suggestions
+    // Extract unique family names from allFamilyGroups for suggestions
     const uniqueFamilyNames = useCallback(() => {
-        if (!allProfiles || allProfiles.length === 0) return [];
+        if (!allFamilyGroups || allFamilyGroups.length === 0) return [];
         return Array.from(
-            new Set(allProfiles.map(p => p.family_last_name).filter(Boolean))
+            new Set(allFamilyGroups.map(p => p.family_last_name).filter(Boolean))
         );
-    }, [allProfiles]);
+    }, [allFamilyGroups]);
 
     // Effect to filter family name suggestions as the user types
     useEffect(() => {
@@ -101,79 +142,93 @@ export const ProfileForm = () => {
 
     // Handle selecting a suggestion
     const handleSelectSuggestion = (suggestion) => {
-        setValue("family_last_name", suggestion, { shouldValidate: true }); // Set value in RHF
-        setShowSuggestions(false); // Hide suggestions
+        setValue("family_last_name", suggestion, { shouldValidate: true });
+        setShowSuggestions(false);
     };
 
     // Custom validation for family_last_name (e.g., enforce selection from existing)
     const validateFamilyName = (value) => {
         if (!value) return "Family Last Name is required";
-
-        // If you ONLY want to allow selection from existing names, uncomment this:
-        // const existingNames = uniqueFamilyNames();
-        // if (!existingNames.some(name => name.toLowerCase() === value.toLowerCase())) {
-        //     return "Please select an existing family name from the suggestions.";
-        // }
-
-        return true; // Valid if it passes above checks or if new names are allowed
+        // This validation is primarily for client-side UX.
+        // True uniqueness enforcement should be handled by your Supabase table's unique constraint.
+        return true;
     };
 
-    // 2. Define your onSubmit function
     const onSubmit = async (data) => {
         if (!user || !user.id) {
             console.error("User not logged in or user ID not available.");
+            toast.error("Error: User not logged in. Please log in again.");
             return;
         }
 
-        const profileData = {
+        const familyData = {
             family_last_name: data.family_last_name,
             address: data.address,
-            birthday: data.birthday, // YYYY-MM-DD string
             food_allergies: data.food_allergies,
             house_rules: data.house_rules,
-            // Add any other fields you want to store in the 'profiles' table
+            // You might also set isOnboarded: true here if this is the final onboarding step
+            // isOnboarded: true,
         };
 
-        // You would typically send data to your backend (e.g., Supabase)
         try {
             // Use upsert to either insert a new profile or update an existing one
             // based on the 'id' field.
-            const { error } = await supabase.from('profiles').upsert(profileData, {
+            const { data, error } = await supabase.from('family_groups').insert(familyData, {
                 onConflict: 'id' // Specify 'id' as the conflict target for upsert
-            });
+            }).select();
 
             if (error) {
-                if (error.code === '23505') { // Example: Unique constraint violation code
-                    toast('Error: This family last name already exists and cannot be used again.');
+                console.error('Supabase error updating profile:', error.message, error.code);
+                // Handle specific Supabase errors, e.g., unique constraint violation
+                if (error.code === '23505') { // Common PostgreSQL unique violation error code
+                    toast.error('Error: This family group name already exists. Please choose another or select from suggestions.');
                 } else {
-                    throw error;
+                    toast.success('Error updating profile: ' + error.message);
                 }
             } else {
-              toast('Profile updated! 🕎');
-                // Optionally, re-fetch the user's profile in the store to reflect changes
+                toast.success('Family group was created! 🕎');
+                const familyId = data[0].id
+                const {error: profileError} = await supabase.from('profiles').upsert({id: user.id, family_id: familyId})
+                
+                if(profileError) {
+                    toast.error('Error updating user profile')
+                } 
+
                 useProfileStore.getState().fetchAndSetUserProfile(user.id);
+
             }
         } catch (error) {
-            console.error('Error updating profile:', error.message);
-            toast('Error updating profile:' + error.message);
+            console.error('General error updating profile:', error);
+            toast.error('An unexpected error occurred while updating profile.');
         }
     };
 
+    // Show loading state from the store while auth or profile is being fetched
+    if (loading) {
+        return (
+            <Card className='flex flex-col items-center p-8 rounded-lg shadow-lg bg-white'>
+                <Typography variant="h5" color="blue-gray"><Spinner/></Typography>
+            </Card>
+        );
+    }
+
+    // If user is not logged in (should be caught by ProtectedRoute, but good fallback)
+    if (!user) {
+        return (
+            <Card className='flex flex-col items-center p-8 rounded-lg shadow-lg bg-white'>
+                <Typography variant="h5" color="red">You must be logged in to view your profile.</Typography>
+            </Card>
+        );
+    }
+
     return (
-        <Card className='flex flex-col items-center p-8 rounded-lg shadow-lg bg-white' shadow={false}>
-            <Typography variant="h4" color="blue-gray">
-                Shalom!
-            </Typography>
-            <Typography color="gray" className="mt-1 font-normal">
-                Please enter your details to make hosting easier.
-            </Typography>
-            {/* 3. Wrap your form with handleSubmit */}
-            <form className="mt-8 mb-2 w-80" onSubmit={handleSubmit(onSubmit)}>
+        <form className="mt-8 mb-2 w-80" onSubmit={handleFamily(onSubmit)}>
+                      <>
                 <div className="mb-1 flex flex-col gap-6">
+        
                     <Typography variant="h6" color="blue-gray" className="-mb-3">
                         Family Last Name
                     </Typography>
-                    {/* Custom Autocomplete for Family Last Name */}
                     <div className="relative" ref={autocompleteContainerRef}>
                         <Input
                             size="lg"
@@ -184,30 +239,30 @@ export const ProfileForm = () => {
                             }}
                             {...register("family_last_name", {
                                 required: "Family Last Name is required",
-                                validate: validateFamilyName // Apply the custom validation
+                                validate: validateFamilyName
                             })}
                             onFocus={() => {
-                                // Only show suggestions if there's already input
                                 if (familyLastNameValue && familyLastNameValue.length > 0) {
                                     setShowSuggestions(true);
                                 }
                             }}
-                            onBlur={() => setTimeout(() => setShowSuggestions(false), 100)} // Small delay to allow click on suggestion
+                            onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
+                         
                         />
+                        {/* {familyMembers.length > 0 && <div className='flex gap-2'>{familyMembers.map(m => <Chip value={m.name} variant='chip ghost'/>) }</div>} */}
+
                         {errors.family_last_name && (
                             <Typography color="red" variant="small">
                                 {errors.family_last_name.message}
                             </Typography>
                         )}
-
-                        {/* Suggestions Dropdown */}
                         {showSuggestions && familySuggestions.length > 0 && (
                             <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-48 overflow-y-auto shadow-lg">
                                 {familySuggestions.map((suggestion, index) => (
                                     <li
                                         key={index}
                                         className="p-2 cursor-pointer hover:bg-gray-100"
-                                        onMouseDown={() => handleSelectSuggestion(suggestion)} // Use onMouseDown to prevent onBlur from firing first
+                                        onMouseDown={() => handleSelectSuggestion(suggestion)}
                                     >
                                         {suggestion}
                                     </li>
@@ -215,15 +270,13 @@ export const ProfileForm = () => {
                             </ul>
                         )}
                     </div>
-
                     <Typography variant="h6" color="blue-gray" className="-mb-3">
                         Home Address
                     </Typography>
-                    {/* Google Autocomplete for Home Address */}
                     <Controller
-                        name="address" // This is the name for react-hook-form
+                        name="address"
                         control={control}
-                        rules={{ required: "Home Address is required" }} // Add validation rules
+                        rules={{ required: "Home Address is required" }}
                         render={({ field }) => (
                             <Autocomplete
                                 apiKey={env.VITE_ADDRESS_VALIDATION}
@@ -248,39 +301,7 @@ export const ProfileForm = () => {
                         <Typography color="red" variant="small">
                             {errors.address.message}
                         </Typography>
-                    )}
-
-                    <Typography variant="h6" color="blue-gray" className="-mb-3">
-                        Birthday
-                    </Typography>
-                    <Input
-                        type="date"
-                        size="lg"
-                        placeholder="YYYY-MM-DD"
-                        className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-                        labelProps={{
-                            className: "before:content-none after:content-none",
-                        }}
-                        {...register("birthday", {
-                            required: "Birthday is required",
-                            validate: (value) => {
-                                if (!value) return true;
-                                const today = new Date();
-                                const birthDate = new Date(value);
-                                let age = today.getFullYear() - birthDate.getFullYear();
-                                const m = today.getMonth() - birthDate.getMonth();
-                                if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-                                    age--;
-                                }
-                                return age >= 18 || "You must be at least 18 years old.";
-                            }
-                        })}
-                    />
-                    {errors.birthday && (
-                        <Typography color="red" variant="small">
-                            {errors.birthday.message}
-                        </Typography>
-                    )}
+                    )}                 
 
                     <Typography variant="h6" color="blue-gray" className="-mb-3">
                         Food Allergies
@@ -308,13 +329,13 @@ export const ProfileForm = () => {
                         {...register("house_rules")}
                     />
 
-                </div> {/* End of mb-1 flex flex-col gap-6 */}
+                </div>
 
-                <Button className="mt-6" fullWidth type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Save Profile'}
+                <Button className="mt-6" fullWidth type="submit" disabled={isSubmitting || !isDirty}>
+                    {isSubmitting ? 'Saving...' : 'Create Family Group' || familyGroup ? 'Update Family Group'  : 'Create Family Group'}
                 </Button>
-            </form>
-            <Toast/>
-        </Card>
+
+            </>
+        </form>
     );
 };

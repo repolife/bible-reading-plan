@@ -11,10 +11,13 @@ import { useEffect } from "react";
 import { useAuthStore } from "@store/useAuthStore";
 import {supabase} from '@/supabaseClient'
 import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
 
 export const Nav = ({ classes }) => {
   const {  isAuthenticated, loading, user } = useAuthStore();
   const [openNav, setOpenNav] = useState(false);
+
+  const navigate = useNavigate()
 
   async function signOut() {
     const { error } = await supabase.auth.signOut()
@@ -22,8 +25,6 @@ export const Nav = ({ classes }) => {
       console.error(error)
     }
   }
-
- 
 
   useEffect(() => {
     window.addEventListener(
@@ -81,7 +82,7 @@ export const Nav = ({ classes }) => {
         Songs
       </Typography>
 
-{isAuthenticated && (
+{isAuthenticated ? (
 <>
 <Typography
         as="a"
@@ -123,7 +124,14 @@ export const Nav = ({ classes }) => {
     </div>
 </>      
       
-)}
+) :  <div className="flex items-center gap-x-2 p-1 font-medium">
+<Button
+variant="gradient"
+size="sm"
+className="hidden lg:inline-block"
+onClick={() => navigate('/login')}      >
+<span>Login</span>
+</Button> </div>}
     </ul>
   );
 

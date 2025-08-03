@@ -7,8 +7,10 @@ export const Login = () => {
          return (<div className=' flex flex-col items-center'>
             
             <div className='w-1/2'>
-            <Auth supabaseClient={supabase} view='sign_in' appearance={{ theme: ThemeSupa }} providers={[]} />
+            <Auth supabaseClient={supabase} view='sign_in'showLinks={false} appearance={{ theme: ThemeSupa }} providers={[]} />
             </div>
+            <span>            This is being tested. You'll be invited to create an account soon. 
+            </span>
             </div>)  
     }
 

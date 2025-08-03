@@ -7,8 +7,6 @@ export const useAuthStore = create((set, get) => ({
   error: null,
   loading: true,
   authSubscription: null,  
-  profiles: [],
-  profile: null,
   
   initAuthListener: async () => { // Make async if you await things inside
     set({ loading: true }); // Ensure loading is true while checking
@@ -37,39 +35,6 @@ export const useAuthStore = create((set, get) => ({
    
   },
 
-  fetchAndSetUserProfile: async (userId) => {
-    const { isAuthenticated } = get();
-  
-    if (!isAuthenticated) return;
-  
-    if (!userId) {
-      console.warn('No user ID provided — clearing profile.');
-      set({ profile: null, loading: false });
-      return;
-    }
-  
-    set({ loading: true });
-  
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-  
-    if (error) {
-      console.error('Error fetching profile:', error.message);
-      set({ error: error.message, profile: null, loading: false });
-      return;
-    }
-  
-    if (!data) {
-      console.warn(`No profile found for userId: ${userId}`);
-      set({ profile: null, loading: false });
-      return;
-    }
-  
-    set({ profile: data, loading: false });
-  },
 
 }));
 

@@ -18,7 +18,6 @@ import { Outlet } from "react-router-dom";
 import Layout from "shared/Layout/Layout";
 import { AccountProfile } from "./Components/Profile/AccountProfile.jsx";
 import { Login } from "./Components/auth/Login.jsx";
-import { Signup } from "./Components/auth/Signup.jsx";
 import { ToastContainer } from 'react-toastify';
 import { ProfileGuard } from "./Components/ProtectedRoute/ProfileGuard.jsx";
 
@@ -60,11 +59,7 @@ const router = createBrowserRouter([
       {
         path: "study",
         element: <Bible />,
-      },
-      {
-        path: "signup",
-        element: <Signup />,
-      },
+      },    
       {
         path: "login",
         element: <Login />,

@@ -1,13 +1,15 @@
 import { useEffect } from 'react'; // Keep useEffect if needed for other things, but not for auth listener here
-import {useAuthStore} from "@store/useAuthStore"; // Ensure correct path
-import { Auth } from '@supabase/auth-ui-react'  
+import {useAuthStore} from "@store/useAuthStore"; 
+import { useFamilyStore } from '@store/useFamilyGroupStore';
 import { Loader } from '../Shared/Loader';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useProfileStore } from '@store/useProfileStore';
 export const ProtectedRoute = ({ children }) => {
+
   const { isAuthenticated, loading, profile,  user } = useAuthStore(); 
 
 
-  console.log('proifle', profile)
+
 
   const navigate = useNavigate()
   const location = useLocation();
@@ -18,11 +20,12 @@ export const ProtectedRoute = ({ children }) => {
 useEffect(() => {
   if (loading) return; 
   if (!isAuthenticated) {
-    navigate('/signup');  }
+    navigate('/login');  }
 }, [isAuthenticated, loading, navigate]);
 
 useEffect(() => {
   if (loading) return;
+  
 
   const alreadyOnProfileRoute = location.pathname === '/profile';
   
@@ -33,7 +36,7 @@ useEffect(() => {
 
 useEffect(() => {
   if(!user) return
-  useAuthStore.getState().fetchAndSetUserProfile(user.id);
+  useProfileStore.getState().fetchAndSetUserProfile(user.id);
 }, [user])
 
 

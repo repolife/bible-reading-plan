@@ -1,6 +1,5 @@
 import { useEffect } from 'react'; // Keep useEffect if needed for other things, but not for auth listener here
 import {useAuthStore} from "@store/useAuthStore"; 
-import { useFamilyStore } from '@store/useFamilyGroupStore';
 import { Loader } from '../Shared/Loader';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useProfileStore } from '@store/useProfileStore';
@@ -31,7 +30,8 @@ useEffect(() => {
   
   if (!profile && !alreadyOnProfileRoute) {
     navigate('/profile');
-  }
+  } 
+  navigate('/')
 }, [profile, loading, location.pathname, navigate]);
 
 useEffect(() => {

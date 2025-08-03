@@ -117,7 +117,7 @@ export const Nav = ({ classes }) => {
         <Button
         variant="gradient"
         size="sm"
-        className="hidden lg:inline-block"
+        className="flex items-center gap-x-2 p-1 font-medium"
         onClick={signOut}      >
         <span>Log out</span>
       </Button>
@@ -128,7 +128,7 @@ export const Nav = ({ classes }) => {
 <Button
 variant="gradient"
 size="sm"
-className="hidden lg:inline-block"
+className="flex items-center gap-x-2 p-1 font-medium"
 onClick={() => navigate('/login')}      >
 <span>Login</span>
 </Button> </div>}

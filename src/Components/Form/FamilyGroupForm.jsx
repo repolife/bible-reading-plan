@@ -42,7 +42,7 @@ export const FamilyGroupForm = () => {
     }, [user])
 
     useEffect(() => {
-        if(profile.family_id) {
+        if(profile && profile.family_id) {
             fetchFamilyGroup(profile.family_id)
         }
     }, [profile])

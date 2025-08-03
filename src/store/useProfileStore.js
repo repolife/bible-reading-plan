@@ -14,6 +14,8 @@ export const useProfileStore = create((set, get) => ({
     const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('*');
+
+      console.log('store', profiles)
   
     if (profilesError) {
       set({ error: profilesError.message, loading: false });

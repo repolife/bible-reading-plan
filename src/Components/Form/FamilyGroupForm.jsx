@@ -44,15 +44,14 @@ export const FamilyGroupForm = () => {
     useEffect(() => {
         if(profile && profile.family_id) {
             fetchFamilyGroup(profile.family_id)
+            fetchAllUserProfiles()
         }
     }, [profile])
 
-   useEffect(() => {
-    fetchAllUserProfiles
 
-   }, [])
 
-   console.log('ggg', familyGroup)
+   console.log('profilescall', profiles)
+
 
    
 
@@ -82,6 +81,15 @@ export const FamilyGroupForm = () => {
             })
         }
        }, [])
+
+       const familyMembers = useMemo(() => {
+        if(!profiles  && !profile) return
+        console.log('profiles12', profiles)
+    
+        return profiles.filter(profile => profile.family_id === profile.family_id)
+       }, [profiles, profile])
+    
+       console.log('familyMembers', familyMembers)
     
 
    
@@ -249,7 +257,7 @@ export const FamilyGroupForm = () => {
                             onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
                          
                         />
-                        {/* {familyMembers.length > 0 && <div className='flex gap-2'>{familyMembers.map(m => <Chip value={m.name} variant='chip ghost'/>) }</div>} */}
+                        {familyMembers  && <div className='flex flex-col gap-4 m-2'>Current members of family:<div className='flex gap-4'>{familyMembers.map(m => <Chip value={m.name} variant='chip ghost'/>) }</div></div>}
 
                         {errors.family_last_name && (
                             <Typography color="red" variant="small">

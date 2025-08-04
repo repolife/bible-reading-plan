@@ -4,7 +4,8 @@ import {
     Input,
     Button,
     Typography,
-    Card
+    Card,
+    Checkbox
 } from "@material-tailwind/react";
 
 import { useAuthStore } from "@store/useAuthStore";
@@ -39,13 +40,9 @@ export const AccountProfile = () => {
         formState: { errors, isSubmitting, isDirty }
     } = useForm({
         defaultValues: {
-            family_last_name: '',
-            address: '',
             birthday: '',
-            food_allergies: '',
-            house_rules: '',
-            email_alerts: '',
-            name: ''
+            email_alerts: false,
+            name: '',
         },
         mode: 'onChange'
     });
@@ -58,7 +55,8 @@ export const AccountProfile = () => {
             const formattedBirthday = existingProfile.birthday ? existingProfile.birthday.split('T')[0] : '';
             reset({
                 birthday: formattedBirthday,
-                name: existingProfile.name || ''
+                name: existingProfile.name || '',
+                email_alerts: existingProfile.email_alerts 
             });
         }
     }, [existingProfile, reset]); // Reset form when existingProfile changes
@@ -115,9 +113,8 @@ export const AccountProfile = () => {
             id: user.id, // Link profile to Supabase auth user ID
           
             birthday: data.birthday, // YYYY-MM-DD string
-            name: data.name
-
-       
+            name: data.name,
+            email_alerts: data.email_alerts       
         };
 
         try {
@@ -204,6 +201,20 @@ export const AccountProfile = () => {
                         }}
                         {...register('name')}
                     />
+
+                  <div className='flex flex-row justify-between'>
+                  <Typography variant="h6" color="blue-gray" className="-mb-3">
+                        Received email alerts? 
+                    </Typography>
+                    <Checkbox
+                        size="lg"                                   
+                        className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+                        labelProps={{
+                            className: "before:content-none after:content-none",
+                        }}
+                        {...register('email_alerts')}
+                    /> 
+                  </div>
       
                     <Typography variant="h6" color="blue-gray" className="-mb-3">
                         Birthday
@@ -236,7 +247,8 @@ export const AccountProfile = () => {
                         <Typography color="red" variant="small">
                             {errors.birthday.message}
                         </Typography>
-                    )}        
+                    )}    
+                
 
                 </div>
                 {familyGroup &&  <Button className="mt-6" fullWidth type="submit" disabled={isSubmitting || !isDirty}>

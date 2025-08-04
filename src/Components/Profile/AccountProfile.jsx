@@ -56,7 +56,7 @@ export const AccountProfile = () => {
             reset({
                 birthday: formattedBirthday,
                 name: existingProfile.name || '',
-                email_alerts: existingProfile.email_alerts
+                email_alerts: existingProfile.email_alerts 
             });
         }
     }, [existingProfile, reset]); // Reset form when existingProfile changes

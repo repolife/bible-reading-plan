@@ -31,7 +31,6 @@ useEffect(() => {
   if (!profile && !alreadyOnProfileRoute) {
     navigate('/profile');
   } 
-  navigate('/')
 }, [profile, loading, location.pathname, navigate]);
 
 useEffect(() => {

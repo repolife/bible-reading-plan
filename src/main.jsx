@@ -20,9 +20,17 @@ import { AccountProfile } from "./Components/Profile/AccountProfile.jsx";
 import { Login } from "./Components/auth/Login.jsx";
 import { ToastContainer } from 'react-toastify';
 import { ProfileGuard } from "./Components/ProtectedRoute/ProfileGuard.jsx";
-
+import * as Sentry from "@sentry/react";
+import { Signup }  from "@/Components/auth/Signup"
 
 useAuthStore.getState().initAuthListener();
+
+Sentry.init({
+  dsn: "https://b29d5b6beddd3f6c0b4a30cd8922c83d@o207291.ingest.us.sentry.io/4509783968186368",
+  // Setting this option to true will send default PII data to Sentry.
+  // For example, automatic IP address collection on events
+  sendDefaultPii: true
+});
 
 
 const RootLayout = () => {
@@ -63,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: "login",
         element: <Login />,
+      },
+      {
+        path: "signup",
+        element: <Signup />,
       },
       {
         path: "calendar",

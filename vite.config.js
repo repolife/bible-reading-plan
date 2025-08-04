@@ -1,13 +1,20 @@
+import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
 export default defineConfig({
   base: "/",
-  plugins: [react()],
+
+  plugins: [react(), sentryVitePlugin({
+    org: "david-vargas",
+    project: "javascript-react"
+  })],
+
   define: {
     "process.env": process.env,
   },
+
   server: {
     port: 5174,
     host: true,
@@ -16,11 +23,13 @@ export default defineConfig({
       usePolling: true,
     },
   },
+
   preview: {
     port: 5714,
     strictPort: true,
     host: true,
   },
+
   resolve: {
     alias: {
       shared: path.resolve(__dirname, "src/Components/Shared"),
@@ -30,4 +39,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "src"),
     },
   },
+
+  build: {
+    sourcemap: true
+  }
 });

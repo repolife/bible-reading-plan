@@ -27,10 +27,13 @@ export const FamilyGroupForm = () => {
     const { user } = useAuthStore();
     const {profiles, fetchAllUserProfiles, profile} = useProfileStore()
 
+    console.log('profiles 1', profiles)
+
 
     // State for autocomplete suggestions for family last name
     const [familySuggestions, setFamilySuggestions] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
+    const [selectedFamilyMembers, setSelectedFamilyMembers] = useState([]); // <-- Add this new state
     const autocompleteContainerRef = useRef(null);
 
 
@@ -51,7 +54,7 @@ export const FamilyGroupForm = () => {
 
 
    console.log('profilescall', profiles)
-
+console.log('famkily', familyGroup)
 
    
 
@@ -67,29 +70,24 @@ export const FamilyGroupForm = () => {
     } = useForm({
         defaultValues: {
             family_last_name: familyGroup?.family_last_name || '',
-            address: '',
-            food_allergies: '',
-            house_rules: '',
+            address: familyGroup?.address || '',
+            food_allergies: familyGroup?.food_allergies || '',
+            house_rules:  '',
         },
         mode: 'onChange'
     });
 
-    useEffect(() => {
-        if(familyGroup) {
-            reset({
-                family_last_name: familyGroup.family_last_name
-            })
-        }
-       }, [])
 
-       const familyMembers = useMemo(() => {
-        if(!profiles  && !profile) return
-        console.log('profiles12', profiles)
     
-        return profiles.filter(profile => profile.family_id === profile.family_id)
-       }, [profiles, profile])
+
+    //    const familyMembers = useMemo(() => {
+    //     if(!profiles  && !profile) return
+    //     console.log('familySuggestions', familySuggestions)
     
-       console.log('familyMembers', familyMembers)
+    //     return profiles.filter(profile => profile.family_id === profile.family_id)
+    //    }, [profiles, profile, familySuggestions])
+    
+    //    console.log('familyMembers', familyMembers)
     
 
    
@@ -127,6 +125,8 @@ export const FamilyGroupForm = () => {
             const filtered = uniqueFamilyNames().filter(name =>
                 name.toLowerCase().includes(currentInput)
             );
+
+            console.log('filtered', filtered)
             setFamilySuggestions(filtered);
             setShowSuggestions(true);
         } else {
@@ -150,7 +150,32 @@ export const FamilyGroupForm = () => {
 
     // Handle selecting a suggestion
     const handleSelectSuggestion = (suggestion) => {
-        setValue("family_last_name", suggestion, { shouldValidate: true });
+        const selectedFamily = allFamilyGroups.find(
+            (group) => group.family_last_name === suggestion
+        );
+    
+        if (selectedFamily) {
+            // Find the family members based on the selected family's ID
+            const familyMembers = profiles.filter(p => p.family_id === selectedFamily.id).map(p => p.name);
+    
+            console.log('Found family members:', familyMembers, selectedFamily.id, profiles);
+    
+            // Update the form fields
+            reset({
+                family_last_name: selectedFamily.family_last_name,
+                address: selectedFamily.address || '',
+                food_allergies: selectedFamily.food_allergies || '',
+                house_rules: selectedFamily.house_rules || '',
+            });
+    
+            // Update the new state variable with the found family members
+            setSelectedFamilyMembers(familyMembers);
+        } else {
+            // If it's not a suggestion, clear the family members state and set the value
+            setValue("family_last_name", suggestion, { shouldValidate: true });
+            setSelectedFamilyMembers([]);
+        }
+    
         setShowSuggestions(false);
     };
 
@@ -258,7 +283,7 @@ export const FamilyGroupForm = () => {
                             onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
                          
                         />
-                        {familyMembers  && <div className='flex flex-col gap-4 m-2'>Current members of family:<div className='flex gap-4'>{familyMembers.map(m => <Chip value={m.name} variant='chip ghost'/>) }</div></div>}
+                        {selectedFamilyMembers  && <div className='flex flex-col gap-4 m-2'>Current members of family:<div className='flex gap-4'>{selectedFamilyMembers.map(m => <Chip value={m} variant='chip ghost'/>) }</div></div>}
 
                         {errors.family_last_name && (
                             <Typography color="red" variant="small">
@@ -270,7 +295,7 @@ export const FamilyGroupForm = () => {
                                 {familySuggestions.map((suggestion, index) => (
                                     <li
                                         key={index}
-                                        className="p-2 cursor-pointer hover:bg-gray-100"
+                                        className="p-2 cursor-pointer hover:bg-gray-100"                                    
                                         onMouseDown={() => handleSelectSuggestion(suggestion)}
                                     >
                                         {suggestion}

@@ -231,12 +231,13 @@ export const FamilyGroupForm = () => {
 
     return (
         <form className="mt-8 mb-2 w-80" onSubmit={handleFamily(onSubmit)}>
-                      <>
+            <Typography variant="h4" color="blue-gray" className='text-center pt-6 pb-6'>Host details</Typography>
                 <div className="mb-1 flex flex-col gap-6">
         
                     <Typography variant="h6" color="blue-gray" className="-mb-3">
                         Family Last Name
                     </Typography>
+      
                     <div className="relative" ref={autocompleteContainerRef}>
                         <Input
                             size="lg"
@@ -340,10 +341,9 @@ export const FamilyGroupForm = () => {
                 </div>
 
                 <Button className="mt-6" fullWidth type="submit" disabled={isSubmitting || !isDirty}>
-                    {isSubmitting ? 'Saving...' : 'Create Family Group' || familyGroup ? 'Update Family Group'  : 'Create Family Group'}
+                    {isSubmitting ? 'Saving...' : 'Create Family Group' || familyGroup ? 'Update Host Details'  : 'Create Family Group'}
                 </Button>
 
-            </>
         </form>
     );
 };

@@ -191,6 +191,7 @@ export const FamilyGroupForm = () => {
   };
 
   const onSubmit = async (data) => {
+    debugger;
     if (!user || !user.id) {
       console.error("User not logged in or user ID not available.");
       toast.error("Error: User not logged in. Please log in again.");
@@ -207,14 +208,28 @@ export const FamilyGroupForm = () => {
     };
 
     try {
-      // Use upsert to either insert a new profile or update an existing one
-      // based on the 'id' field.
-      const { data, error } = await supabase
-        .from("family_groups")
-        .insert(familyData, {
-          onConflict: "id", // Specify 'id' as the conflict target for upsert
-        })
-        .select();
+      let familyId;
+      let error;
+
+      if (
+        familyGroup &&
+        familyGroup.family_last_name === data.family_last_name
+      ) {
+        // If the user is updating an existing family group they belong to
+        const { data: updatedData, error: updateError } = await supabase
+          .from("family_groups")
+          .update(familyData)
+          .eq("id", familyGroup.id)
+          .select();
+        familyId = updatedData ? updatedData[0].id : null;
+        error = updateError;
+      } else {
+        // If creating a new family group or selecting an existing one not currently associated
+        ({
+          data: [{ id: familyId }],
+          error,
+        } = await supabase.from("family_groups").insert(familyData).select());
+      }
 
       if (error) {
         console.error(
@@ -233,8 +248,7 @@ export const FamilyGroupForm = () => {
         }
       } else {
         toast.success("Family group was created! 🕎");
-        const familyId = data[0].id;
-        const { error: profileError } = await supabase
+        const { error: profileError } = await supabase // eslint-disable-line
           .from("profiles")
           .upsert({ id: user.id, family_id: familyId });
 

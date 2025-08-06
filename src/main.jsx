@@ -23,8 +23,11 @@ import { ProfileGuard } from "./Components/ProtectedRoute/ProfileGuard.jsx";
 import * as Sentry from "@sentry/react";
 import { Signup } from "@/Components/auth/Signup";
 import { StepForm } from "./Components/Form/StepForm.jsx";
+import { useProfileStore } from "./store/useProfileStore.js";
 
 useAuthStore.getState().initAuthListener();
+useProfileStore.getState().initProfileListener();
+
 const env = import.meta.env;
 
 Sentry.init({

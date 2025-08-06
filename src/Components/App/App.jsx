@@ -9,18 +9,12 @@ import "../../App.css";
 import { useEffect } from "react";
 import { useAuthStore } from "@store/useAuthStore";
 import { Router, Route } from "react-router-dom";
-import 'react-toastify/dist/ReactToastify.css';
+import "react-toastify/dist/ReactToastify.css";
 import { Signup } from "../auth/Signup";
 
 const queryClient = new QueryClient();
 
 function App() {
-
-  useEffect(() => {
-    useAuthStore.getState().initAuthListener();
-}, []); 
-
-
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
@@ -29,7 +23,11 @@ function App() {
         <Route exact path="/plan" Component={<ReadingTable />} />
         <Route exact path="/study" Component={<Bible />} />
         <Route exact path="/signup" Component={<Signup />} />
-        <Route exact path="/study/:book/:chapter/:verse" Component={<Verse />} />
+        <Route
+          exact
+          path="/study/:book/:chapter/:verse"
+          Component={<Verse />}
+        />
       </Router>
     </QueryClientProvider>
   );

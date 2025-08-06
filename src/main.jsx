@@ -18,35 +18,35 @@ import { Outlet } from "react-router-dom";
 import Layout from "shared/Layout/Layout";
 import { AccountProfile } from "./Components/Profile/AccountProfile.jsx";
 import { Login } from "./Components/auth/Login.jsx";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer } from "react-toastify";
 import { ProfileGuard } from "./Components/ProtectedRoute/ProfileGuard.jsx";
 import * as Sentry from "@sentry/react";
-import { Signup }  from "@/Components/auth/Signup"
+import { Signup } from "@/Components/auth/Signup";
+import { StepForm } from "./Components/Form/StepForm.jsx";
 
 useAuthStore.getState().initAuthListener();
+const env = import.meta.env;
 
 Sentry.init({
-  dsn: "https://b29d5b6beddd3f6c0b4a30cd8922c83d@o207291.ingest.us.sentry.io/4509783968186368",
-  // Setting this option to true will send default PII data to Sentry.
-  // For example, automatic IP address collection on events
-  sendDefaultPii: true
+  dsn: env.VITE_SENTRY_AUTH_TOKEN,
+  sendDefaultPii: true,
 });
-
 
 const RootLayout = () => {
   return (
     <Layout>
       <Nav />
-      <ToastContainer/>
-      <ProfileGuard/>
-      <Outlet/>
+      <ToastContainer />
+      <ProfileGuard />
+      <Outlet />
     </Layout>
-  )
-}
-
+  );
+};
 
 const router = createBrowserRouter([
-  { path: "/", element: <RootLayout />,
+  {
+    path: "/",
+    element: <RootLayout />,
     children: [
       {
         index: true,
@@ -67,7 +67,7 @@ const router = createBrowserRouter([
       {
         path: "study",
         element: <Bible />,
-      },    
+      },
       {
         path: "login",
         element: <Login />,
@@ -79,8 +79,7 @@ const router = createBrowserRouter([
       {
         path: "calendar",
         element: (
-          <ProtectedRoute
-          >
+          <ProtectedRoute>
             <Calendar />
           </ProtectedRoute>
         ),
@@ -88,15 +87,13 @@ const router = createBrowserRouter([
       {
         path: "profile",
         element: (
-          <ProtectedRoute
-          >
-            <AccountProfile />
+          <ProtectedRoute>
+            <StepForm />
           </ProtectedRoute>
         ),
       },
-    ]
-   },
-  
+    ],
+  },
 
   { path: "study/:book/:chapter/:verse", element: <Verse /> },
 ]);
@@ -114,8 +111,6 @@ const theme = {
 
 const queryClient = new QueryClient();
 
- 
-
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
@@ -125,4 +120,3 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </QueryClientProvider>
   </React.StrictMode>
 );
-

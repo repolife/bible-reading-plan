@@ -2,10 +2,33 @@ import React, { useState } from "react";
 import { AccountProfile } from "../Profile/AccountProfile";
 import { FamilyGroupForm } from "./FamilyGroupForm";
 import { Card, Stepper, Step, Button } from "@material-tailwind/react";
+import { ConfirmPasswordForm } from "./Password";
+import { useAuthStore } from "@store/useAuthStore";
 
 export const StepForm = () => {
-  const steps = [<AccountProfile />, <FamilyGroupForm />];
+  const user = useAuthStore.getState().user;
+  const hasPassword = user?.app_metadata?.provider === "email";
+
+  const steps = [
+    ...(!hasPassword ? [<ConfirmPasswordForm />] : []),
+    <AccountProfile />,
+    <FamilyGroupForm />,
+  ];
   const [activeStep, setActiveStep] = useState(0);
+  const [isStepValid, setIsStepValid] = useState(false);
+
+  const CurrentStep = steps[activeStep];
+
+  const handleNext = async () => {
+    const valid = await CurrentStep.submit(); // each step exposes a submit method
+    if (valid) {
+      setActiveStep((prev) => prev + 1);
+    }
+  };
+
+  const handlePrev = () => {
+    setActiveStep((prev) => prev - 1);
+  };
 
   const isFirst = activeStep === 0;
   const isLast = activeStep === steps.length - 1;

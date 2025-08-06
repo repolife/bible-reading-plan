@@ -26,7 +26,6 @@ import { StepForm } from "./Components/Form/StepForm.jsx";
 import { useProfileStore } from "./store/useProfileStore.js";
 
 useAuthStore.getState().initAuthListener();
-useProfileStore.getState().initProfileListener();
 
 const env = import.meta.env;
 

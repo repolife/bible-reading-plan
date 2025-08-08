@@ -372,6 +372,32 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
                 {errors.family_last_name.message}
               </Typography>
             )}
+            {showSuggestions && familySuggestions.length > 0 && (
+              <ul className="absolute z-10 bg-white border border-gray-300 rounded-md shadow-md mt-2 w-full max-h-60 overflow-y-auto">
+                {familySuggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    onClick={() =>
+                      handleSelectSuggestion(suggestion.family_last_name)
+                    }
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    <strong>{suggestion.family_last_name}</strong>
+                    {suggestion.members && suggestion.members.length > 0 && (
+                      <p className="text-xs text-gray-500">
+                        Members: {suggestion.members.join(", ")}
+                      </p>
+                    )}
+                    {suggestion.family_last_name ===
+                      profile?.family_last_name && (
+                      <span className="text-xs text-blue-500 ml-2">
+                        (Your current group)
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {selectedFamilyMembers && (
               <div className="flex flex-col gap-4 m-2">

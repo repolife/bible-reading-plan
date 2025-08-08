@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import { useAuthStore } from "@store/useAuthStore";
 import { useProfileStore } from "@store/useProfileStore";
 
 export const ProfileGuard = () => {
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
   const { loading: authLoading, isAuthenticated } = useAuthStore();
   const {
     profile,
@@ -12,8 +14,9 @@ export const ProfileGuard = () => {
     fetchAndSetUserProfile,
   } = useProfileStore();
 
+  const { user, userError, loading: userLoading } = useAuthStore();
+
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const rehydrateFromMagicLink = async () => {
@@ -32,17 +35,13 @@ export const ProfileGuard = () => {
           return;
         }
 
-        const {
-          data: { user },
-          error: userError,
-        } = await supabase.auth.getUser();
-
         if (userError || !user) {
           console.error("Failed to fetch user:", userError?.message);
           return;
         }
 
         await fetchAndSetUserProfile(user.id);
+        setProfileLoaded(true);
 
         // Clean up hash from URL
         window.history.replaceState(null, "", location.pathname);
@@ -50,14 +49,17 @@ export const ProfileGuard = () => {
     };
 
     rehydrateFromMagicLink();
-  }, [fetchAndSetUserProfile, location.pathname]);
+  }, [fetchAndSetUserProfile, location.pathname, user]);
 
   useEffect(() => {
-    if (authLoading || profileLoading) return;
+    if (authLoading || profileLoading || userLoading || !user || !profileLoaded)
+      return;
 
-    const alreadyOnProfileRoute = location.pathname === "/profile";
-
-    if (profile === undefined || (!alreadyOnProfileRoute && isAuthenticated)) {
+    if (
+      profile === null &&
+      isAuthenticated &&
+      location.pathname !== "/profile"
+    ) {
       navigate("/profile");
     }
   }, [
@@ -67,6 +69,9 @@ export const ProfileGuard = () => {
     location.pathname,
     navigate,
     isAuthenticated,
+    userLoading,
+    user,
+    profileLoaded,
   ]);
 
   return null;

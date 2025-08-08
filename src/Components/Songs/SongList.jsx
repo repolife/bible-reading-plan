@@ -30,7 +30,8 @@ export const SongList = () => {
           title: item.fields.title,
           id: item.sys.id,
           item: item,
-          isShabbat: item.fields.isShabbat == undefined ? false : item.fields.isShabbat,
+          isShabbat:
+            item.fields.isShabbat == undefined ? false : item.fields.isShabbat,
         }));
 
         setSongs(data);
@@ -53,38 +54,48 @@ export const SongList = () => {
     if (inputValue === "") songs;
 
     const meh = songs
-      .filter((item) => item.title.toLowerCase().includes(inputValue.toLowerCase()))
+      .filter((item) =>
+        item.title.toLowerCase().includes(inputValue.toLowerCase())
+      )
       .sort((item) => item.isShabbat)
-      .sort((a, b) => b.isShabbat - a.isShabbat || a.title.localeCompare(b.title));
+      .sort(
+        (a, b) => b.isShabbat - a.isShabbat || a.title.localeCompare(b.title)
+      );
 
     return meh;
   }, [songs, inputValue, setSongs]);
 
-
   return (
-
-<>
-{!isLoading ? <div className="flex flex-col justify-center align-center text-center items-center">
-        <Typography variant="h4" className="text-primary mb-5">
-          Songs
-        </Typography>
-        <input
-          className="p-2 m-2 border border-secondary focus:outline-none focus:border-accent w-1/2"
-          type="text"
-          placeholder="Filter songs"
-          value={inputValue}
-          onChange={handleInputChange}
-        />
-        {filteredSongs.length > 0 &&
-          filteredSongs.sort().map((song, index) => (
-            <ul className="m-4 text-lg link link-primary no-underline" key={index}>
-              <Link
-                title={song.isShabbat ? "Shabbat song!" : ""}
-                to={song.id}
-              >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
-            </ul>
-          ))}
-      </div> : <Spinner className="w-full h-[10vh]"/>}
-      <ScrollToTop /></>
+    <>
+      {!isLoading ? (
+        <div className="flex flex-col justify-center align-center text-center items-center">
+          <Typography variant="h4" className="text-primary mb-5">
+            Songs
+          </Typography>
+          <input
+            className="p-2 m-2 border border-secondary focus:outline-none focus:border-accent w-1/2"
+            type="text"
+            placeholder="Filter songs"
+            value={inputValue}
+            onChange={handleInputChange}
+          />
+          {filteredSongs.length > 0 &&
+            filteredSongs.sort().map((song, index) => (
+              <ul
+                className="m-4 text-lg link link-primary no-underline"
+                key={index}
+              >
+                <Link
+                  title={song.isShabbat ? "Shabbat song!" : ""}
+                  to={song.id}
+                >{`${song.title} ${song.isShabbat ? "🎺" : ""}`}</Link>
+              </ul>
+            ))}
+        </div>
+      ) : (
+        <Spinner className="w-full h-[10vh]" />
+      )}
+      <ScrollToTop />
+    </>
   );
 };

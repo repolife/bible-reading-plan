@@ -7,15 +7,27 @@ import { useAuthStore } from "@store/useAuthStore";
 
 export const StepForm = () => {
   const user = useAuthStore.getState().user;
-  const hasPassword = user?.app_metadata?.provider === "email";
 
-  const steps = [
-    ...(!hasPassword ? [<ConfirmPasswordForm />] : []),
-    <AccountProfile />,
-    <FamilyGroupForm />,
-  ];
   const [activeStep, setActiveStep] = useState(0);
   const [isStepValid, setIsStepValid] = useState(false);
+
+  const steps = [
+    <ConfirmPasswordForm
+      activeStep={activeStep}
+      stepIndex={0}
+      setIsStepValid={setIsStepValid}
+    />,
+    <AccountProfile
+      activeStep={activeStep}
+      stepIndex={1}
+      setIsStepValid={setIsStepValid}
+    />,
+    <FamilyGroupForm
+      activeStep={activeStep}
+      stepIndex={2}
+      setIsStepValid={setIsStepValid}
+    />,
+  ];
 
   const CurrentStep = steps[activeStep];
 
@@ -47,7 +59,7 @@ export const StepForm = () => {
       shadow={false}
     >
       <div shadow={false} className="self-center text-center">
-        <Stepper className="w-full" activeStep={activeStep}>
+        <Stepper className="w-full mb-5" activeStep={activeStep}>
           {steps.map((_, index) => (
             <Step key={index}>{index + 1}</Step>
           ))}
@@ -59,7 +71,7 @@ export const StepForm = () => {
         <Button onClick={prev} disabled={isFirst}>
           Prev
         </Button>
-        <Button onClick={next} disabled={isLast}>
+        <Button onClick={next} disabled={isLast || !isStepValid}>
           Next
         </Button>
       </div>

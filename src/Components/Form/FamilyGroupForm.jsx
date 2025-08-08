@@ -17,10 +17,11 @@ import { Spinner } from "@material-tailwind/react";
 import { useMemo } from "react";
 import { Chip } from "@material-tailwind/react";
 import { useProfileStore } from "../../store/useProfileStore";
+import { set } from "date-fns";
 
 const env = import.meta.env;
 
-export const FamilyGroupForm = () => {
+export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   // Get user, profile (existing data), loading state, and allFamilyGroups for suggestions
   const {
     error,
@@ -42,17 +43,23 @@ export const FamilyGroupForm = () => {
   const autocompleteContainerRef = useRef(null);
 
   useEffect(() => {
-    if (user.id) {
+    if (user?.id) {
       console.log("Fetching family groups and profiles...");
       fetchAllFamilyGroups();
     }
+    return;
   }, [user]);
 
   useEffect(() => {
-    if (profile && profile.family_id) {
+    useProfileStore.getState().fetchAllUserProfiles();
+  }, []);
+
+  useEffect(() => {
+    if (profile && profile?.family_id) {
       fetchFamilyGroup(profile.family_id);
       fetchAllUserProfiles();
     }
+    return;
   }, [profile]);
 
   console.log("profilescall", profiles);
@@ -65,7 +72,7 @@ export const FamilyGroupForm = () => {
     setValue,
     watch,
     reset, // Use reset to pre-fill the form
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm({
     defaultValues: {
       family_last_name: familyGroup?.family_last_name || "",
@@ -75,6 +82,12 @@ export const FamilyGroupForm = () => {
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (activeStep === stepIndex && setIsStepValid) {
+      setIsStepValid(isValid);
+    }
+  }, [isValid, activeStep, stepIndex, setIsStepValid]);
 
   //    const familyMembers = useMemo(() => {
   //     if(!profiles  && !profile) return
@@ -87,6 +100,7 @@ export const FamilyGroupForm = () => {
 
   // Watch the family_last_name input field for filtering suggestions
   const familyLastNameValue = watch("family_last_name");
+  const familyLastName = watch("family_last_name");
 
   // Effect to pre-fill the form with existing profile data
   useEffect(() => {
@@ -109,6 +123,19 @@ export const FamilyGroupForm = () => {
     );
   }, [allFamilyGroups]);
 
+  const handleSuggestionClick = (suggestion) => {
+    const finalValue = suggestion.startsWith("A different")
+      ? familyLastNameValue
+      : suggestion;
+
+    setValue("familyLastName", finalValue, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+
+    setShowSuggestions(false);
+  };
+
   // Effect to filter family name suggestions as the user types
   useEffect(() => {
     const currentInput = familyLastNameValue
@@ -120,13 +147,27 @@ export const FamilyGroupForm = () => {
       );
 
       console.log("filtered", filtered);
-      setFamilySuggestions(filtered);
+
+      const sameLastName = allFamilyGroups.filter(
+        (f) =>
+          (f.family_last_name ?? "").toLowerCase() ===
+          familyLastNameValue.toLowerCase()
+      );
+
+      const suggestions = [
+        ...filtered,
+        ...(sameLastName.length > 0
+          ? [`A different ${familyLastNameValue} family`]
+          : []),
+      ];
+
+      setFamilySuggestions(suggestions);
       setShowSuggestions(true);
     } else {
       setFamilySuggestions([]);
       setShowSuggestions(false);
     }
-  }, [familyLastNameValue, uniqueFamilyNames]);
+  }, [familyLastNameValue, uniqueFamilyNames, allFamilyGroups, familyLastName]);
 
   // Effect to handle clicks outside the autocomplete to hide suggestions
   useEffect(() => {
@@ -145,42 +186,50 @@ export const FamilyGroupForm = () => {
   }, []);
 
   // Handle selecting a suggestion
-  const handleSelectSuggestion = (suggestion) => {
-    const selectedFamily = allFamilyGroups.find(
-      (group) => group.family_last_name === suggestion
-    );
-
-    if (selectedFamily) {
-      // Find the family members based on the selected family's ID
-      const familyMembers = profiles
-        .filter((p) => p.family_id === selectedFamily.id)
-        .map((p) => p.name);
-
-      console.log(
-        "Found family members:",
-        familyMembers,
-        selectedFamily.id,
-        profiles
+  const handleSelectSuggestion = useCallback(
+    (suggestion) => {
+      const selectedFamily = allFamilyGroups.find(
+        (group) => group.family_last_name === suggestion
       );
 
-      // Update the form fields
-      reset({
-        family_last_name: selectedFamily.family_last_name,
-        address: selectedFamily.address || "",
-        food_allergies: selectedFamily.food_allergies || "",
-        house_rules: selectedFamily.house_rules || "",
-      });
+      if (selectedFamily) {
+        // Find the family members based on the selected family's ID
+        const familyMembers = profiles
+          .filter((p) => p.family_id === selectedFamily.id)
+          .map((p) => p.name);
 
-      // Update the new state variable with the found family members
-      setSelectedFamilyMembers(familyMembers);
-    } else {
-      // If it's not a suggestion, clear the family members state and set the value
-      setValue("family_last_name", suggestion, { shouldValidate: true });
-      setSelectedFamilyMembers([]);
-    }
+        console.log(
+          "Found family members:",
+          familyMembers,
+          selectedFamily.id,
+          profiles
+        );
 
-    setShowSuggestions(false);
-  };
+        // Update the form fields
+        reset({
+          family_last_name: selectedFamily.family_last_name,
+          address: selectedFamily.address || "",
+          food_allergies: selectedFamily.food_allergies || "",
+          house_rules: selectedFamily.house_rules || "",
+        });
+
+        // Update the new state variable with the found family members
+        setSelectedFamilyMembers(familyMembers);
+      } else {
+        // If it's not a suggestion, clear the family members state and set the value
+        reset({
+          family_last_name: suggestion,
+          address: "",
+          food_allergies: "",
+          house_rules: "",
+        });
+        setSelectedFamilyMembers([]);
+      }
+
+      setShowSuggestions(false);
+    },
+    [allFamilyGroups, profiles, reset, setValue]
+  );
 
   // Custom validation for family_last_name (e.g., enforce selection from existing)
   const validateFamilyName = (value) => {
@@ -191,7 +240,6 @@ export const FamilyGroupForm = () => {
   };
 
   const onSubmit = async (data) => {
-    debugger;
     if (!user || !user.id) {
       console.error("User not logged in or user ID not available.");
       toast.error("Error: User not logged in. Please log in again.");
@@ -210,6 +258,7 @@ export const FamilyGroupForm = () => {
     try {
       let familyId;
       let error;
+      debugger;
 
       if (
         familyGroup &&
@@ -243,7 +292,7 @@ export const FamilyGroupForm = () => {
           toast.error(
             "Error: This family group name already exists. Please choose another or select from suggestions."
           );
-        } else {
+        } else if (error) {
           toast.success("Error updating profile: " + error.message);
         }
       } else {
@@ -286,6 +335,10 @@ export const FamilyGroupForm = () => {
     );
   }
 
+  if (!profile) {
+    return "Profile needs to be created before entering hosting details";
+  }
+
   return (
     <>
       <Typography
@@ -323,22 +376,13 @@ export const FamilyGroupForm = () => {
               }}
               onBlur={() => setTimeout(() => setShowSuggestions(false), 100)}
             />
-            {selectedFamilyMembers && (
-              <div className="flex flex-col gap-4 m-2">
-                Current members of family:
-                <div className="flex gap-4">
-                  {selectedFamilyMembers.map((m) => (
-                    <Chip value={m} variant="chip ghost" />
-                  ))}
-                </div>
-              </div>
-            )}
 
             {errors.family_last_name && (
               <Typography color="red" variant="small">
                 {errors.family_last_name.message}
               </Typography>
             )}
+
             {showSuggestions && familySuggestions.length > 0 && (
               <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-48 overflow-y-auto shadow-lg">
                 {familySuggestions.map((suggestion, index) => (
@@ -351,6 +395,16 @@ export const FamilyGroupForm = () => {
                   </li>
                 ))}
               </ul>
+            )}
+            {selectedFamilyMembers && (
+              <div className="flex flex-col gap-4 m-2">
+                Current members of family:
+                <div className="flex gap-4">
+                  {selectedFamilyMembers.map((m) => (
+                    <Chip value={m} variant="chip ghost" />
+                  ))}
+                </div>
+              </div>
             )}
           </div>
           <Typography variant="h6" color="blue-gray" className="-mb-3">

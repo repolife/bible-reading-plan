@@ -17,7 +17,6 @@ import { Spinner } from "@material-tailwind/react";
 import { useMemo } from "react";
 import { Chip } from "@material-tailwind/react";
 import { useProfileStore } from "../../store/useProfileStore";
-import { set } from "date-fns";
 
 const env = import.meta.env;
 
@@ -40,6 +39,9 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   const [familySuggestions, setFamilySuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedFamilyMembers, setSelectedFamilyMembers] = useState([]); // <-- Add this new state
+  const [isCreatingNewGroupWithSameName, setIsCreatingNewGroupWithSameName] =
+    useState(false);
+
   const autocompleteContainerRef = useRef(null);
 
   useEffect(() => {
@@ -89,15 +91,6 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
     }
   }, [isValid, activeStep, stepIndex, setIsStepValid]);
 
-  //    const familyMembers = useMemo(() => {
-  //     if(!profiles  && !profile) return
-  //     console.log('familySuggestions', familySuggestions)
-
-  //     return profiles.filter(profile => profile.family_id === profile.family_id)
-  //    }, [profiles, profile, familySuggestions])
-
-  //    console.log('familyMembers', familyMembers)
-
   // Watch the family_last_name input field for filtering suggestions
   const familyLastNameValue = watch("family_last_name");
   const familyLastName = watch("family_last_name");
@@ -116,48 +109,47 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   }, [familyGroup, reset]);
 
   // Extract unique family names from allFamilyGroups for suggestions
-  const uniqueFamilyNames = useCallback(() => {
-    if (!allFamilyGroups || allFamilyGroups.length === 0) return [];
-    return Array.from(
-      new Set(allFamilyGroups.map((p) => p.family_last_name).filter(Boolean))
-    );
-  }, [allFamilyGroups]);
+  const familySuggestionsWithMembers = useMemo(() => {
+    if (!allFamilyGroups || !profiles) return [];
 
-  const handleSuggestionClick = (suggestion) => {
-    const finalValue = suggestion.startsWith("A different")
-      ? familyLastNameValue
-      : suggestion;
+    return allFamilyGroups
+      .filter((group) => group.family_last_name) // filter out empty names
+      .map((group) => {
+        const members = profiles
+          .filter((p) => p.family_id === group.id)
+          .map((p) => p.name);
 
-    setValue("familyLastName", finalValue, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-
-    setShowSuggestions(false);
-  };
-
+        return {
+          id: group.id,
+          family_last_name: group.family_last_name,
+          members,
+        };
+      });
+  }, [allFamilyGroups, profiles]);
   // Effect to filter family name suggestions as the user types
   useEffect(() => {
-    const currentInput = familyLastNameValue
-      ? familyLastNameValue.toLowerCase()
-      : "";
-    if (currentInput.length > 0) {
-      const filtered = uniqueFamilyNames().filter((name) =>
-        name.toLowerCase().includes(currentInput)
+    const input = familyLastNameValue?.toLowerCase() || "";
+
+    if (input.length > 0) {
+      const filtered = familySuggestionsWithMembers.filter((group) =>
+        group.family_last_name.toLowerCase().includes(input)
       );
 
-      console.log("filtered", filtered);
-
-      const sameLastName = allFamilyGroups.filter(
-        (f) =>
-          (f.family_last_name ?? "").toLowerCase() ===
-          familyLastNameValue.toLowerCase()
+      const exactMatch = familySuggestionsWithMembers.find(
+        (group) =>
+          group.family_last_name.toLowerCase() === input &&
+          group.id !== profile?.family_id // exclude current group
       );
 
       const suggestions = [
         ...filtered,
-        ...(sameLastName.length > 0
-          ? [`A different ${familyLastNameValue} family`]
+        ...(exactMatch
+          ? [
+              {
+                family_last_name: `A different ${familyLastNameValue} family`,
+                members: [],
+              },
+            ]
           : []),
       ];
 
@@ -167,7 +159,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
       setFamilySuggestions([]);
       setShowSuggestions(false);
     }
-  }, [familyLastNameValue, uniqueFamilyNames, allFamilyGroups, familyLastName]);
+  }, [familyLastNameValue, familySuggestionsWithMembers, profile?.family_id]);
 
   // Effect to handle clicks outside the autocomplete to hide suggestions
   useEffect(() => {
@@ -188,47 +180,42 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   // Handle selecting a suggestion
   const handleSelectSuggestion = useCallback(
     (suggestion) => {
-      const selectedFamily = allFamilyGroups.find(
-        (group) => group.family_last_name === suggestion
-      );
+      const isDifferentFamily = suggestion.startsWith("A different");
 
-      if (selectedFamily) {
-        // Find the family members based on the selected family's ID
-        const familyMembers = profiles
-          .filter((p) => p.family_id === selectedFamily.id)
-          .map((p) => p.name);
-
-        console.log(
-          "Found family members:",
-          familyMembers,
-          selectedFamily.id,
-          profiles
-        );
-
-        // Update the form fields
+      if (isDifferentFamily) {
         reset({
-          family_last_name: selectedFamily.family_last_name,
-          address: selectedFamily.address || "",
-          food_allergies: selectedFamily.food_allergies || "",
-          house_rules: selectedFamily.house_rules || "",
-        });
-
-        // Update the new state variable with the found family members
-        setSelectedFamilyMembers(familyMembers);
-      } else {
-        // If it's not a suggestion, clear the family members state and set the value
-        reset({
-          family_last_name: suggestion,
+          family_last_name: familyLastNameValue,
           address: "",
           food_allergies: "",
           house_rules: "",
         });
         setSelectedFamilyMembers([]);
+        setIsCreatingNewGroupWithSameName(true);
+      } else {
+        const selectedFamily = allFamilyGroups.find(
+          (group) => group.family_last_name === suggestion
+        );
+
+        if (selectedFamily) {
+          const familyMembers = profiles
+            .filter((p) => p.family_id === selectedFamily.id)
+            .map((p) => p.name);
+
+          reset({
+            family_last_name: selectedFamily.family_last_name,
+            address: selectedFamily.address || "",
+            food_allergies: selectedFamily.food_allergies || "",
+            house_rules: selectedFamily.house_rules || "",
+          });
+
+          setSelectedFamilyMembers(familyMembers);
+          setIsCreatingNewGroupWithSameName(false);
+        }
       }
 
       setShowSuggestions(false);
     },
-    [allFamilyGroups, profiles, reset, setValue]
+    [allFamilyGroups, profiles, reset, familyLastNameValue]
   );
 
   // Custom validation for family_last_name (e.g., enforce selection from existing)
@@ -251,64 +238,67 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
       address: data.address,
       food_allergies: data.food_allergies,
       house_rules: data.house_rules,
-      // You might also set isOnboarded: true here if this is the final onboarding step
-      // isOnboarded: true,
+      // Optionally: isOnboarded: true
     };
 
     try {
       let familyId;
       let error;
-      debugger;
 
-      if (
-        familyGroup &&
-        familyGroup.family_last_name === data.family_last_name
-      ) {
-        // If the user is updating an existing family group they belong to
+      const isSameName =
+        familyGroup?.family_last_name === data.family_last_name;
+
+      if (isSameName && !isCreatingNewGroupWithSameName) {
+        // ✅ Update existing group
         const { data: updatedData, error: updateError } = await supabase
           .from("family_groups")
           .update(familyData)
           .eq("id", familyGroup.id)
           .select();
-        familyId = updatedData ? updatedData[0].id : null;
+
+        familyId = updatedData?.[0]?.id || null;
         error = updateError;
       } else {
-        // If creating a new family group or selecting an existing one not currently associated
-        ({
-          data: [{ id: familyId }],
-          error,
-        } = await supabase.from("family_groups").insert(familyData).select());
+        // ✅ Create new group—even if name matches
+        const { data: insertedData, error: insertError } = await supabase
+          .from("family_groups")
+          .insert(familyData)
+          .select();
+
+        familyId = insertedData?.[0]?.id || null;
+        error = insertError;
       }
 
       if (error) {
-        console.error(
-          "Supabase error updating profile:",
-          error.message,
-          error.code
-        );
-        // Handle specific Supabase errors, e.g., unique constraint violation
+        console.error("Supabase error:", error.message, error.code);
+
         if (error.code === "23505") {
-          // Common PostgreSQL unique violation error code
           toast.error(
             "Error: This family group name already exists. Please choose another or select from suggestions."
           );
-        } else if (error) {
-          toast.success("Error updating profile: " + error.message);
+        } else {
+          toast.error("Error updating profile: " + error.message);
         }
-      } else {
-        toast.success("Family group was created! 🕎");
-        const { error: profileError } = await supabase // eslint-disable-line
-          .from("profiles")
-          .upsert({ id: user.id, family_id: familyId });
-
-        if (profileError) {
-          toast.error("Error updating user profile");
-        }
-
-        useProfileStore.getState().fetchAndSetUserProfile(user.id);
+        return;
       }
+
+      toast.success(
+        isSameName && !isCreatingNewGroupWithSameName
+          ? "Family group updated successfully!"
+          : "New family group created! 🕎"
+      );
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .upsert({ id: user.id, family_id: familyId });
+
+      if (profileError) {
+        toast.error("Error updating user profile");
+      }
+
+      useProfileStore.getState().fetchAndSetUserProfile(user.id);
     } catch (error) {
-      console.error("General error updating profile:", error);
+      console.error("Unexpected error:", error);
       toast.error("An unexpected error occurred while updating profile.");
     }
   };
@@ -382,20 +372,33 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
                 {errors.family_last_name.message}
               </Typography>
             )}
-
             {showSuggestions && familySuggestions.length > 0 && (
-              <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-48 overflow-y-auto shadow-lg">
+              <ul className="absolute z-10 bg-white border border-gray-300 rounded-md shadow-md mt-2 w-full max-h-60 overflow-y-auto">
                 {familySuggestions.map((suggestion, index) => (
                   <li
                     key={index}
-                    className="p-2 cursor-pointer hover:bg-gray-100"
-                    onMouseDown={() => handleSelectSuggestion(suggestion)}
+                    onClick={() =>
+                      handleSelectSuggestion(suggestion.family_last_name)
+                    }
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                   >
-                    {suggestion}
+                    <strong>{suggestion.family_last_name}</strong>
+                    {suggestion.members && suggestion.members.length > 0 && (
+                      <p className="text-xs text-gray-500">
+                        Members: {suggestion.members.join(", ")}
+                      </p>
+                    )}
+                    {suggestion.family_last_name ===
+                      profile?.family_last_name && (
+                      <span className="text-xs text-blue-500 ml-2">
+                        (Your current group)
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
             )}
+
             {selectedFamilyMembers && (
               <div className="flex flex-col gap-4 m-2">
                 Current members of family:
@@ -406,7 +409,19 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
                 </div>
               </div>
             )}
+            {isCreatingNewGroupWithSameName && (
+              <p className="text-sm text-gray-500 mt-1">
+                You’re creating a new family group with the same last name.
+              </p>
+            )}
           </div>
+
+          {familySuggestions.id === profile?.family_id && (
+            <span className="text-xs text-blue-500 ml-2">
+              (Your current group)
+            </span>
+          )}
+
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Home Address
           </Typography>

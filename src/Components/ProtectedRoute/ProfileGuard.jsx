@@ -19,6 +19,11 @@ export const ProfileGuard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!user) return;
+    useProfileStore.getState().fetchAndSetUserProfile(user.id);
+  }, [user]);
+
+  useEffect(() => {
     const rehydrateFromMagicLink = async () => {
       const hashParams = new URLSearchParams(window.location.hash.slice(1));
       const accessToken = hashParams.get("access_token");

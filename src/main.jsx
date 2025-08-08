@@ -24,6 +24,7 @@ import * as Sentry from "@sentry/react";
 import { Signup } from "@/Components/auth/Signup";
 import { StepForm } from "./Components/Form/StepForm.jsx";
 import { useProfileStore } from "./store/useProfileStore.js";
+import { Account } from "./Components/Account/Account.jsx";
 
 useAuthStore.getState().initAuthListener();
 
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
       {
         path: "signup",
         element: <Signup />,
+      },
+      {
+        path: "account",
+        element: <Account />,
       },
       {
         path: "calendar",

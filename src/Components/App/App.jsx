@@ -11,6 +11,7 @@ import { useAuthStore } from "@store/useAuthStore";
 import { Router, Route } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { Signup } from "../auth/Signup";
+import { Account } from "../Account/Account";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,8 @@ function App() {
         <Route exact path="/plan" Component={<ReadingTable />} />
         <Route exact path="/study" Component={<Bible />} />
         <Route exact path="/signup" Component={<Signup />} />
+        <Route exact path="/account" Component={<Account />} />
+
         <Route
           exact
           path="/study/:book/:chapter/:verse"

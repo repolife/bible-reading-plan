@@ -6,6 +6,7 @@ import {
   Typography,
   Card,
   Checkbox,
+  Spinner,
 } from "@material-tailwind/react";
 
 import { useAuthStore } from "@store/useAuthStore";
@@ -14,21 +15,22 @@ import { toast } from "react-toastify";
 import { useFamilyStore } from "@store/useFamilyGroupStore";
 import { useProfileStore } from "@store/useProfileStore";
 
-export const AccountProfile = () => {
+export const AccountProfile = ({ setIsStepValid }) => {
   // Get user, profile (existing data), loading state, and allProfiles for suggestions
   const { user, loading: authLoading } = useAuthStore();
   const {
     profile: existingProfile,
     loading: profileLoading,
     allProfiles,
+    fetchAndSetUserProfile,
   } = useProfileStore();
-  const { fetchFamilyGroup, familyGroup } = useFamilyStore();
+  const {
+    fetchFamilyGroup,
+    familyGroup,
+    loading: familyLoading,
+  } = useFamilyStore();
 
-  useEffect(() => {
-    if (user.id) {
-      fetchFamilyGroup(user.id);
-    }
-  }, [user?.id]);
+  console.log("existingProfile", existingProfile);
 
   const {
     register,
@@ -37,7 +39,7 @@ export const AccountProfile = () => {
     setValue,
     watch,
     reset, // Use reset to pre-fill the form
-    formState: { errors, isSubmitting, isDirty },
+    formState: { errors, isSubmitting, isDirty, isValid },
   } = useForm({
     defaultValues: {
       birthday: "",
@@ -46,6 +48,10 @@ export const AccountProfile = () => {
     },
     mode: "onChange",
   });
+
+  useEffect(() => {
+    fetchAndSetUserProfile(user?.id);
+  }, [user?.id]);
 
   // Effect to pre-fill the form with existing profile data
   useEffect(() => {
@@ -61,6 +67,12 @@ export const AccountProfile = () => {
       });
     }
   }, [existingProfile, reset]); // Reset form when existingProfile changes
+
+  useEffect(() => {
+    if (setIsStepValid) {
+      setIsStepValid(isValid);
+    }
+  }, [setIsStepValid, isValid]);
 
   // Extract unique family names from allProfiles for suggestions
   const uniqueFamilyNames = useCallback(() => {
@@ -153,12 +165,10 @@ export const AccountProfile = () => {
   };
 
   // Show loading state from the store while auth or profile is being fetched
-  if (authLoading) {
+  if (authLoading || profileLoading || familyLoading) {
     return (
-      <Card className="flex flex-col items-center p-8 rounded-lg shadow-lg bg-white">
-        <Typography variant="h5" color="blue-gray">
-          Loading User Profile...
-        </Typography>
+      <Card className="flex flex-col items-center">
+        <Spinner />
       </Card>
     );
   }

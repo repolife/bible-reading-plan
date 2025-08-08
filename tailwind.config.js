@@ -14,8 +14,11 @@ module.exports = withMT({
       center: true,
     },
   },
-  plugins: [require("@tailwindcss/typography"), require("daisyui"),     require('tailwindcss-debug-screens'),
-],
+  plugins: [
+    require("@tailwindcss/typography"),
+    require("daisyui"),
+    require("tailwindcss-debug-screens"),
+  ],
   daisyui: {
     themes: ["dim"],
   },

@@ -3,14 +3,19 @@ import { useForm } from "react-hook-form";
 import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import { supabase } from "@/supabaseClient";
 import { toast } from "react-toastify";
+import { useEffect } from "react";
 
-export const ConfirmPasswordForm = ({ setIsStepValid }) => {
+export const ConfirmPasswordForm = ({
+  setIsStepValid,
+  activeStep,
+  stepIndex,
+}) => {
   const {
     register,
     handleSubmit,
     watch,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isValid },
   } = useForm();
 
   const onSubmit = async ({ password }) => {
@@ -23,6 +28,12 @@ export const ConfirmPasswordForm = ({ setIsStepValid }) => {
 
     toast.success("✅ Password updated successfully!");
   };
+
+  useEffect(() => {
+    if (activeStep === stepIndex && setIsStepValid) {
+      setIsStepValid(true);
+    }
+  }, [isValid, activeStep, stepIndex, setIsStepValid]);
 
   const password = watch("password");
 

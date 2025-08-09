@@ -98,7 +98,6 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   // Effect to pre-fill the form with existing profile data
   useEffect(() => {
     if (familyGroup) {
-      // Format birthday for input type="date" (YYYY-MM-DD)
       reset({
         family_last_name: familyGroup.family_last_name || "",
         address: familyGroup.address || "",

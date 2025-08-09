@@ -24,11 +24,6 @@ export const AccountProfile = ({ setIsStepValid }) => {
     allProfiles,
     fetchAndSetUserProfile,
   } = useProfileStore();
-  const {
-    fetchFamilyGroup,
-    familyGroup,
-    loading: familyLoading,
-  } = useFamilyStore();
 
   console.log("existingProfile", existingProfile);
 
@@ -165,7 +160,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
   };
 
   // Show loading state from the store while auth or profile is being fetched
-  if (authLoading || profileLoading || familyLoading) {
+  if (authLoading || profileLoading) {
     return (
       <Card className="flex flex-col items-center">
         <Spinner />
@@ -237,10 +232,9 @@ export const AccountProfile = ({ setIsStepValid }) => {
             </div>
 
             <Typography variant="h6" color="blue-gray" className="-mb-3">
-              Birthday
+              Birthdaysss
             </Typography>
             <Input
-              disabled={!familyGroup}
               type="date"
               size="lg"
               placeholder="YYYY-MM-DD"
@@ -272,7 +266,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
               </Typography>
             )}
           </div>
-          {familyGroup && (
+          {
             <Button
               className="mt-6"
               fullWidth
@@ -281,7 +275,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
             >
               {isSubmitting ? "Saving..." : "Update Profile"}
             </Button>
-          )}
+          }
         </form>
       </div>
     </>

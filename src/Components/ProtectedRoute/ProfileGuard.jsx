@@ -40,31 +40,43 @@ export const ProfileGuard = () => {
           return;
         }
 
-        if (userError || !user) {
-          console.error("Failed to fetch user:", userError?.message);
-          return;
-        }
-
-        await fetchAndSetUserProfile(user.id);
-        setProfileLoaded(true);
-
-        // Clean up hash from URL
-        window.history.replaceState(null, "", location.pathname);
+        // Wait for user to hydrate
+        const unsubscribe = useAuthStore.subscribe(
+          (state) => state.user,
+          async (newUser) => {
+            if (newUser) {
+              await useProfileStore
+                .getState()
+                .fetchAndSetUserProfile(newUser.id);
+              setProfileLoaded(true);
+              window.history.replaceState(null, "", location.pathname);
+              unsubscribe(); // Clean up
+            }
+          }
+        );
       }
     };
 
     rehydrateFromMagicLink();
-  }, [fetchAndSetUserProfile, location.pathname, user]);
+  }, [location.pathname]);
 
   useEffect(() => {
-    if (authLoading || profileLoading || userLoading || !user || !profileLoaded)
-      return;
+    if (profile && user) {
+      setProfileLoaded(true);
+    }
+  }, [profile, user]);
+
+  useEffect(() => {
+    if (authLoading || profileLoading || userLoading || !user) return;
 
     if (
-      profile === null &&
+      !profile &&
       isAuthenticated &&
+      !profileLoading &&
       location.pathname !== "/profile"
     ) {
+      console.log("guardsssssssssss");
+
       navigate("/profile");
     }
   }, [

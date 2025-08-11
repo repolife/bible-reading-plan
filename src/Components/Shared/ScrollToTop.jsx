@@ -29,8 +29,15 @@ export default function ScrollToTop() {
   }, []);
   //bg-info-content
   return (
-    <div className={`fixed bottom-2 right-0 mr-0 pr-2  cursor-pointer rounded-full ${isVisible ? "inline" : "hidden"}`}>
-      <IconButton className=" bg-info-content text-blue-gray-50" type="button" variant="outlined" onClick={scrollToTop}>
+    <div
+      className={`fixed bottom-2 right-0 mr-0 pr-2  cursor-pointer rounded-full ${isVisible ? "inline" : "hidden"}`}
+    >
+      {/* <IconButton
+        className=" bg-info-content text-blue-gray-50"
+        type="button"
+        variant="outlined"
+        onClick={scrollToTop}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -39,10 +46,18 @@ export default function ScrollToTop() {
           stroke="currentColor"
           className="size-6"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 18.75 7.5-7.5 7.5 7.5" />
-          <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 7.5-7.5 7.5 7.5" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="m4.5 18.75 7.5-7.5 7.5 7.5"
+          />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="m4.5 12.75 7.5-7.5 7.5 7.5"
+          />
         </svg>
-      </IconButton>
+      </IconButton> */}
     </div>
   );
 }

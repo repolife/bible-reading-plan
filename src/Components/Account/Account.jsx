@@ -1,12 +1,5 @@
 import React, { useState } from "react";
-import {
-  Card,
-  Tabs,
-  TabsHeader,
-  TabsBody,
-  Tab,
-  TabPanel,
-} from "@material-tailwind/react";
+import { Card, Tabs } from "@material-tailwind/react";
 import { ConfirmPasswordForm } from "../Form/Password";
 import { AccountProfile } from "../Profile/AccountProfile";
 import { FamilyGroupForm } from "../Form/FamilyGroupForm";
@@ -30,27 +23,27 @@ export const Account = () => {
   const defaultTab = pages[0].key;
 
   return (
-    <Tabs value={defaultTab}>
-      <TabsHeader>
+    <Tabs defaultValue={defaultTab}>
+      <Tabs.List className="w-full">
         {pages.map(({ key }) => (
-          <Tab
+          <Tabs.Trigger
             className="text bg-accent flex justify-between"
             key={key}
             value={key}
           >
             {key}
-          </Tab>
+          </Tabs.Trigger>
         ))}
-      </TabsHeader>
-      <TabsBody className="h-lvh">
+      </Tabs.List>
+      <Tabs.List className="h-lvh">
         {pages.map(({ key, component }) => (
-          <TabPanel key={key} value={key}>
+          <Tabs.Panel key={key} value={key}>
             <Card className="p-6 max-w-md mx-auto mt-10 shadow-lg">
               {component}
             </Card>
-          </TabPanel>
+          </Tabs.Panel>
         ))}
-      </TabsBody>
+      </Tabs.List>
     </Tabs>
   );
 };

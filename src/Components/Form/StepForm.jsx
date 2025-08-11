@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AccountProfile } from "../Profile/AccountProfile";
 import { FamilyGroupForm } from "./FamilyGroupForm";
-import { Card, Stepper, Step, Button } from "@material-tailwind/react";
+import { Card, Timeline, Button } from "@material-tailwind/react";
 import { ConfirmPasswordForm } from "./Password";
 import { useAuthStore } from "@store/useAuthStore";
 
@@ -48,11 +48,11 @@ export const StepForm = () => {
       shadow={false}
     >
       <div shadow={false} className="self-center text-center">
-        <Stepper className="w-full mb-5" activeStep={activeStep}>
+        <Timeline className="w-full mb-5" activeStep={activeStep}>
           {steps.map((_, index) => (
-            <Step ckey={index}>{index + 1}</Step>
+            <Timeline.Item ckey={index}>{index + 1}</Timeline.Item>
           ))}
-        </Stepper>
+        </Timeline>
         {steps[activeStep]}
       </div>
 

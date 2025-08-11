@@ -2,14 +2,19 @@ import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   base: "/",
 
-  plugins: [react(), sentryVitePlugin({
-    org: "david-vargas",
-    project: "javascript-react"
-  })],
+  plugins: [
+    tailwindcss(),
+    react(),
+    sentryVitePlugin({
+      org: "david-vargas",
+      project: "javascript-react",
+    }),
+  ],
 
   define: {
     "process.env": process.env,
@@ -41,6 +46,6 @@ export default defineConfig({
   },
 
   build: {
-    sourcemap: true
-  }
+    sourcemap: true,
+  },
 });

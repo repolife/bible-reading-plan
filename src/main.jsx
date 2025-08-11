@@ -9,7 +9,6 @@ import ReadingTable from "./Components/Songs/Bible-Reading-Plan/ReadingTable.jsx
 import { Verse } from "components/Study/Verse.jsx";
 import { Bible } from "components/Bible/Bible.jsx";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { ThemeProvider } from "@material-tailwind/react";
 import { Calendar } from "./Components/Calendar/Calendar.jsx";
 import { ProtectedRoute } from "./Components/ProtectedRoute/ProtectedRoute.jsx";
 import { Nav } from "./Components/Shared/Nav/Nav.jsx";
@@ -125,9 +124,7 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={theme}>
-        <RouterProvider router={router} />
-      </ThemeProvider>
+      <RouterProvider router={router} />
     </QueryClientProvider>
   </React.StrictMode>
 );

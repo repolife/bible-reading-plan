@@ -4,6 +4,7 @@ import { Input, Button, Typography, Card } from "@material-tailwind/react";
 import { supabase } from "@/supabaseClient";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
+import { useProfileStore } from "../../store/useProfileStore";
 
 export const ConfirmPasswordForm = ({
   setIsStepValid,
@@ -17,6 +18,8 @@ export const ConfirmPasswordForm = ({
     setError,
     formState: { errors, isSubmitting, isValid },
   } = useForm();
+
+  const { profile } = useProfileStore();
 
   const onSubmit = async ({ password }) => {
     const { error, data } = await supabase.auth.updateUser({ password });
@@ -40,7 +43,8 @@ export const ConfirmPasswordForm = ({
   };
 
   useEffect(() => {
-    if (!profile || !profile.has_password) {
+    if (!setIsStepValid) return;
+    if (!profile || (!profile.has_password && setIsStepValid)) {
       setIsStepValid(false);
       return;
     } else {
@@ -48,7 +52,7 @@ export const ConfirmPasswordForm = ({
         setIsStepValid(true);
       }
     }
-  }, [isValid, activeStep, stepIndex, setIsStepValid]);
+  }, [isValid, activeStep, stepIndex, setIsStepValid, profile]);
 
   const password = watch("password");
 

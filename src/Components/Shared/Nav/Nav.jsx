@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
-  Navbar,
+  Card,
   Collapse,
   Typography,
   Button,
@@ -140,7 +140,7 @@ export const Nav = ({ classes }) => {
   );
 
   return (
-    <Navbar
+    <Card
       className={` mx-auto w-screen px-5 py-2 lg:px-8 lg:py-4 bg-accent border rounded-none navbar ${classes}`}
     >
       <div className="container mx-auto flex items-center justify-between text-blue-gray-901">
@@ -156,7 +156,7 @@ export const Nav = ({ classes }) => {
         </div>
 
         <IconButton
-          variant="text"
+          variant="solid"
           className="ml-auto h-7 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
           ripple={false}
           onClick={() => setOpenNav(!openNav)}
@@ -196,7 +196,7 @@ export const Nav = ({ classes }) => {
       <Collapse open={openNav}>
         <div className=" container mx-auto w-screen">{navList}</div>
       </Collapse>
-    </Navbar>
+    </Card>
   );
 };
 

@@ -12,7 +12,7 @@ import { ErrorBoundary } from "react-error-boundary";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0],
+    new Date().toISOString().split("T")[0]
   );
 
   const handleDateChange = (event) => {
@@ -53,86 +53,84 @@ const FilteredReadingPlan = () => {
   let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;
 
   return (
-  
-
-      <div className="grid grid-flow-row gap-6 pb-2 text-center m-auto">
-        <Typography
-          variant="h4"
-          className="text-primary flex flex-row items-center justify-between"
+    <div className="grid grid-flow-row gap-6 pb-2 text-center m-auto">
+      <Typography
+        variant="h4"
+        className="text-primary flex flex-row items-center justify-between"
+      >
+        Reading Plan
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="size-6"
         >
-          Reading Plan
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
-            />
-          </svg>
-        </Typography>
-        <label htmlFor="date-picker">Select a date: </label>
-        <input
-          type="date"
-          id="date-picker"
-          className="flex flex-col jusitfy-center text-center items-center"
-          value={selectedDate}
-          onChange={handleDateChange}
-        />
-        <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
-        <h3>{dateRange}</h3>
-        {weeklyReadings && weeklyReadings.length > 0 ? (
-          <div>
-            {weeklyReadings.map((reading, index) => {
-              return (
-                reading.passage && (
-                  <div key={index} className="flex flex-col justify-center">
-                    {reading.passage.split("; ").map((passage, i) => (
-                      <ErrorBoundary
-                        key={`${index}-${i}`}
-                        FallbackComponent={ErrorBoundary}
-                      >
-                        <ReadingItem key={`${index}-${i}`} passage={passage} />
-                      </ErrorBoundary>
-                    ))}
-                  </div>
-                )
-              );
-            })}
-          </div>
-        ) : (
-          <p>No readings scheduled for this week.</p>
-        )}
-        <section className="grid gap-5 mt-20">
-          <p>To use mobile, you need to install YouVersion</p>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-evenly",
-            }}
-          >
-            <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">
-              <IconButton className="link link-accent">
-                <i className="fa-brands fa-google-play text-3xl text-accent" />
-              </IconButton>{" "}
-            </a>{" "}
-            <a href="https://app.bible.com/app-ios">
-              <IconButton as="a" className="link link-primary">
-                <i className="fa-brands fa-app-store-ios text-3xl text-accent" />
-              </IconButton>
-            </a>
-          </div>
-          <Link className="link link-info text-center mt-2" to="/plan">
-            Full 2 year reading plan
-          </Link>
-        </section>
-      </div>
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
+          />
+        </svg>
+      </Typography>
+      <label htmlFor="date-picker">Select a date: </label>
+      <input
+        type="date"
+        id="date-picker"
+        className="flex flex-col jusitfy-center text-center items-center"
+        value={selectedDate}
+        onChange={handleDateChange}
+      />
+      <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
+      <h3>{dateRange}</h3>
+      {weeklyReadings && weeklyReadings.length > 0 ? (
+        <div>
+          {weeklyReadings.map((reading, index) => {
+            return (
+              reading.passage && (
+                <div key={index} className="flex flex-col justify-center">
+                  {reading.passage.split("; ").map((passage, i) => (
+                    <ErrorBoundary
+                      key={`${index}-${i}`}
+                      FallbackComponent={ErrorBoundary}
+                    >
+                      <ReadingItem key={`${index}-${i}`} passage={passage} />
+                    </ErrorBoundary>
+                  ))}
+                </div>
+              )
+            );
+          })}
+        </div>
+      ) : (
+        <p>No readings scheduled for this week.</p>
+      )}
+      <section className="grid gap-5 mt-20">
+        <p>To use mobile, you need to install YouVersion</p>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+          }}
+        >
+          {/* <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">
+            <IconButton className="btn-accent">
+              <i className="fa-brands fa-google-play text-3xl text-accent" />
+            </IconButton>{" "}
+          </a>{" "}
+          <a href="https://app.bible.com/app-ios">
+            <IconButton as="a" className="btn-primary">
+              <i className="fa-brands fa-app-store-ios text-3xl text-accent" />
+            </IconButton>
+          </a> */}
+        </div>
+        <Link className="link link-info text-center mt-2" to="/plan">
+          Full 2 year reading plan
+        </Link>
+      </section>
+    </div>
   );
 };
 

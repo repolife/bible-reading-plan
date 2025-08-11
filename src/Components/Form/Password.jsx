@@ -26,12 +26,27 @@ export const ConfirmPasswordForm = ({
       return;
     }
 
+    const { error: profileError, data: profileData } = await supabase
+      .from("profiles")
+      .upsert({ id: data.user.id, has_password: true });
+
+    if (profileError) {
+      setError("password", { message: profileError.message });
+      return;
+    }
+
+    console.log("profile created with password", profileData);
     toast.success("✅ Password updated successfully!");
   };
 
   useEffect(() => {
-    if (activeStep === stepIndex && setIsStepValid) {
-      setIsStepValid(true);
+    if (!profile || !profile.has_password) {
+      setIsStepValid(false);
+      return;
+    } else {
+      if (activeStep === stepIndex && setIsStepValid) {
+        setIsStepValid(true);
+      }
     }
   }, [isValid, activeStep, stepIndex, setIsStepValid]);
 

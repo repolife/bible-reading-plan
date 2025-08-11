@@ -31,17 +31,6 @@ export const StepForm = () => {
 
   const CurrentStep = steps[activeStep];
 
-  const handleNext = async () => {
-    const valid = await CurrentStep.submit(); // each step exposes a submit method
-    if (valid) {
-      setActiveStep((prev) => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    setActiveStep((prev) => prev - 1);
-  };
-
   const isFirst = activeStep === 0;
   const isLast = activeStep === steps.length - 1;
 

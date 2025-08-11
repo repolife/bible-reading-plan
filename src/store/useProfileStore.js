@@ -25,13 +25,13 @@ export const useProfileStore = create((set, get) => ({
   },
 
   fetchAndSetUserProfile: async (userId) => {
+    set({ loading: true });
+
     if (!userId) {
       console.warn("No user ID provided — clearing profile.");
       set({ profile: null, loading: false });
       return;
     }
-
-    set({ loading: true });
 
     const { data, error } = await supabase
       .from("profiles")

@@ -55,13 +55,13 @@ export const StepForm = () => {
 
   return (
     <Card
-      className="flex flex-col items-center p-8 rounded-lg shadow-lg bg-white w-full"
+      className="flex flex-col h-full items-center p-8 rounded-lg shadow-lg bg-white w-full"
       shadow={false}
     >
       <div shadow={false} className="self-center text-center">
         <Stepper className="w-full mb-5" activeStep={activeStep}>
           {steps.map((_, index) => (
-            <Step key={index}>{index + 1}</Step>
+            <Step ckey={index}>{index + 1}</Step>
           ))}
         </Stepper>
         {steps[activeStep]}

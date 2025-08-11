@@ -19,9 +19,9 @@ export const ProfileGuard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) return;
-    useProfileStore.getState().fetchAndSetUserProfile(user.id);
-  }, [user]);
+    if (!user?.id) return;
+    useProfileStore.getState().fetchAndSetUserProfile(user?.id);
+  }, [user?.id]);
 
   useEffect(() => {
     const rehydrateFromMagicLink = async () => {
@@ -45,9 +45,7 @@ export const ProfileGuard = () => {
           (state) => state.user,
           async (newUser) => {
             if (newUser) {
-              await useProfileStore
-                .getState()
-                .fetchAndSetUserProfile(newUser.id);
+              await fetchAndSetUserProfile(newUser.id);
               setProfileLoaded(true);
               window.history.replaceState(null, "", location.pathname);
               unsubscribe(); // Clean up
@@ -67,29 +65,20 @@ export const ProfileGuard = () => {
   }, [profile, user]);
 
   useEffect(() => {
-    if (authLoading || profileLoading || userLoading || !user) return;
+    if (authLoading || profileLoading || !profileLoaded) return;
 
-    if (
-      !profile &&
-      isAuthenticated &&
-      !profileLoading &&
-      location.pathname !== "/profile"
-    ) {
-      console.log("guardsssssssssss");
+    const alreadyOnProfileRoute = location.pathname === "/profile";
 
+    if (!profile && isAuthenticated && !alreadyOnProfileRoute) {
       navigate("/profile");
     }
   }, [
     profile,
     authLoading,
     profileLoading,
+    profileLoaded,
     location.pathname,
     navigate,
     isAuthenticated,
-    userLoading,
-    user,
-    profileLoaded,
   ]);
-
-  return null;
 };

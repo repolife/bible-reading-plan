@@ -470,14 +470,63 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
               </ul>
             )}
 
-            {selectedFamilyMembers && (
+            {selectedFamilyMembers && !isCreatingNewGroupWithSameName && (
               <div className="flex flex-col gap-4 m-2">
-                Current members of family:
+                <div className="text-neutral-700 dark:text-neutral-300 font-medium">
+                  Current members of this family:
+                </div>
                 <div className="flex items-end gap-4">
                   {selectedFamilyMembers.map((m) => (
                     <Chip  color="primary" size="sm" key={m} value={m}><Chip.Label>{m}</Chip.Label></Chip>
                   ))}
                 </div>
+                
+                {/* Check if user is already part of this family */}
+                {profile?.family_id === allFamilyGroups.find(
+                  (group) => group.family_last_name === familyLastNameValue
+                )?.id ? (
+                  <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-3 text-center">
+                    <p className="text-green-700 dark:text-green-300 text-sm font-medium">
+                      ✅ You are already part of this family group
+                    </p>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      try {
+                        // Update the user's profile to link them to this family
+                        const { error } = await supabase
+                          .from("profiles")
+                          .upsert({ 
+                            id: user.id, 
+                            family_id: allFamilyGroups.find(
+                              (group) => group.family_last_name === familyLastNameValue
+                            )?.id 
+                          });
+
+                        if (error) {
+                          toast.error("Error adding you to this family: " + error.message);
+                          return;
+                        }
+
+                        toast.success("✅ You've been added to this family group!");
+                        
+                        // Refresh the profile data
+                        useProfileStore.getState().fetchAndSetUserProfile(user.id);
+                        
+                        // Update the local state to show the user is now part of this family
+                        setSelectedFamilyMembers(prev => [...prev, user.email || 'You']);
+                      } catch (error) {
+                        console.error("Error adding user to family:", error);
+                        toast.error("An unexpected error occurred while adding you to this family.");
+                      }
+                    }}
+                    className="bg-brand-primary hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                  >
+                    ➕ Add Myself to This Family
+                  </button>
+                )}
               </div>
             )}
             {isCreatingNewGroupWithSameName && (

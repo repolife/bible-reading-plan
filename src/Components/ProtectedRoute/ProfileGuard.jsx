@@ -17,7 +17,6 @@ export const ProfileGuard = () => {
 
   const { user, userError, loading: userLoading } = useAuthStore();
 
-  console.log("user", user);
 
   const navigate = useNavigate();
 
@@ -86,7 +85,7 @@ export const ProfileGuard = () => {
   ]);
 
   if (profileLoading) {
-    return <Spinner />;
+    return
   }
 
   return null;

@@ -64,7 +64,7 @@ export const Song = () => {
 
       <div className="flex flex-col justify-center content-center items-center ">
         {songtitle !== "" ? (
-          <h4 className="text-3xl mb-4 text-accent">{songtitle}</h4>
+          <h4 className="text-3xl mb-4 text-default-font">{songtitle}</h4>
         ) : null}
         <div className="text-2xl text-center w-screen h-screen  p-4">
           {" "}

@@ -168,14 +168,15 @@ export const ProfileForm = () => {
       }
     } catch (error) {
       console.error("Error updating profile:", error.message);
+  
       toast("Error updating profile:" + error.message);
     }
   };
 
   return (
     <Card
-      className="flex flex-col items-center p-8 rounded-lg shadow-lg bg-white"
-      shadow={false}
+      // className="flex flex-col items-center p-8 rounded-lg shadow-lg bg-white"
+      // shadow={false}
     >
       <Typography variant="h4" color="blue-gray">
         Shalom!
@@ -184,7 +185,7 @@ export const ProfileForm = () => {
         Please enter your details to make hosting easier.
       </Typography>
       {/* 3. Wrap your form with handleSubmit */}
-      <form className="mt-8 mb-2 w-80" onSubmit={handleSubmit(onSubmit)}>
+      <form className="mt-8 mb-2" onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-1 flex flex-col gap-6">
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Family Last Name
@@ -194,7 +195,7 @@ export const ProfileForm = () => {
             <Input
               size="lg"
               placeholder="Type family last name"
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              className="!border-t-blue-gray-200 focus:border-t-gray-900!"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
@@ -273,7 +274,7 @@ export const ProfileForm = () => {
             type="date"
             size="lg"
             placeholder="YYYY-MM-DD"
-            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+            className="!border-t-blue-gray-200 focus:border-t-gray-900!"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
@@ -307,7 +308,7 @@ export const ProfileForm = () => {
           <Textarea
             size="lg"
             placeholder="e.g., Peanuts, Gluten"
-            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+            className="!border-t-blue-gray-200 focus:border-t-gray-900!"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
@@ -320,7 +321,7 @@ export const ProfileForm = () => {
           <Textarea
             size="lg"
             placeholder="e.g., No shoes"
-            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+            className="!border-t-blue-gray-200 focus:border-t-gray-900!"
             labelProps={{
               className: "before:content-none after:content-none",
             }}

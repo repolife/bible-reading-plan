@@ -1,19 +1,18 @@
-import React, { useMemo, useEffect, useCallback, useRef } from "react";
-import { useForm } from "react-hook-form";
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useForm, Controller } from "react-hook-form";
 import {
   Input,
-  Button,
   Typography,
+  Textarea,
   Card,
   Checkbox,
-  Spinner,
 } from "@material-tailwind/react";
-
+import Autocomplete from "react-google-autocomplete";
 import { useAuthStore } from "@store/useAuthStore";
-import { supabase } from "@/supabaseClient"; // Corrected Supabase client import path
+import { supabase } from "@/supabaseClient";
 import { toast } from "react-toastify";
-import { useFamilyStore } from "@store/useFamilyGroupStore";
-import { useProfileStore } from "@store/useProfileStore";
+import { useProfileStore } from "../../store/useProfileStore";
+import { Spinner } from "../Shared/Spinner/Spinner";
 
 export const AccountProfile = ({ setIsStepValid }) => {
   // Get user, profile (existing data), loading state, and allProfiles for suggestions
@@ -162,8 +161,8 @@ export const AccountProfile = ({ setIsStepValid }) => {
   // Show loading state from the store while auth or profile is being fetched
   if (authLoading || profileLoading) {
     return (
-      <Card className="flex flex-col items-center">
-        <Spinner />
+      <Card className="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg bg-neutral-50 dark:bg-neutral-800">
+        <Spinner size="md" text="Loading profile..." />
       </Card>
     );
   }
@@ -187,8 +186,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
       <Typography color="gray" className="mt-1 font-normal">
         Update your details below.
       </Typography>
-      <div>
-        <form className="mt-8 mb-2 w-80" onSubmit={handleSubmit(onSubmit)}>
+      <form className="mt-8 mb-2 w-full" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-1 flex flex-col gap-6">
             <Typography variant="h6" color="blue-gray" className="-mb-3">
               Email (Cannot be changed here)
@@ -198,7 +196,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
               size="lg"
               placeholder="user@example.com"
               value={user.email || ""}
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              className="!border-t-neutral-300 dark:!border-t-neutral-600 focus:!border-t-brand-primary !text-neutral-900 dark:!text-neutral-100 !bg-neutral-50 dark:!bg-neutral-800"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
@@ -210,7 +208,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
             <Input
               size="lg"
               placeholder="name"
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              className="!border-t-neutral-300 dark:!border-t-neutral-600 focus:!border-t-brand-primary !text-neutral-900 dark:!text-neutral-100 !bg-neutral-50 dark:!bg-neutral-800"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
@@ -223,7 +221,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
               </Typography>
               <Checkbox
                 size="lg"
-                className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+                className="!border-t-neutral-300 dark:!border-t-neutral-600 focus:!border-t-brand-primary !text-neutral-900 dark:!text-neutral-100 !bg-neutral-50 dark:!bg-neutral-800"
                 labelProps={{
                   className: "before:content-none after:content-none",
                 }}
@@ -232,13 +230,13 @@ export const AccountProfile = ({ setIsStepValid }) => {
             </div>
 
             <Typography variant="h6" color="blue-gray" className="-mb-3">
-              Birthdaysss
+              Birthday
             </Typography>
             <Input
               type="date"
               size="lg"
               placeholder="YYYY-MM-DD"
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              className="!border-t-neutral-300 dark:!border-t-neutral-600 focus:!border-t-brand-primary !text-neutral-900 dark:!text-neutral-100 !bg-neutral-50 dark:!bg-neutral-800"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
@@ -266,18 +264,14 @@ export const AccountProfile = ({ setIsStepValid }) => {
               </Typography>
             )}
           </div>
-          {
-            <Button
-              className="mt-6"
-              fullWidth
-              type="submit"
-              disabled={isSubmitting || !isDirty}
-            >
-              {isSubmitting ? "Saving..." : "Update Profile"}
-            </Button>
-          }
+          <button
+            className="mt-6 w-full bg-brand-primary hover:bg-brand-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            type="submit"
+            disabled={isSubmitting || !isDirty}
+          >
+            {isSubmitting ? "Saving..." : "Update Profile"}
+          </button>
         </form>
-      </div>
     </>
   );
 };

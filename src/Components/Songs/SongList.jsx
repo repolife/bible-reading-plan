@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { createClient } from "contentful";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
@@ -6,7 +6,7 @@ import Nav from "shared/Nav/Nav";
 import ScrollToTop from "../Shared/ScrollToTop";
 import Layout from "shared/Layout/Layout";
 import { Typography } from "@material-tailwind/react";
-import { Spinner } from "@material-tailwind/react";
+import { Spinner } from "../Shared/Spinner/Spinner";
 
 const env = import.meta.env;
 
@@ -93,7 +93,9 @@ export const SongList = () => {
             ))}
         </div>
       ) : (
-        <Spinner className="w-full h-[10vh]" />
+        <div className="flex justify-center items-center h-[10vh]">
+          <Spinner size="md" text="Loading songs..." />
+        </div>
       )}
       <ScrollToTop />
     </>

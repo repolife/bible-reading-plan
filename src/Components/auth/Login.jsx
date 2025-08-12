@@ -12,7 +12,14 @@ export const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/profile");
+      navigate("/");
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (!isAuthenticated) {
+      navigate("/login");
     }
   }, [loading, location.pathname, navigate, isAuthenticated]);
 

@@ -7,8 +7,8 @@ import { Link } from "react-router-dom";
 import { Typography } from "@material-tailwind/react";
 import { DayPicker } from "react-day-picker";
 import { Input } from "@material-tailwind/react";
-import { IconButton } from "@material-tailwind/react";
 import { ErrorBoundary } from "react-error-boundary";
+import { Chip } from "@material-tailwind/react";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(
@@ -53,7 +53,7 @@ const FilteredReadingPlan = () => {
   let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;
 
   return (
-    <div className="grid grid-flow-row gap-6 pb-2 text-center m-auto">
+    <div className="w-1/2 grid grid-flow-row gap-6 pb-2 text-center m-auto">
       <Typography
         variant="h4"
         className="text-primary flex flex-row items-center justify-between"
@@ -74,16 +74,16 @@ const FilteredReadingPlan = () => {
           />
         </svg>
       </Typography>
-      <label htmlFor="date-picker">Select a date: </label>
+      <label htmlFor="date-picker" className="text-neutral-700 dark:text-neutral-300">Select a date: </label>
       <input
         type="date"
         id="date-picker"
-        className="flex flex-col jusitfy-center text-center items-center"
+        className="flex flex-col justify-center text-center items-center px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-600 bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:border-brand-primary focus:outline-none"
         value={selectedDate}
         onChange={handleDateChange}
       />
-      <h4>{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
-      <h3>{dateRange}</h3>
+      <h4 className="text-neutral-800 dark:text-neutral-200">{isShabbat ? "Shabbat Shalom! 🎺" : null}</h4>
+      <h3 className="text-neutral-700 dark:text-neutral-300">{dateRange}</h3>
       {weeklyReadings && weeklyReadings.length > 0 ? (
         <div>
           {weeklyReadings.map((reading, index) => {
@@ -104,10 +104,10 @@ const FilteredReadingPlan = () => {
           })}
         </div>
       ) : (
-        <p>No readings scheduled for this week.</p>
+        <p className="text-neutral-600 dark:text-neutral-400">No readings scheduled for this week.</p>
       )}
       <section className="grid gap-5 mt-20">
-        <p>To use mobile, you need to install YouVersion</p>
+        <p className="text-neutral-600 dark:text-neutral-400">To use mobile, you need to install YouVersion</p>
         <div
           style={{
             display: "flex",
@@ -115,18 +115,21 @@ const FilteredReadingPlan = () => {
             justifyContent: "space-evenly",
           }}
         >
-          {/* <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">
-            <IconButton className="btn-accent">
-              <i className="fa-brands fa-google-play text-3xl text-accent" />
-            </IconButton>{" "}
-          </a>{" "}
+          <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">
+            <button className="bg-brand-primary hover:bg-brand-600 text-white shadow-lg shadow-brand-primary/25 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 hover:scale-105">
+              <i className="fa-brands fa-google-play text-2xl text-white" />
+            </button>
+          </a>
           <a href="https://app.bible.com/app-ios">
-            <IconButton as="a" className="btn-primary">
-              <i className="fa-brands fa-app-store-ios text-3xl text-accent" />
-            </IconButton>
-          </a> */}
+            <button className="bg-brand-primary hover:bg-brand-600 text-white shadow-lg shadow-brand-primary/25 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 hover:scale-105">
+              <i className="fa-brands fa-app-store-ios text-2xl text-white" />
+            </button>
+          </a>
         </div>
-        <Link className="link link-info text-center mt-2" to="/plan">
+        <Link 
+          className="text-brand-primary hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300 underline hover:no-underline transition-colors text-center mt-2 font-medium" 
+          to="/plan"
+        >
           Full 2 year reading plan
         </Link>
       </section>

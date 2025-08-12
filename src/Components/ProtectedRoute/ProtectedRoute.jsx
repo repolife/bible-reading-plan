@@ -3,6 +3,7 @@ import { useAuthStore } from "@store/useAuthStore";
 import { Loader } from "../Shared/Loader";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useProfileStore } from "@store/useProfileStore";
+
 export const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading, user } = useAuthStore();
   const { profile, loading: profileLoading } = useProfileStore();
@@ -19,7 +20,8 @@ export const ProtectedRoute = ({ children }) => {
     if (loading || profileLoading) return;
     if (!isAuthenticated) {
       navigate("/login");
-    }
+      return;
+    } else  navigate('/')
   }, [isAuthenticated, loading, navigate]);
 
   useEffect(() => {

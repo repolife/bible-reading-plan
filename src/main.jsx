@@ -24,6 +24,9 @@ import { Signup } from "@/Components/auth/Signup";
 import { StepForm } from "./Components/Form/StepForm.jsx";
 import { useProfileStore } from "./store/useProfileStore.js";
 import { Account } from "./Components/Account/Account.jsx";
+import { ThemeProvider } from "./Components/ThemeProvider/ThemeProvider.jsx";
+import GlobalErrorBoundary from "./Components/ErrorBoundary/GlobalErrorBoundary.jsx";
+import TestErrorBoundary from "./Components/ErrorBoundary/TestErrorBoundary.jsx";
 
 useAuthStore.getState().initAuthListener();
 
@@ -102,29 +105,26 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "test-error-boundary",
+        element: <TestErrorBoundary />,
+      },
     ],
   },
 
   { path: "study/:book/:chapter/:verse", element: <Verse /> },
 ]);
 
-const theme = {
-  badge: {
-    colors: {
-      info: {
-        oackground: "bg-info",
-        color: "text-info",
-      },
-    },
-  },
-};
-
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <GlobalErrorBoundary>
+          <RouterProvider router={router} />
+        </GlobalErrorBoundary>
+      </QueryClientProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );

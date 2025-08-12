@@ -30,7 +30,7 @@ export default function ReadingTable() {
         {Object.keys(groupedReadings).map((date, index) => (
           <div
             key={index}
-            className=" min-w-fit w-32 bg-blue-gray-50 text-accent-content  border-solid border-1 m-1 border-black p-2 flex flex-col"
+            className=" min-w-fit w-32 bg-blue-gray-50 text-default-font  border-solid border m-1 border-black p-2 flex flex-col"
           >
             <p className="print:text-xs text-xs font-bold pb-1 print:no-underline">
               Week of {date}

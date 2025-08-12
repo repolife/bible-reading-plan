@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AccountProfile } from "../Profile/AccountProfile";
 import { FamilyGroupForm } from "./FamilyGroupForm";
-import { Card, Stepper, Step, Button } from "@material-tailwind/react";
+import { Card } from "@material-tailwind/react";
 import { ConfirmPasswordForm } from "./Password";
 import { useAuthStore } from "@store/useAuthStore";
 
@@ -31,17 +31,6 @@ export const StepForm = () => {
 
   const CurrentStep = steps[activeStep];
 
-  const handleNext = async () => {
-    const valid = await CurrentStep.submit(); // each step exposes a submit method
-    if (valid) {
-      setActiveStep((prev) => prev + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    setActiveStep((prev) => prev - 1);
-  };
-
   const isFirst = activeStep === 0;
   const isLast = activeStep === steps.length - 1;
 
@@ -55,25 +44,56 @@ export const StepForm = () => {
 
   return (
     <Card
-      className="flex flex-col h-full items-center p-8 rounded-lg shadow-lg bg-white w-full"
+      className="flex flex-col h-full items-center p-8 rounded-lg shadow-lg w-1/2 mx-auto bg-white"
       shadow={false}
     >
-      <div shadow={false} className="self-center text-center">
-        <Stepper className="w-full mb-5" activeStep={activeStep}>
+      {/* Custom Stepper */}
+      <div className="w-full mb-8">
+        <div className="flex items-center justify-center space-x-4">
           {steps.map((_, index) => (
-            <Step ckey={index}>{index + 1}</Step>
+            <div key={index} className="flex items-center">
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold transition-all duration-300 ${
+                  index <= activeStep
+                    ? "bg-blue-500 text-white shadow-lg"
+                    : "bg-gray-200 text-gray-500"
+                }`}
+              >
+                {index + 1}
+              </div>
+              {index < steps.length - 1 && (
+                <div
+                  className={`w-20 h-1 mx-4 rounded-full transition-all duration-300 ${
+                    index < activeStep ? "bg-blue-500" : "bg-gray-200"
+                  }`}
+                />
+              )}
+            </div>
           ))}
-        </Stepper>
+        </div>
+      </div>
+
+      {/* Step Content */}
+      <div className="w-full flex-1">
         {steps[activeStep]}
       </div>
 
-      <div className="mt-16 flex justify-between w-full">
-        <Button onClick={prev} disabled={isFirst}>
-          Prev
-        </Button>
-        <Button onClick={next} disabled={isLast || !isStepValid}>
-          Next
-        </Button>
+      {/* Navigation Buttons */}
+      <div className="mt-8 flex justify-between w-full">
+        <button 
+          onClick={prev} 
+          disabled={isFirst}
+          className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          Previous
+        </button>
+        <button 
+          onClick={next} 
+          disabled={isLast || !isStepValid}
+          className="px-6 py-2 bg-brand-primary hover:bg-brand-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          {isLast ? "Finish" : "Next"}
+        </button>
       </div>
     </Card>
   );

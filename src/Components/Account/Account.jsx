@@ -1,17 +1,12 @@
 import React, { useState } from "react";
-import {
-  Card,
-  Tabs,
-  TabsHeader,
-  TabsBody,
-  Tab,
-  TabPanel,
-} from "@material-tailwind/react";
+import { Card, Button } from "@material-tailwind/react";
 import { ConfirmPasswordForm } from "../Form/Password";
 import { AccountProfile } from "../Profile/AccountProfile";
 import { FamilyGroupForm } from "../Form/FamilyGroupForm";
 
 export const Account = () => {
+  const [activeTab, setActiveTab] = useState("Update Password");
+
   const pages = [
     {
       key: "Update Password",
@@ -27,30 +22,35 @@ export const Account = () => {
     },
   ];
 
-  const defaultTab = pages[0].key;
+  const currentComponent = pages.find(page => page.key === activeTab)?.component;
 
   return (
-    <Tabs value={defaultTab}>
-      <TabsHeader>
-        {pages.map(({ key }) => (
-          <Tab
-            className="text bg-accent flex justify-between"
-            key={key}
-            value={key}
-          >
-            {key}
-          </Tab>
-        ))}
-      </TabsHeader>
-      <TabsBody className="h-lvh">
-        {pages.map(({ key, component }) => (
-          <TabPanel key={key} value={key}>
-            <Card className="p-6 max-w-md mx-auto mt-10 shadow-lg">
-              {component}
-            </Card>
-          </TabPanel>
-        ))}
-      </TabsBody>
-    </Tabs>
+    <div className="w-full max-w-4xl mx-auto p-6">
+      {/* Custom Tabs */}
+      <div className="w-full mb-6">
+        <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
+          {pages.map(({ key }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                activeTab === key
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
+              }`}
+            >
+              {key}
+            </button>
+          ))}
+        </div>
+      </div>
+      
+      {/* Tab Content */}
+      <div className="mt-6 w-full">
+        <Card className="p-6 shadow-lg">
+          {currentComponent}
+        </Card>
+      </div>
+    </div>
   );
 };

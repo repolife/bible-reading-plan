@@ -9,7 +9,6 @@ import ReadingTable from "./Components/Songs/Bible-Reading-Plan/ReadingTable.jsx
 import { Verse } from "components/Study/Verse.jsx";
 import { Bible } from "components/Bible/Bible.jsx";
 import { QueryClient, QueryClientProvider } from "react-query";
-import { ThemeProvider } from "@material-tailwind/react";
 import { Calendar } from "./Components/Calendar/Calendar.jsx";
 import { ProtectedRoute } from "./Components/ProtectedRoute/ProtectedRoute.jsx";
 import { Nav } from "./Components/Shared/Nav/Nav.jsx";
@@ -25,6 +24,9 @@ import { Signup } from "@/Components/auth/Signup";
 import { StepForm } from "./Components/Form/StepForm.jsx";
 import { useProfileStore } from "./store/useProfileStore.js";
 import { Account } from "./Components/Account/Account.jsx";
+import { ThemeProvider } from "./Components/ThemeProvider/ThemeProvider.jsx";
+import GlobalErrorBoundary from "./Components/ErrorBoundary/GlobalErrorBoundary.jsx";
+import TestErrorBoundary from "./Components/ErrorBoundary/TestErrorBoundary.jsx";
 
 useAuthStore.getState().initAuthListener();
 
@@ -103,31 +105,26 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "test-error-boundary",
+        element: <TestErrorBoundary />,
+      },
     ],
   },
 
   { path: "study/:book/:chapter/:verse", element: <Verse /> },
 ]);
 
-const theme = {
-  badge: {
-    colors: {
-      info: {
-        oackground: "bg-info",
-        color: "text-info",
-      },
-    },
-  },
-};
-
 const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider value={theme}>
-        <RouterProvider router={router} />
-      </ThemeProvider>
-    </QueryClientProvider>
+    <ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <GlobalErrorBoundary>
+          <RouterProvider router={router} />
+        </GlobalErrorBoundary>
+      </QueryClientProvider>
+    </ThemeProvider>
   </React.StrictMode>
 );

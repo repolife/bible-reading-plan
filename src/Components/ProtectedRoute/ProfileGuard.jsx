@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import { useAuthStore } from "@store/useAuthStore";
 import { useProfileStore } from "@store/useProfileStore";
+import { Spinner } from "@material-tailwind/react";
 
 export const ProfileGuard = () => {
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -15,6 +16,7 @@ export const ProfileGuard = () => {
   } = useProfileStore();
 
   const { user, userError, loading: userLoading } = useAuthStore();
+
 
   const navigate = useNavigate();
 
@@ -81,4 +83,10 @@ export const ProfileGuard = () => {
     navigate,
     isAuthenticated,
   ]);
+
+  if (profileLoading) {
+    return
+  }
+
+  return null;
 };

@@ -1,16 +1,12 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import {
-  Navbar,
+  Card,
   Collapse,
   Typography,
-  Button,
-  IconButton,
 } from "@material-tailwind/react";
 import { useEffect } from "react";
 import { useAuthStore } from "@store/useAuthStore";
 import { supabase } from "@/supabaseClient";
-import { ToastContainer, toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 export const Nav = ({ classes }) => {
@@ -114,34 +110,30 @@ export const Nav = ({ classes }) => {
             </a>
           </Typography>
           <div className="flex items-center gap-x-2 p-1 font-medium">
-            <Button
-              variant="gradient"
-              size="sm"
-              className="flex items-center gap-x-2 p-1 font-medium"
+            <button
+              className="bg-brand-primary hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-x-2"
               onClick={signOut}
             >
               <span>Log out</span>
-            </Button>
+            </button>
           </div>
         </>
       ) : (
         <div className="flex items-center gap-x-2 p-1 font-medium">
-          <Button
-            variant="gradient"
-            size="sm"
-            className="flex items-center gap-x-2 p-1 font-medium"
+          <button
+            className="bg-brand-primary hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-x-2"
             onClick={() => navigate("/login")}
           >
             <span>Login</span>
-          </Button>{" "}
+          </button>{" "}
         </div>
       )}
     </ul>
   );
 
   return (
-    <Navbar
-      className={` mx-auto w-screen px-5 py-2 lg:px-8 lg:py-4 bg-accent border rounded-none navbar ${classes}`}
+    <Card
+      className={` mx-auto w-screen px-5 py-2 lg:px-8 lg:py-4 ${classes}`}
     >
       <div className="container mx-auto flex items-center justify-between text-blue-gray-901">
         <Typography
@@ -155,10 +147,8 @@ export const Nav = ({ classes }) => {
           {openNav ? null : navList}
         </div>
 
-        <IconButton
-          variant="text"
-          className="ml-auto h-7 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
-          ripple={false}
+        <button
+          className="ml-auto h-7 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden flex items-center justify-center"
           onClick={() => setOpenNav(!openNav)}
         >
           {openNav ? (
@@ -191,12 +181,12 @@ export const Nav = ({ classes }) => {
               />
             </svg>
           )}
-        </IconButton>
+        </button>
       </div>
       <Collapse open={openNav}>
         <div className=" container mx-auto w-screen">{navList}</div>
       </Collapse>
-    </Navbar>
+    </Card>
   );
 };
 

@@ -6,10 +6,13 @@ import path from "path";
 export default defineConfig({
   base: "/",
 
-  plugins: [react(), sentryVitePlugin({
-    org: "david-vargas",
-    project: "javascript-react"
-  })],
+  plugins: [
+    react(),
+    sentryVitePlugin({
+      org: "david-vargas",
+      project: "javascript-react",
+    }),
+  ],
 
   define: {
     "process.env": process.env,
@@ -41,6 +44,6 @@ export default defineConfig({
   },
 
   build: {
-    sourcemap: true
-  }
+    sourcemap: true,
+  },
 });

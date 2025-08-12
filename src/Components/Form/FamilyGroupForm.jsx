@@ -13,10 +13,11 @@ import { useAuthStore } from "@store/useAuthStore";
 import { supabase } from "@/supabaseClient"; // Corrected Supabase client import path
 import { toast } from "react-toastify";
 import { useFamilyStore } from "@store/useFamilyGroupStore";
-import { Spinner } from "@material-tailwind/react";
 import { useMemo } from "react";
 import { Chip } from "@material-tailwind/react";
 import { useProfileStore } from "../../store/useProfileStore";
+import { Spinner } from "../Shared/Spinner/Spinner";
+import { ErrorBoundary } from "../ErrorBoundary";
 
 const env = import.meta.env;
 
@@ -136,17 +137,19 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
 
       const exactMatch = familySuggestionsWithMembers.find(
         (group) =>
-          group.family_last_name.toLowerCase() === input &&
-          group.id !== profile?.family_id // exclude current group
+          group.family_last_name.toLowerCase() === input
       );
 
       const suggestions = [
         ...filtered,
+        // Always show the "Create NEW" option when there's an exact match
         ...(exactMatch
           ? [
               {
-                family_last_name: `A different ${familyLastNameValue} family`,
+                family_last_name: `⚠️ Create NEW "${familyLastNameValue}" Family Group`,
                 members: [],
+                isNewGroup: true,
+                existingFamilyId: exactMatch.id,
               },
             ]
           : []),
@@ -154,11 +157,29 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
 
       setFamilySuggestions(suggestions);
       setShowSuggestions(true);
+
+      // Debug logging
+      console.log("Family name input:", input);
+      console.log("Exact match found:", exactMatch);
+      console.log("Suggestions:", suggestions);
+      console.log("Is creating new with same name:", isCreatingNewGroupWithSameName);
+
+      // Check if this is a completely new family name (not in suggestions)
+      const isCompletelyNewFamily = isNewFamilyName(input);
+
+      // If it's a new family name, clear other fields and reset state
+      if (isCompletelyNewFamily) {
+        setValue("address", "");
+        setValue("food_allergies", "");
+        setValue("house_rules", "");
+        setSelectedFamilyMembers([]);
+        setIsCreatingNewGroupWithSameName(false);
+      }
     } else {
       setFamilySuggestions([]);
       setShowSuggestions(false);
     }
-  }, [familyLastNameValue, familySuggestionsWithMembers, profile?.family_id]);
+  }, [familyLastNameValue, familySuggestionsWithMembers, profile?.family_id, setValue]);
 
   // Effect to handle clicks outside the autocomplete to hide suggestions
   useEffect(() => {
@@ -179,9 +200,10 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   // Handle selecting a suggestion
   const handleSelectSuggestion = useCallback(
     (suggestion) => {
-      const isDifferentFamily = suggestion.startsWith("A different");
+      const isDifferentFamily = suggestion.startsWith("⚠️ Create NEW");
 
       if (isDifferentFamily) {
+        // User wants to create a new family with the same name
         reset({
           family_last_name: familyLastNameValue,
           address: "",
@@ -190,7 +212,11 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
         });
         setSelectedFamilyMembers([]);
         setIsCreatingNewGroupWithSameName(true);
+        
+        // Clear any existing family group data since we're creating new
+        useFamilyStore.getState().familyGroup = null;
       } else {
+        // User selected an existing family
         const selectedFamily = allFamilyGroups.find(
           (group) => group.family_last_name === suggestion
         );
@@ -223,6 +249,21 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
     // This validation is primarily for client-side UX.
     // True uniqueness enforcement should be handled by your Supabase table's unique constraint.
     return true;
+  };
+
+  // Helper function to check if current input is a new family name
+  const isNewFamilyName = (inputValue) => {
+    if (!inputValue) return false;
+    return !familySuggestionsWithMembers.some(
+      (group) => group.family_last_name.toLowerCase() === inputValue.toLowerCase()
+    );
+  };
+
+  // Helper function to find existing family by name
+  const findExistingFamily = (familyName) => {
+    return familySuggestionsWithMembers.find(
+      (group) => group.family_last_name.toLowerCase() === familyName.toLowerCase()
+    );
   };
 
   const onSubmit = async (data) => {
@@ -305,10 +346,8 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   // Show loading state from the store while auth or profile is being fetched
   if (loading) {
     return (
-      <Card className="flex flex-col items-center p-8 rounded-lg shadow-lg bg-white">
-        <Typography variant="h5" color="blue-gray">
-          <Spinner />
-        </Typography>
+      <Card className="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg bg-neutral-50 dark:bg-neutral-800">
+        <Spinner size="md" text="Loading..." />
       </Card>
     );
   }
@@ -329,18 +368,51 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   }
 
   return (
-    <>
+    <div className={`${
+      isCreatingNewGroupWithSameName 
+        ? "bg-amber-50/30 dark:bg-amber-900/10 rounded-xl p-6 border border-amber-200 dark:border-amber-700" 
+        : ""
+    }`}>
+      
+      {isCreatingNewGroupWithSameName && (
+        <div className="bg-amber-100 dark:bg-amber-800/40 border-2 border-amber-300 dark:border-amber-600 rounded-lg p-4 mb-6 text-center">
+          <p className="text-amber-900 dark:text-amber-100 font-bold text-lg">
+            🚨 ATTENTION: Creating NEW Family Group
+          </p>
+          <p className="text-amber-800 dark:text-amber-200 text-sm mt-2">
+            You are about to create a <strong>COMPLETELY NEW</strong> family group with the last name "{familyLastNameValue}". 
+            This will have a different ID and be completely separate from any existing family with the same name.
+          </p>
+          {findExistingFamily(familyLastNameValue) && (
+            <p className="text-amber-700 dark:text-amber-300 text-xs mt-2 italic">
+              Note: There is already a family with this name (ID: {
+                findExistingFamily(familyLastNameValue)?.id
+              })
+            </p>
+          )}
+        </div>
+      )}
+      
       <Typography
         variant="h4"
         color="blue-gray"
-        className="text-center pt-6 pb-6"
+        className={`text-center pt-6 pb-6 ${
+          isCreatingNewGroupWithSameName ? "text-amber-600 dark:text-amber-400" : ""
+        }`}
       >
-        Host details
+        {isCreatingNewGroupWithSameName ? "⚠️ NEW Family Group Setup" : "Host details"}
       </Typography>
       <Typography color="gray" className="mt-1 font-normal">
-        Update your details below.
+        {isCreatingNewGroupWithSameName 
+          ? "You're creating a NEW family group with the same last name. This will be completely separate from the existing family."
+          : "Update your details below."
+        }
       </Typography>
-      <form className="mt-8 mb-2 w-80" onSubmit={handleFamily(onSubmit)}>
+      
+      {isCreatingNewGroupWithSameName && (
+        <div className="w-full h-px bg-amber-300 dark:bg-amber-600 my-6"></div>
+      )}
+      <form className="mt-8 mb-2 w-full" onSubmit={handleFamily(onSubmit)}>
         <div className="mb-1 flex flex-col gap-6">
           <Typography variant="h6" color="blue-gray" className="-mb-3">
             Family Last Name
@@ -350,7 +422,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
             <Input
               size="lg"
               placeholder="Type family last name"
-              className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              className="!border-t-neutral-300 dark:!border-t-neutral-600 focus:!border-t-brand-primary !text-neutral-900 dark:!text-neutral-100 !bg-neutral-50 dark:!bg-neutral-800"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
@@ -372,24 +444,24 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
               </Typography>
             )}
             {showSuggestions && familySuggestions.length > 0 && (
-              <ul className="absolute z-10 bg-white border border-gray-300 rounded-md shadow-md mt-2 w-full max-h-60 overflow-y-auto">
+              <ul className="absolute z-10 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-md shadow-md mt-2 w-full max-h-60 overflow-y-auto">
                 {familySuggestions.map((suggestion, index) => (
                   <li
                     key={index}
                     onClick={() =>
                       handleSelectSuggestion(suggestion.family_last_name)
                     }
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    className="px-4 py-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 cursor-pointer text-neutral-900 dark:text-neutral-100"
                   >
-                    <strong>{suggestion.family_last_name}</strong>
+                    <strong className="text-neutral-900 dark:text-neutral-100">{suggestion.family_last_name}</strong>
                     {suggestion.members && suggestion.members.length > 0 && (
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
                         Members: {suggestion.members.join(", ")}
                       </p>
                     )}
                     {suggestion.family_last_name ===
                       profile?.family_last_name && (
-                      <span className="text-xs text-blue-500 ml-2">
+                      <span className="text-xs text-brand-primary ml-2">
                         (Your current group)
                       </span>
                     )}
@@ -401,22 +473,55 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
             {selectedFamilyMembers && (
               <div className="flex flex-col gap-4 m-2">
                 Current members of family:
-                <div className="flex gap-4">
+                <div className="flex items-end gap-4">
                   {selectedFamilyMembers.map((m) => (
-                    <Chip value={m} variant="chip ghost" />
+                    <Chip  color="primary" size="sm" key={m} value={m}><Chip.Label>{m}</Chip.Label></Chip>
                   ))}
                 </div>
               </div>
             )}
             {isCreatingNewGroupWithSameName && (
-              <p className="text-sm text-gray-500 mt-1">
-                You’re creating a new family group with the same last name.
-              </p>
+              <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4 mt-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">!</span>
+                  </div>
+                  <div>
+                    <p className="text-amber-800 dark:text-amber-200 font-semibold text-sm">
+                      ⚠️ Creating New Family Group
+                    </p>
+                    <p className="text-amber-700 dark:text-amber-300 text-sm mt-1">
+                      You're creating a <strong>NEW</strong> family group with the same last name "{familyLastNameValue}". 
+                      This will have a different ID and be completely separate from the existing family.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            {/* Show indicator for completely new family names */}
+            {familyLastNameValue && 
+             isNewFamilyName(familyLastNameValue) && 
+             !isCreatingNewGroupWithSameName && (
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mt-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">✨</span>
+                  </div>
+                  <div>
+                    <p className="text-blue-800 dark:text-blue-200 font-semibold text-sm">
+                      ✨ Creating Completely New Family
+                    </p>
+                    <p className="text-blue-700 dark:text-blue-300 text-sm mt-1">
+                      This is a brand new family name that doesn't exist yet.
+                    </p>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
           {familySuggestions.id === profile?.family_id && (
-            <span className="text-xs text-blue-500 ml-2">
+            <span className="text-xs text-brand-primary ml-2">
               (Your current group)
             </span>
           )}
@@ -443,7 +548,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
                   types: ["address"],
                   componentRestrictions: { country: "us" },
                 }}
-                className="peer w-full h-full bg-transparent text-blue-gray-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2 border-t border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-gray-900"
+                className="peer w-full h-full bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-neutral-100 dark:disabled:bg-neutral-700 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-neutral-300 dark:placeholder-shown:border-neutral-600 border focus:border-2 border-t border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] focus:border-brand-primary"
                 placeholder="Enter your home address"
               />
             )}
@@ -460,7 +565,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
           <Textarea
             size="lg"
             placeholder="e.g., Peanuts, Gluten"
-            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+            className="!border-t-neutral-300 dark:!border-t-neutral-600 focus:!border-t-brand-primary !text-neutral-900 dark:!text-neutral-100 !bg-neutral-50 dark:!bg-neutral-800"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
@@ -473,7 +578,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
           <Textarea
             size="lg"
             placeholder="e.g., No shoes"
-            className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+            className="!border-t-neutral-300 dark:!border-t-neutral-600 focus:!border-t-brand-primary !text-neutral-900 dark:!text-neutral-100 !bg-neutral-50 dark:!bg-neutral-800"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
@@ -482,18 +587,24 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
         </div>
 
         <Button
-          className="mt-6"
+          className={`mt-6 ${
+            isCreatingNewGroupWithSameName 
+              ? "bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/25" 
+              : ""
+          }`}
           fullWidth
           type="submit"
           disabled={isSubmitting || !isDirty}
         >
           {isSubmitting
             ? "Saving..."
-            : "Create Family Group" || familyGroup
-              ? "Update Host Details"
-              : "Create Family Group"}
+            : isCreatingNewGroupWithSameName
+              ? `⚠️ Create NEW "${familyLastNameValue}" Family Group`
+              : familyGroup && !isNewFamilyName(watch("family_last_name"))
+                ? "Update Family Group"
+                : "Create Family Group"}
         </Button>
       </form>
-    </>
+    </div>
   );
 };

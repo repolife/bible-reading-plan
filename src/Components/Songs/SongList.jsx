@@ -73,7 +73,7 @@ export const SongList = () => {
             Songs
           </Typography>
           <input
-            className="p-2 m-2 border border-secondary focus:outline-none focus:border-accent w-1/2"
+            className="p-2 m-2 border border-secondary focus:outline-none focus:border-accent w-1/2 text-black"
             type="text"
             placeholder="Filter songs"
             value={inputValue}

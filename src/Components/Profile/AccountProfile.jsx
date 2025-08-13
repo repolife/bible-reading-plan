@@ -162,7 +162,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
   if (authLoading || profileLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px] w-full">
-        <Card className="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg bg-neutral-50 dark:bg-neutral-800">
+        <Card className="flex flex-col items-center justify-center p-4 sm:p-8 rounded-lg shadow-lg bg-neutral-50 dark:bg-neutral-800">
           <Spinner size="md" text="Loading profile..." />
         </Card>
       </div>
@@ -172,7 +172,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
   // If user is not logged in (should be caught by ProtectedRoute, but good fallback)
   if (!user) {
     return (
-      <Card className="flex flex-col items-center p-8 rounded-lg shadow-lg bg-white">
+      <Card className="flex flex-col items-center p-4 sm:p-8 rounded-lg shadow-lg bg-white">
         <Typography variant="h5" color="red">
           You must be logged in to view your profile.
         </Typography>

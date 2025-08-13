@@ -372,7 +372,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   return (
     <div className={`${
       isCreatingNewGroupWithSameName 
-        ? "bg-amber-50/30 dark:bg-amber-900/10 rounded-xl p-6 border border-amber-200 dark:border-amber-700" 
+        ? "bg-amber-50/30 dark:bg-amber-900/10 rounded-xl p-3 sm:p-6 border border-amber-200 dark:border-amber-700" 
         : ""
     }`}>
       

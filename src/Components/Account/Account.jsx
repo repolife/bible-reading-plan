@@ -25,15 +25,15 @@ export const Account = () => {
   const currentComponent = pages.find(page => page.key === activeTab)?.component;
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-6">
+    <div className="w-full max-w-4xl mx-auto p-3 sm:p-6">
       {/* Custom Tabs */}
-      <div className="w-full mb-6">
+      <div className="w-full mb-4 sm:mb-6">
         <div className="flex space-x-1 bg-gray-100 rounded-lg p-1">
           {pages.map(({ key }) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+              className={`flex-1 px-2 sm:px-4 py-2 text-xs sm:text-sm font-medium rounded-md transition-all duration-200 ${
                 activeTab === key
                   ? "bg-white text-blue-600 shadow-sm"
                   : "text-gray-600 hover:text-gray-800 hover:bg-gray-50"
@@ -46,8 +46,8 @@ export const Account = () => {
       </div>
       
       {/* Tab Content */}
-      <div className="mt-6 w-full">
-        <Card className="p-6 shadow-lg">
+      <div className="mt-4 sm:mt-6 w-full">
+        <Card className="p-3 sm:p-6 shadow-lg">
           {currentComponent}
         </Card>
       </div>

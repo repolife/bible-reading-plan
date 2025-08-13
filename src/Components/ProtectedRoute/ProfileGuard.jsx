@@ -118,7 +118,7 @@ export const ProfileGuard = () => {
   ]);
 
   if (profileLoading) {
-    return <Spinner size="md" text="Loading profile..." />;
+    return <Spinner size="md" text="Loading profile..." fullScreen={true} />;
   }
 
   return null;

@@ -161,9 +161,11 @@ export const AccountProfile = ({ setIsStepValid }) => {
   // Show loading state from the store while auth or profile is being fetched
   if (authLoading || profileLoading) {
     return (
-      <Card className="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg bg-neutral-50 dark:bg-neutral-800">
-        <Spinner size="md" text="Loading profile..." />
-      </Card>
+      <div className="flex items-center justify-center min-h-[400px] w-full">
+        <Card className="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg bg-neutral-50 dark:bg-neutral-800">
+          <Spinner size="md" text="Loading profile..." />
+        </Card>
+      </div>
     );
   }
 

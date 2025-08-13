@@ -21,18 +21,8 @@ export const ProtectedRoute = ({ children }) => {
     if (!isAuthenticated) {
       navigate("/login");
       return;
-    } else  navigate('/')
-  }, [isAuthenticated, loading, navigate]);
-
-  useEffect(() => {
-    if (loading || profileLoading) return;
-
-    const alreadyOnProfileRoute = location.pathname === "/profile";
-
-    if (!profile && !alreadyOnProfileRoute) {
-      navigate("/profile");
     }
-  }, [profile, loading, location.pathname, navigate]);
+  }, [isAuthenticated, loading, navigate, profileLoading]);
 
   if (loading) {
     return <Loader />;

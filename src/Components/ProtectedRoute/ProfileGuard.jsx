@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 import { useAuthStore } from "@store/useAuthStore";
 import { useProfileStore } from "@store/useProfileStore";
-import { Spinner } from "@material-tailwind/react";
+import { Spinner } from "../Shared/Spinner/Spinner";
 
 export const ProfileGuard = () => {
   const [profileLoaded, setProfileLoaded] = useState(false);
@@ -17,11 +17,11 @@ export const ProfileGuard = () => {
 
   const { user, userError, loading: userLoading } = useAuthStore();
 
-
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user?.id) return;
+    console.log('ProfileGuard: Fetching profile for user:', user.id);
     useProfileStore.getState().fetchAndSetUserProfile(user?.id);
   }, [user?.id]);
 
@@ -62,17 +62,50 @@ export const ProfileGuard = () => {
 
   useEffect(() => {
     if (profile && user) {
+      console.log('ProfileGuard: Profile loaded:', { profileId: profile.id, hasPassword: profile.has_password });
       setProfileLoaded(true);
     }
   }, [profile, user]);
 
   useEffect(() => {
-    if (authLoading || profileLoading || !profileLoaded) return;
+    if (authLoading || profileLoading || !profileLoaded) {
+      console.log('ProfileGuard: Still loading:', { authLoading, profileLoading, profileLoaded });
+      return;
+    }
 
-    const alreadyOnProfileRoute = location.pathname === "/profile";
+    // Check if user is on protected routes that require profile completion
+    const protectedRoutes = ['/profile', '/account', '/calendar'];
+    const currentRoute = location.pathname;
+    const isOnProtectedRoute = protectedRoutes.some(route => currentRoute.startsWith(route));
 
-    if (!profile && isAuthenticated && !alreadyOnProfileRoute) {
+    console.log('ProfileGuard Debug:', {
+      currentRoute,
+      hasProfile: !!profile,
+      hasPassword: profile?.has_password,
+      isAuthenticated,
+      profileLoaded,
+      profileData: profile
+    });
+
+    // If user has no profile at all, redirect to profile setup
+    if (!profile && isAuthenticated && currentRoute !== '/profile') {
+      console.log('Redirecting to /profile - no profile exists');
       navigate("/profile");
+      return;
+    }
+
+    // If user has profile but no password, redirect to account page
+    if (profile && !profile.has_password && isAuthenticated && currentRoute !== '/account') {
+      console.log('Redirecting to /account - profile exists but no password');
+      navigate("/account");
+      return;
+    }
+
+    // If user has profile and password, allow access to all routes
+    if (profile && profile.has_password && isAuthenticated) {
+      console.log('User fully set up - allowing access');
+      // User is fully set up, no redirects needed
+      return;
     }
   }, [
     profile,
@@ -85,7 +118,7 @@ export const ProfileGuard = () => {
   ]);
 
   if (profileLoading) {
-    return
+    return <Spinner size="md" text="Loading profile..." />;
   }
 
   return null;

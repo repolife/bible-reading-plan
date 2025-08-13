@@ -346,9 +346,11 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   // Show loading state from the store while auth or profile is being fetched
   if (loading) {
     return (
-      <Card className="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg bg-neutral-50 dark:bg-neutral-800">
-        <Spinner size="md" text="Loading..." />
-      </Card>
+      <div className="flex items-center justify-center min-h-[400px] w-full">
+        <Card className="flex flex-col items-center justify-center p-8 rounded-lg shadow-lg bg-neutral-50 dark:bg-neutral-800">
+          <Spinner size="md" text="Loading..." />
+        </Card>
+      </div>
     );
   }
 
@@ -470,7 +472,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
               </ul>
             )}
 
-            {selectedFamilyMembers && !isCreatingNewGroupWithSameName && (
+            {selectedFamilyMembers && !isCreatingNewGroupWithSameName && !isNewFamilyName(familyLastNameValue) && (
               <div className="flex flex-col gap-4 m-2">
                 <div className="text-neutral-700 dark:text-neutral-300 font-medium">
                   Current members of this family:

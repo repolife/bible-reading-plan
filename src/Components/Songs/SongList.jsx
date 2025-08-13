@@ -93,7 +93,7 @@ export const SongList = () => {
             ))}
         </div>
       ) : (
-        <div className="flex justify-center items-center h-[10vh]">
+        <div className="flex justify-center items-center min-h-[400px] w-full">
           <Spinner size="md" text="Loading songs..." />
         </div>
       )}

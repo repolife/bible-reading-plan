@@ -48,6 +48,9 @@ export const ConfirmPasswordForm = ({
 
     console.log("profile created with password", profileData);
     toast.success("✅ Password updated successfully!");
+    
+    // Refresh the profile in the store to update has_password status
+    useProfileStore.getState().fetchAndSetUserProfile(data.user.id);
   };
 
   useEffect(() => {

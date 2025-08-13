@@ -68,7 +68,7 @@ export const ConfirmPasswordForm = ({
   const password = watch("password");
 
   return (
-    <Card className="p-6 max-w-md mx-auto mt-10 shadow-lg">
+    <Card className="p-4 sm:p-6 w-full max-w-sm sm:max-w-md mx-auto mt-6 sm:mt-10 shadow-lg">
       <Typography variant="h5" color="blue-gray" className="mb-4">
         {isPasswordSet ? " Your Password" : "Set Your Password"}
       </Typography>

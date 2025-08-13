@@ -44,7 +44,7 @@ export const StepForm = () => {
 
   return (
     <Card
-      className="flex flex-col h-full items-center p-8 rounded-lg shadow-lg w-1/2 mx-auto bg-white"
+      className="flex flex-col h-full items-center p-4 sm:p-8 rounded-lg shadow-lg w-full sm:w-11/12 md:w-4/5 lg:w-3/4 xl:w-1/2 mx-auto bg-white"
       shadow={false}
     >
       {/* Custom Stepper */}

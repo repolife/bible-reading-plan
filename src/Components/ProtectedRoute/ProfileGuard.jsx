@@ -7,6 +7,8 @@ import { Spinner } from "../Shared/Spinner/Spinner";
 
 export const ProfileGuard = () => {
   const [profileLoaded, setProfileLoaded] = useState(false);
+  const [isProcessingMagicLink, setIsProcessingMagicLink] = useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   const { loading: authLoading, isAuthenticated } = useAuthStore();
   const {
@@ -18,6 +20,30 @@ export const ProfileGuard = () => {
   const { user, userError, loading: userLoading } = useAuthStore();
 
   const navigate = useNavigate();
+
+  // Add timeout to prevent infinite loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (authLoading || profileLoading) {
+        console.warn('ProfileGuard: Loading timeout reached, forcing continue');
+        setLoadingTimeout(true);
+      }
+    }, 10000); // 10 second timeout
+
+    return () => clearTimeout(timeout);
+  }, [authLoading, profileLoading]);
+
+  // Add fallback for auth store issues
+  useEffect(() => {
+    const fallbackTimeout = setTimeout(() => {
+      if (!user && !authLoading && !profileLoading) {
+        console.warn('ProfileGuard: No user after timeout, forcing continue');
+        setProfileLoaded(true);
+      }
+    }, 5000); // 5 second fallback
+
+    return () => clearTimeout(fallbackTimeout);
+  }, [user, authLoading, profileLoading]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -31,45 +57,79 @@ export const ProfileGuard = () => {
       const accessToken = hashParams.get("access_token");
       const refreshToken = hashParams.get("refresh_token");
 
-      if (accessToken && refreshToken) {
-        const { error: sessionError } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
+      if (accessToken && refreshToken && !isProcessingMagicLink) {
+        console.log('ProfileGuard: Processing magic link...');
+        setIsProcessingMagicLink(true);
+        
+        try {
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
 
-        if (sessionError) {
-          console.error("Failed to set session:", sessionError.message);
-          return;
-        }
+          if (sessionError) {
+            console.error("Failed to set session:", sessionError.message);
+            setIsProcessingMagicLink(false);
+            return;
+          }
 
-        // Wait for user to hydrate
-        const unsubscribe = useAuthStore.subscribe(
-          (state) => state.user,
-          async (newUser) => {
-            if (newUser) {
-              await fetchAndSetUserProfile(newUser.id);
+          // Wait for user to hydrate with a timeout
+          let attempts = 0;
+          const maxAttempts = 20; // Increased attempts
+          
+          const checkUser = async () => {
+            const currentUser = useAuthStore.getState().user;
+            if (currentUser) {
+              console.log('ProfileGuard: User hydrated from magic link:', currentUser.id);
+              await fetchAndSetUserProfile(currentUser.id);
               setProfileLoaded(true);
               window.history.replaceState(null, "", location.pathname);
-              unsubscribe(); // Clean up
+              setIsProcessingMagicLink(false);
+            } else if (attempts < maxAttempts) {
+              attempts++;
+              setTimeout(checkUser, 300); // Check every 300ms
+            } else {
+              console.error('ProfileGuard: Magic link user hydration timeout');
+              setIsProcessingMagicLink(false);
+              // Force continue after timeout
+              setProfileLoaded(true);
             }
-          }
-        );
+          };
+          
+          checkUser();
+        } catch (error) {
+          console.error('ProfileGuard: Magic link processing error:', error);
+          setIsProcessingMagicLink(false);
+        }
       }
     };
 
     rehydrateFromMagicLink();
-  }, [location.pathname]);
+  }, [location.pathname, fetchAndSetUserProfile, isProcessingMagicLink]);
 
   useEffect(() => {
-    if (profile && user) {
+    if (profile && user && !isProcessingMagicLink) {
       console.log('ProfileGuard: Profile loaded:', { profileId: profile.id, hasPassword: profile.has_password });
       setProfileLoaded(true);
     }
-  }, [profile, user]);
+  }, [profile, user, isProcessingMagicLink]);
 
   useEffect(() => {
-    if (authLoading || profileLoading || !profileLoaded) {
-      console.log('ProfileGuard: Still loading:', { authLoading, profileLoading, profileLoaded });
+    // Allow continuation if timeout is reached
+    if (loadingTimeout) {
+      console.log('ProfileGuard: Continuing due to timeout');
+      setProfileLoaded(true);
+      return;
+    }
+
+    if (authLoading || profileLoading || !profileLoaded || isProcessingMagicLink) {
+      console.log('ProfileGuard: Still loading:', { 
+        authLoading, 
+        profileLoading, 
+        profileLoaded, 
+        isProcessingMagicLink,
+        loadingTimeout
+      });
       return;
     }
 
@@ -115,10 +175,18 @@ export const ProfileGuard = () => {
     location.pathname,
     navigate,
     isAuthenticated,
+    isProcessingMagicLink,
+    loadingTimeout,
   ]);
 
-  if (profileLoading) {
+  // Show loading spinner only when actually loading and not processing magic link
+  if (profileLoading && !isProcessingMagicLink && !loadingTimeout) {
     return <Spinner size="md" text="Loading profile..." fullScreen={true} />;
+  }
+
+  // Show magic link processing spinner
+  if (isProcessingMagicLink) {
+    return <Spinner size="md" text="Setting up your session..." fullScreen={true} />;
   }
 
   return null;

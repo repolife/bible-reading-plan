@@ -28,7 +28,14 @@ import { ThemeProvider } from "./Components/ThemeProvider/ThemeProvider.jsx";
 import GlobalErrorBoundary from "./Components/ErrorBoundary/GlobalErrorBoundary.jsx";
 import TestErrorBoundary from "./Components/ErrorBoundary/TestErrorBoundary.jsx";
 
-useAuthStore.getState().initAuthListener();
+// Initialize auth listener properly
+(async () => {
+  try {
+    await useAuthStore.getState().initAuthListener();
+  } catch (error) {
+    console.error('Failed to initialize auth listener:', error);
+  }
+})();
 
 const env = import.meta.env;
 

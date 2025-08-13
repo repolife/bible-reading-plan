@@ -133,7 +133,7 @@ export const Nav = ({ classes }) => {
 
   return (
     <Card
-      className={`px-5 py-2 lg:px-8 lg:py-4 mb-5 ${classes}`}
+      className={`px-5 py-2 lg:px-8 lg:py-4 mb-5 bg-primary ${classes}`}
     >
       <div className="container mx-auto flex items-center justify-between text-blue-gray-901">
         <Typography

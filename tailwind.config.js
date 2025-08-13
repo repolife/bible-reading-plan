@@ -1,27 +1,39 @@
 
+import { mtConfig } from "@material-tailwind/react";
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
     "./index.html", 
     "./src/**/*.{js,ts,jsx,tsx}",
-        "./node_modules/@material-tailwind/react/**/*.{js,ts,jsx,tsx}"
+    "./node_modules/@material-tailwind/react/**/*.{js,ts,jsx,tsx}"
   ],
   darkMode: 'class', // Enable dark mode with class strategy
+  plugins: [
+    mtConfig({
+      // Minimal Material Tailwind configuration
+      radius: "0",
+      fonts: {
+        sans: "IBM Plex Mono",
+        serif: "IBM Plex Mono",
+      },
+    }),
+    require("@tailwindcss/typography"),
+    require("tailwindcss-debug-screens"),
+  ],
   theme: {
     extend: {
       colors: {
-        brand: {
-          50: "rgb(52, 28, 0)",
-          100: "rgb(63, 34, 0)",
-          200: "rgb(74, 41, 0)",
-          300: "rgb(87, 51, 0)",
-          400: "rgb(105, 63, 5)",
-          500: "rgb(130, 78, 0)",
-          600: "rgb(255, 178, 36)",
-          700: "rgb(255, 203, 71)",
-          800: "rgb(241, 161, 13)",
-          900: "rgb(254, 243, 221)",
-        },
+        50: "rgb(52, 28, 0)",
+        100: "rgb(63, 34, 0)",
+        200: "rgb(74, 41, 0)",
+        300: "rgb(87, 51, 0)",
+        400: "rgb(105, 63, 5)",
+        500: "rgb(130, 78, 0)",
+        600: "rgb(255, 178, 36)",
+        700: "rgb(255, 203, 71)",
+        800: "rgb(241, 161, 13)",
+        900: "rgb(254, 243, 221)",
         neutral: {
           0: "rgb(3, 7, 18)",
           50: "rgb(17, 24, 39)",
@@ -194,10 +206,6 @@ export default {
       },
     },
   },
-  plugins: [
-    require("@tailwindcss/typography"),
-    require("tailwindcss-debug-screens"),
-  ],
   corePlugins: {
     preflight: true,
   },

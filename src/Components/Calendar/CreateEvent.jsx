@@ -2,6 +2,7 @@ import React, { Fragment, useState, useEffect } from 'react'
 import { EVENT_TYPES } from '../../store/useFamilyCalendarStore'
 import { useFamilyStore } from '../../store/useFamilyGroupStore'
 import { useProfileStore } from '../../store/useProfileStore'
+import { Button } from '@material-tailwind/react'
 
 export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
   const { profile } = useProfileStore()
@@ -129,7 +130,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
     return (
       <button 
         onClick={handleOpen} 
-        className="mb-4 bg-brand-primary hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+        className="mb-4 bt-primary hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
       >
         + Create New Event
       </button>
@@ -139,8 +140,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
   // If modal should be open, show the modal
   if (shouldShowModal) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="w-full h-full bg-neutral-100 dark:bg-neutral-900 overflow-y-auto">
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary">
+        <div className="w-full h-full bg-primary  overflow-y-auto">
           {/* Header */}
           <div className="sticky top-0 bg-neutral-200 dark:bg-neutral-800 border-b border-neutral-border p-6">
             <div className="flex items-center justify-between">
@@ -173,7 +174,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                 type="text"
                 value={eventData.title}
                 onChange={(e) => handleInputChange('title', e.target.value)}
-                className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm"
+                className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                 placeholder="Enter event title"
               />
             </div>
@@ -186,7 +187,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                 value={eventData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 rows={4}
-                className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent resize-none shadow-sm"
+                className="w-full px-4 py-3 text-black dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none shadow-sm"
                 placeholder="Enter event description"
               />
             </div>
@@ -200,7 +201,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                   type="date"
                   value={eventData.startDate}
                   onChange={(e) => handleInputChange('startDate', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm"
+                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                 />
               </div>
 
@@ -212,7 +213,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                   type="time"
                   value={eventData.startTime}
                   onChange={(e) => handleInputChange('startTime', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm"
+                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                 />
               </div>
 
@@ -224,7 +225,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                   type="date"
                   value={eventData.endDate}
                   onChange={(e) => handleInputChange('endDate', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm"
+                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                 />
               </div>
 
@@ -236,7 +237,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                   type="time"
                   value={eventData.endTime}
                   onChange={(e) => handleInputChange('endTime', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm"
+                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                 />
               </div>
             </div>
@@ -250,11 +251,11 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                   type="text"
                   value={eventData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm"
+                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                   placeholder={familyGroup?.address || "Enter event location"}
                 />
                 {familyGroup?.address && (
-                  <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                  <div className="mt-1 text-xs text-white dark:text-neutral-400">
                     Default: {familyGroup.address}
                   </div>
                 )}
@@ -267,7 +268,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                 <select
                   value={eventData.eventType}
                   onChange={(e) => handleInputChange('eventType', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent shadow-sm"
+                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                 >
                   <option value={EVENT_TYPES.SHABBAT}>Shabbat</option>
                   <option value={EVENT_TYPES.FEASTDAY}>Feast Day</option>
@@ -283,7 +284,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
                 id="allDay"
                 checked={eventData.allDay}
                 onChange={(e) => handleInputChange('allDay', e.target.checked)}
-                className="w-4 h-4 text-brand-primary bg-white dark:bg-neutral-700 border-neutral-border rounded focus:ring-brand-primary focus:ring-2"
+                className="w-4 h-4 text-primary bg-white dark:bg-neutral-700 border-neutral-border rounded focus:ring-primary focus:ring-2"
               />
               <label htmlFor="allDay" className="ml-2 text-sm text-neutral-700 dark:text-neutral-300">
                 All Day Event
@@ -292,21 +293,24 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
           </div>
 
           {/* Footer */}
-          <div className="sticky bottom-0 bg-neutral-200 dark:bg-neutral-800 border-t border-neutral-border p-6">
+          <div className="sticky bottom-0  p-6">
             <div className="flex justify-end space-x-3">
-              <button
+              <Button
+               variant="solid"
+               color='secondary'
                 onClick={handleClose}
-                className="px-6 py-3 text-neutral-600 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 font-medium transition-colors"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+              color='secondary'
+                             variant="solid"
+
                 onClick={handleSubmit}
                 disabled={!eventData.title || !eventData.startDate}
-                className="px-6 py-3 bg-brand-primary hover:bg-blue-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Create Event
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -316,11 +320,10 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen }) => {
 
   // Fallback: show the button
   return (
-    <button 
+    <Button 
       onClick={handleOpen} 
-      className="mb-4 bg-brand-primary hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
     >
       + Create New Event
-    </button>
+    </Button>
   )
 }

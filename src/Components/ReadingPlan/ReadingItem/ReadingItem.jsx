@@ -1,6 +1,7 @@
 import React from "react";
 import youVersion from "data/youversion.json";
 import { useMemo } from "react";
+import { Button } from "@material-tailwind/react";
 
 const ReadingItem = ({ passage }) => {
   //  let parsedBook = passage.split(" ")[0];
@@ -57,22 +58,24 @@ const ReadingItem = ({ passage }) => {
         alignItems: "center",
       }}
     >
-      <a
+      <Button
+        as="a"
         href={blueLetter}
         target="_blank"
         rel="noopener noreferrer"
-        className="link link-primary visited:link-success m-1 p-1"
+        className="link link-primary-light visited:link-light m-1 p-1"
       >
         {passage}
-      </a>
-      <a
+      </Button>
+      <Button
+        as="a"
         href={audioBible}
         target="_blank"
         rel="noopener noreferrer"
-        className="link link-primary visited:link-success m-1 p-1"
+        className="link link-primary-light visited:link-success m-1 p-1"
       >
         Mobile
-      </a>
+      </Button>
     </div>
   );
 };

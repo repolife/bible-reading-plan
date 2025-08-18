@@ -93,7 +93,7 @@ export const StepForm = () => {
           <button 
             onClick={next} 
             disabled={!isStepValid}
-            className="px-6 py-2 bg-brand-primary hover:bg-brand-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-primaryhover:bg-brand-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Next
           </button>
@@ -103,7 +103,7 @@ export const StepForm = () => {
           <button 
             onClick={next} 
             disabled={!isStepValid}
-            className="px-6 py-2 bg-brand-primary hover:bg-brand-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-primaryhover:bg-brand-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             Finish
           </button>

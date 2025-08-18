@@ -1,7 +1,6 @@
 import { useState, useCallback, useMemo } from "react";
 import { useQuery } from "react-query";
 import axios from "axios";
-import "./bible.css";
 import testament from "data/testament.json";
 import { useParams } from "react-router-dom";
 import { Badge, Card, CardBody, Typography } from "@material-tailwind/react";
@@ -63,7 +62,7 @@ export const Verse = () => {
           <Badge
             className="mb-4 min-h-1 min-w-1 cursor-pointer"
             // content={`${strongsCode}${p1}`}
-            color={`${selectedIndex === offset ? "amber" : "blue-gray"}`}
+            color={`${selectedIndex === offset ? "amber" : "primary"}`}
             key={offset}
             onClick={() => handleStrongsDef(p1, p2, offset)}
             data-strongs={p1}

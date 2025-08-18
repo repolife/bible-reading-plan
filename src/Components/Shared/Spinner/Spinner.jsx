@@ -1,5 +1,4 @@
 import React from "react";
-import { Typography } from "@material-tailwind/react";
 
 export const Spinner = ({ 
   size = "md", 
@@ -20,9 +19,9 @@ export const Spinner = ({
       <div className="fixed inset-0 bg-white dark:bg-neutral-900 bg-opacity-90 dark:bg-opacity-90 flex flex-col items-center justify-center gap-4 z-50">
         <div className={`${sizeClasses[size]} border-neutral-300 dark:border-neutral-600 border-t-brand-primary rounded-full animate-spin`}></div>
         {showText && (
-          <Typography className="text-neutral-700 dark:text-neutral-300 text-center">
+          <div className="text-neutral-700 dark:text-neutral-300 text-center text-lg font-medium">
             {text}
-          </Typography>
+          </div>
         )}
       </div>
     );
@@ -32,9 +31,9 @@ export const Spinner = ({
     <div className={`flex flex-col items-center justify-center gap-4 min-h-[200px] ${className}`}>
       <div className={`${sizeClasses[size]} border-neutral-300 dark:border-neutral-600 border-t-brand-primary rounded-full animate-spin`}></div>
       {showText && (
-        <Typography className="text-neutral-700 dark:text-neutral-300 text-center">
+        <div className="text-neutral-700 dark:text-neutral-300 text-center text-lg font-medium">
           {text}
-        </Typography>
+        </div>
       )}
     </div>
   );

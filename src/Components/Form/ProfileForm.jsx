@@ -178,7 +178,7 @@ export const ProfileForm = () => {
       // className="flex flex-col items-center p-8 rounded-lg shadow-lg bg-white"
       // shadow={false}
     >
-      <Typography variant="h4" color="blue-gray">
+      <Typography variant="h4" color="primary">
         Shalom!
       </Typography>
       <Typography color="gray" className="mt-1 font-normal">
@@ -187,7 +187,7 @@ export const ProfileForm = () => {
       {/* 3. Wrap your form with handleSubmit */}
       <form className="mt-8 mb-2" onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-1 flex flex-col gap-6">
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             Family Last Name
           </Typography>
           {/* Custom Autocomplete for Family Last Name */}
@@ -195,7 +195,7 @@ export const ProfileForm = () => {
             <Input
               size="lg"
               placeholder="Type family last name"
-              className="!border-t-blue-gray-200 focus:border-t-gray-900!"
+              className="!border-t-primary-200 focus:border-t-gray-900!"
               labelProps={{
                 className: "before:content-none after:content-none",
               }}
@@ -233,7 +233,7 @@ export const ProfileForm = () => {
             )}
           </div>
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             Home Address
           </Typography>
           {/* Google Autocomplete for Home Address */}
@@ -256,7 +256,7 @@ export const ProfileForm = () => {
                   types: ["address"],
                   componentRestrictions: { country: "us" },
                 }}
-                className="peer w-full h-full bg-transparent text-blue-gray-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-blue-gray-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 border focus:border-2 border-t border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-blue-gray-200 focus:border-gray-900"
+                className="peer w-full h-full bg-transparent text-primary-700 font-sans font-normal outline outline-0 focus:outline-0 disabled:bg-primary-50 disabled:border-0 transition-all placeholder-shown:border placeholder-shown:border-primary-200 placeholder-shown:border-t-primary-200 border focus:border-2 border-t border-t-transparent focus:border-t-transparent text-sm px-3 py-2.5 rounded-[7px] border-primary-200 focus:border-gray-900"
                 placeholder="Enter your home address"
               />
             )}
@@ -267,14 +267,14 @@ export const ProfileForm = () => {
             </Typography>
           )}
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             Birthday
           </Typography>
           <Input
             type="date"
             size="lg"
             placeholder="YYYY-MM-DD"
-            className="!border-t-blue-gray-200 focus:border-t-gray-900!"
+            className="!border-t-primary-200 focus:border-t-gray-900!"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
@@ -302,26 +302,26 @@ export const ProfileForm = () => {
             </Typography>
           )}
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             Food Allergies
           </Typography>
           <Textarea
             size="lg"
             placeholder="e.g., Peanuts, Gluten"
-            className="!border-t-blue-gray-200 focus:border-t-gray-900!"
+            className="!border-t-primary-200 focus:border-t-gray-900!"
             labelProps={{
               className: "before:content-none after:content-none",
             }}
             {...register("food_allergies")}
           />
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             House Rules
           </Typography>
           <Textarea
             size="lg"
             placeholder="e.g., No shoes"
-            className="!border-t-blue-gray-200 focus:border-t-gray-900!"
+            className="!border-t-primary-200 focus:border-t-gray-900!"
             labelProps={{
               className: "before:content-none after:content-none",
             }}

@@ -24,9 +24,7 @@ export const ProtectedRoute = ({ children }) => {
     }
   }, [isAuthenticated, loading, navigate, profileLoading]);
 
-  if (loading) {
-    return <Loader />;
-  }
+
 
   return children;
 };

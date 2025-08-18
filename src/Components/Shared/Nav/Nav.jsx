@@ -35,7 +35,7 @@ export const Nav = ({ classes }) => {
         as="a"
         href="/"
         variant="small"
-        color="blue-gray"
+        color="foreground"
         className="flex items-center gap-x-2 p-1 font-medium"
       >
         <svg
@@ -58,7 +58,7 @@ export const Nav = ({ classes }) => {
         as="a"
         href="/songs"
         variant="small"
-        color="blue-gray"
+        color="foreground"
         className="flex items-center gap-x-2 p-1 font-medium"
       >
         <svg
@@ -83,7 +83,7 @@ export const Nav = ({ classes }) => {
           <Typography
             as="a"
             variant="small"
-            color="blue-gray"
+            color="foreground"
             className="flex items-center gap-x-2 p-1 font-medium"
           >
             <svg
@@ -111,7 +111,7 @@ export const Nav = ({ classes }) => {
           </Typography>
           <div className="flex items-center gap-x-2 p-1 font-medium">
             <button
-              className="bg-brand-primary hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-x-2"
+              className="bg-primaryhover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-x-2"
               onClick={signOut}
             >
               <span>Log out</span>
@@ -121,7 +121,7 @@ export const Nav = ({ classes }) => {
       ) : (
         <div className="flex items-center gap-x-2 p-1 font-medium">
           <button
-            className="bg-brand-primary hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-x-2"
+            className="bg-primaryhover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-x-2"
             onClick={() => navigate("/login")}
           >
             <span>Login</span>
@@ -135,7 +135,7 @@ export const Nav = ({ classes }) => {
     <Card
       className={`px-5 py-2 lg:px-8 lg:py-4 mb-5 bg-primary ${classes}`}
     >
-      <div className="container mx-auto flex items-center justify-between text-blue-gray-901">
+      <div className="container mx-auto flex items-center justify-between text-primary-901">
         <Typography
           as="a"
           href="/"

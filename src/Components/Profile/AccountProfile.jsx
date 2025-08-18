@@ -6,6 +6,7 @@ import {
   Textarea,
   Card,
   Checkbox,
+  Button,
 } from "@material-tailwind/react";
 import Autocomplete from "react-google-autocomplete";
 import { useAuthStore } from "@store/useAuthStore";
@@ -182,15 +183,15 @@ export const AccountProfile = ({ setIsStepValid }) => {
 
   return (
     <>
-      <Typography variant="h4" color="blue-gray">
+      <Typography variant="h4" color="primary">
         Your Profile
       </Typography>
-      <Typography color="gray" className="mt-1 font-normal">
+      <Typography color="primary" className="mt-1 font-normal">
         Update your details below.
       </Typography>
       <form className="mt-8 mb-2 w-full" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-1 flex flex-col gap-6">
-            <Typography variant="h6" color="blue-gray" className="-mb-3">
+            <Typography variant="h6" color="primary" className="-mb-3">
               Email (Cannot be changed here)
             </Typography>
             {/* Display user's email from auth store (read-only) */}
@@ -204,7 +205,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
               }}
             />
 
-            <Typography variant="h6" color="blue-gray" className="-mb-3">
+            <Typography variant="h6" color="primary" className="-mb-3">
               Name
             </Typography>
             <Input
@@ -218,7 +219,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
             />
 
             <div className="flex flex-row justify-between">
-              <Typography variant="h6" color="blue-gray" className="-mb-3">
+              <Typography variant="h6" color="primary" className="-mb-3">
                 Received email alerts?
               </Typography>
               <Checkbox
@@ -231,7 +232,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
               />
             </div>
 
-            <Typography variant="h6" color="blue-gray" className="-mb-3">
+            <Typography variant="h6" color="primary" className="-mb-3">
               Birthday
             </Typography>
             <Input
@@ -266,13 +267,13 @@ export const AccountProfile = ({ setIsStepValid }) => {
               </Typography>
             )}
           </div>
-          <button
-            className="mt-6 w-full bg-brand-primary hover:bg-brand-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          <Button
+            className="mt-6 w-full bg-primary hover:bg-brand-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
             disabled={isSubmitting || !isDirty}
           >
             {isSubmitting ? "Saving..." : "Update Profile"}
-          </button>
+          </Button>
         </form>
     </>
   );

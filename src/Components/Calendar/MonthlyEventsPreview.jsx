@@ -1,19 +1,25 @@
-import React, { useMemo, useEffect } from 'react'
+import React, { useMemo, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardBody, Typography, Button } from '@material-tailwind/react'
 import { CalendarIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline'
 import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/useFamilyCalendarStore'
 import { useProfileStore } from '../../store/useProfileStore'
 import { useAuthStore } from '../../store/useAuthStore'
+import { EventDetailsModal } from './EventDetailsModal'
 
 export const MonthlyEventsPreview = () => {
   const navigate = useNavigate()
   const { user: authUser } = useAuthStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
-  const { fetchFamilyEvents } = useFamilyCalendarStore()
+  const { fetchFamilyEvents, fetchEventTypes } = useFamilyCalendarStore()
   
-  // Get family events
+  // State for event details modal
+  const [showEventDetailsModal, setShowEventDetailsModal] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
+  
+  // Get family events and event types
   const familyEvents = useFamilyCalendarSelectors.useFamilyEvents(profile?.family_id)
+  const eventTypes = useFamilyCalendarSelectors.useEventTypes()
   const loading = useFamilyCalendarSelectors.useLoading()
 
   // Fetch profile when auth user changes
@@ -23,12 +29,36 @@ export const MonthlyEventsPreview = () => {
     }
   }, [authUser?.id, fetchAndSetUserProfile])
 
-  // Fetch events when component mounts or profile changes
+  // Fetch events and event types when component mounts or profile changes
   useEffect(() => {
     if (profile?.family_id) {
       fetchFamilyEvents(profile.family_id)
+      fetchEventTypes()
     }
-  }, [profile?.family_id, fetchFamilyEvents])
+  }, [profile?.family_id, fetchFamilyEvents, fetchEventTypes])
+
+  // Handlers for event details modal
+  const handleEventClick = (event) => {
+    setSelectedEvent(event)
+    setShowEventDetailsModal(true)
+  }
+
+  const handleCloseModal = () => {
+    setShowEventDetailsModal(false)
+    setSelectedEvent(null)
+  }
+
+  const handleEditEvent = () => {
+    // Navigate to calendar for editing
+    navigate('/calendar')
+    handleCloseModal()
+  }
+
+  const handleDeleteEvent = () => {
+    // Navigate to calendar for deletion
+    navigate('/calendar')
+    handleCloseModal()
+  }
 
   // Get current month events (limited to 4)
   const currentMonthEvents = useMemo(() => {
@@ -46,7 +76,17 @@ export const MonthlyEventsPreview = () => {
       })
       .sort((a, b) => new Date(a.event_start) - new Date(b.event_start))
       .slice(0, 4)
-  }, [familyEvents])
+      .map(event => {
+        // Find the event type label
+        const eventType = eventTypes.find(type => type.id === event.event_type)
+        const eventTypeLabel = eventType ? eventType.label : 'Unknown Type'
+        
+        return {
+          ...event,
+          eventTypeLabel
+        }
+      })
+  }, [familyEvents, eventTypes])
 
   // If no profile, don't render anything
   if (!profile) {
@@ -115,6 +155,7 @@ export const MonthlyEventsPreview = () => {
   }
 
   return (
+    <>
     <Card className="mb-6">
       <CardBody className="p-6">
         <div className="flex items-center justify-between mb-6">
@@ -133,7 +174,8 @@ export const MonthlyEventsPreview = () => {
           {currentMonthEvents.map((event, index) => (
             <div
               key={event.id}
-              className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              onClick={() => handleEventClick(event)}
             >
               {/* Date/Time Column */}
               <div className="flex-shrink-0 text-center min-w-[80px]">
@@ -141,11 +183,7 @@ export const MonthlyEventsPreview = () => {
                   <Typography variant="small" className="font-semibold">
                     {formatDate(event.event_start)}
                   </Typography>
-                  {!event.all_day && (
-                    <Typography variant="small" className="text-blue-600 dark:text-blue-300">
-                      {formatTime(event.event_start)}
-                    </Typography>
-                  )}
+                 
                 </div>
               </div>
 
@@ -159,30 +197,31 @@ export const MonthlyEventsPreview = () => {
                   {event.location && (
                     <div className="flex items-center space-x-1">
                       <MapPinIcon className="h-4 w-4" />
-                      <span className="truncate">{event.location}</span>
+                      <button
+                        onClick={() => {
+                          const encodedAddress = encodeURIComponent(event.location)
+                          const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
+                          window.open(googleMapsUrl, '_blank')
+                        }}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer truncate text-left"
+                        title="Click to open in Google Maps"
+                      >
+                        {event.location}
+                      </button>
                     </div>
                   )}
                   
-                  {!event.all_day && (
-                    <div className="flex items-center space-x-1">
-                      <ClockIcon className="h-4 w-4" />
-                      <span>{formatTime(event.event_start)}</span>
-                    </div>
-                  )}
+                 
                 </div>
 
-                {event.event_description && (
-                  <Typography className="text-gray-600 dark:text-gray-400 text-sm mt-2 line-clamp-2">
-                    {event.event_description}
-                  </Typography>
-                )}
+             
               </div>
 
               {/* Event Type Badge */}
               {event.event_type && (
                 <div className="flex-shrink-0">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                    {event.event_type}
+                    {event.eventTypeLabel}
                   </span>
                 </div>
               )}
@@ -201,5 +240,17 @@ export const MonthlyEventsPreview = () => {
         </div>
       </CardBody>
     </Card>
+
+    {/* Event Details Modal */}
+    {showEventDetailsModal && selectedEvent && (
+      <EventDetailsModal
+        event={selectedEvent}
+        isOpen={showEventDetailsModal}
+        onClose={handleCloseModal}
+        onEdit={handleEditEvent}
+        onDelete={handleDeleteEvent}
+      />
+    )}
+  </>
   )
 } 

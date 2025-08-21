@@ -3,6 +3,7 @@ import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/
 import { useFamilyStore } from '../../store/useFamilyGroupStore'
 import { useProfileStore } from '../../store/useProfileStore'
 import { Button } from '@material-tailwind/react'
+import Autocomplete from "react-google-autocomplete"
 
 export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editingEvent, isEdit = false }) => {
   const { profile } = useProfileStore()
@@ -23,6 +24,9 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
     location: '',
     eventType: '' // Will be set to first available event type UUID
   })
+
+  const env = import.meta.env;
+
 
   // Fetch family group and event types when component mounts
   useEffect(() => {
@@ -321,12 +325,20 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
                 <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
                   Location
                 </label>
-                <input
-                  type="text"
+                <Autocomplete
+                  apiKey={env.VITE_ADDRESS_VALIDATION}
+                  onPlaceSelected={(place) => {
+                    const address = place.formatted_address || place.name || ''
+                    handleInputChange('location', address)
+                  }}
                   value={eventData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
                   className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                   placeholder={familyGroup?.address || "Enter event location"}
+                  options={{
+                    types: ['establishment', 'geocode'],
+                    componentRestrictions: { country: 'us' }
+                  }}
                 />
                 {familyGroup?.address && (
                   <div className="mt-1 text-xs text-white dark:text-neutral-400">

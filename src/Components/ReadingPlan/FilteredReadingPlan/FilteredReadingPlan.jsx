@@ -9,6 +9,7 @@ import { DayPicker } from "react-day-picker";
 import { Input } from "@material-tailwind/react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Chip } from "@material-tailwind/react";
+import { MonthlyEventsPreview } from '@/Components/Calendar/MonthlyEventsPreview'
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(
@@ -54,6 +55,7 @@ const FilteredReadingPlan = () => {
 
   return (
     <Card className="w-1/2 grid grid-flow-row gap-6 pb-2 text-center m-auto bg-secondary-foreground p-4">
+        <MonthlyEventsPreview />
       <Typography
         variant="h4"
         className="text-primary flex flex-row items-center justify-between"

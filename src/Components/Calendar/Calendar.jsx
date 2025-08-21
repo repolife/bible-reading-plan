@@ -7,9 +7,11 @@ import getDay from 'date-fns/getDay'
 import enUS from 'date-fns/locale/en-US'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { NewEvent } from './CreateEvent'
+import { EventDetailsModal } from './EventDetailsModal'
 import { Card } from '@material-tailwind/react'
 import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/useFamilyCalendarStore'
 import { useProfileStore } from '../../store/useProfileStore'
+import { useFamilyStore } from '../../store/useFamilyGroupStore'
 import { useAuthStore } from '../../store/useAuthStore'
 
 // Set up the localizer
@@ -28,6 +30,7 @@ const localizer = dateFnsLocalizer({
 export const Calendar = () => {
   const { user: authUser } = useAuthStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
+  const { familyGroup, fetchFamilyGroup } = useFamilyStore()
   const { 
     events, 
     loading, 
@@ -44,6 +47,10 @@ export const Calendar = () => {
   // State for editing events
   const [showEditModal, setShowEditModal] = useState(false)
   const [editingEvent, setEditingEvent] = useState(null)
+  
+  // State for event details modal
+  const [showEventDetailsModal, setShowEventDetailsModal] = useState(false)
+  const [selectedEvent, setSelectedEvent] = useState(null)
   
   // Get family events and event types
   const familyEvents = useFamilyCalendarSelectors.useFamilyEvents(profile?.family_id)
@@ -67,10 +74,12 @@ export const Calendar = () => {
         eventType: event.event_type,
         eventTypeLabel: eventTypeLabel, // Add the human-readable label
         familyId: event.family_id,
-        createdBy: event.created_by
+        createdBy: event.created_by,
+        familyGroupName: familyGroup?.name || 'Family Group',
+        familyGroupAddress: familyGroup?.address || null
       }
     })
-  }, [familyEvents, eventTypes])
+  }, [familyEvents, eventTypes, familyGroup])
 
   // Show error if any
   // Do not early-return on error. Render a banner below instead to keep hooks order stable.
@@ -86,8 +95,9 @@ export const Calendar = () => {
   useEffect(() => {
     if (profile?.family_id) {
       fetchFamilyEvents(profile.family_id)
+      fetchFamilyGroup(profile.family_id)
     }
-  }, [profile?.family_id, fetchFamilyEvents])
+  }, [profile?.family_id, fetchFamilyEvents, fetchFamilyGroup])
 
   // Fetch event types when component mounts
   useEffect(() => {
@@ -128,36 +138,9 @@ export const Calendar = () => {
 
   const handleSelectEvent = useCallback(
     (event) => {
-      // Show options for edit/delete instead of just displaying info
-      const action = window.confirm(
-        `Event: ${event.title}\n\n` +
-        `Type: ${event.eventTypeLabel || 'Unknown Type'}\n` +
-        `Description: ${event.desc || 'No description'}\n` +
-        `Location: ${event.location || 'No location'}\n` +
-        `Start: ${event.start.toLocaleString()}\n` +
-        `End: ${event.end.toLocaleString()}\n` +
-        `${event.allDay ? 'All Day Event' : ''}\n\n` +
-        `Click OK to edit, Cancel to close`
-      )
-      
-      if (action) {
-        // Convert calendar event back to database format for editing
-        const dbEvent = {
-          id: event.id,
-          event_title: event.title,
-          event_description: event.desc || '',
-          event_start: event.start.toISOString(),
-          event_end: event.end ? event.end.toISOString() : null,
-          all_day: event.allDay,
-          location: event.location,
-          event_type: event.eventType,
-          family_id: event.familyId,
-          created_by: event.createdBy
-        }
-        
-        setEditingEvent(dbEvent)
-        setShowEditModal(true)
-      }
+      // Show event details modal
+      setSelectedEvent(event)
+      setShowEventDetailsModal(true)
     },
     []
   )
@@ -228,6 +211,36 @@ export const Calendar = () => {
     setShowCreateModal(false)
     setSelectedSlot(null)
   }, [])
+
+  const handleEditFromDetails = useCallback(() => {
+    if (selectedEvent) {
+      // Convert calendar event back to database format for editing
+      const dbEvent = {
+        id: selectedEvent.id,
+        event_title: selectedEvent.title,
+        event_description: selectedEvent.desc || '',
+        event_start: selectedEvent.start.toISOString(),
+        event_end: selectedEvent.end ? selectedEvent.end.toISOString() : null,
+        all_day: selectedEvent.allDay,
+        location: selectedEvent.location,
+        event_type: selectedEvent.eventType,
+        family_id: selectedEvent.familyId,
+        created_by: selectedEvent.createdBy
+      }
+      
+      setEditingEvent(dbEvent)
+      setShowEditModal(true)
+      setShowEventDetailsModal(false)
+    }
+  }, [selectedEvent])
+
+  const handleDeleteFromDetails = useCallback(() => {
+    if (selectedEvent) {
+      handleDeleteEvent(selectedEvent.id)
+      setShowEventDetailsModal(false)
+      setSelectedEvent(null)
+    }
+  }, [selectedEvent, handleDeleteEvent])
 
   const { defaultDate, scrollToTime } = useMemo(
     () => ({
@@ -358,6 +371,17 @@ export const Calendar = () => {
           editingEvent={editingEvent}
           isEdit={true}
           isOpen={showEditModal}
+        />
+      )}
+
+      {/* Event Details Modal */}
+      {showEventDetailsModal && selectedEvent && (
+        <EventDetailsModal
+          event={selectedEvent}
+          isOpen={showEventDetailsModal}
+          onClose={() => setShowEventDetailsModal(false)}
+          onEdit={handleEditFromDetails}
+          onDelete={handleDeleteFromDetails}
         />
       )}
     </>

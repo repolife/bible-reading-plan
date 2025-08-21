@@ -6,13 +6,15 @@ import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/
 import { useProfileStore } from '../../store/useProfileStore'
 import { useAuthStore } from '../../store/useAuthStore'
 import { EventDetailsModal } from './EventDetailsModal'
+import { useFamilyStore } from '@/store/useFamilyGroupStore'
+
 
 export const MonthlyEventsPreview = () => {
   const navigate = useNavigate()
   const { user: authUser } = useAuthStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
   const { fetchFamilyEvents, fetchEventTypes } = useFamilyCalendarStore()
-  
+  const { familyGroup, fetchFamilyGroup } = useFamilyStore()
   // State for event details modal
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
@@ -28,14 +30,16 @@ export const MonthlyEventsPreview = () => {
       fetchAndSetUserProfile(authUser.id)
     }
   }, [authUser?.id, fetchAndSetUserProfile])
+  
 
   // Fetch events and event types when component mounts or profile changes
   useEffect(() => {
     if (profile?.family_id) {
       fetchFamilyEvents(profile.family_id)
       fetchEventTypes()
+      fetchFamilyGroup(profile.family_id)
     }
-  }, [profile?.family_id, fetchFamilyEvents, fetchEventTypes])
+  }, [profile?.family_id, fetchFamilyEvents, fetchEventTypes, fetchFamilyGroup])
 
   // Handlers for event details modal
   const handleEventClick = (event) => {
@@ -185,7 +189,7 @@ export const MonthlyEventsPreview = () => {
               {/* Event Details Column */}
               <div className="flex-1 min-w-0">
                 <Typography variant="h6" className="text-gray-900 dark:text-white font-semibold mb-1 truncate">
-                  {event.event_title}
+                 Hosted by {familyGroup?.family_last_name}
                 </Typography>
                 
                 <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">

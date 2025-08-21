@@ -9,6 +9,7 @@ import {
 import { XMarkIcon, PencilIcon, TrashIcon, MapPinIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'
 import {  useFamilyStore } from '@/store/useFamilyGroupStore'
 import { Cutlery, Group, InfoCircle, Eye, } from 'iconoir-react';
+import { FamilyAllergiesTable } from '@/Components/FamilyAllergiesTable'
 
 export const EventDetailsModal = ({ 
   event, 
@@ -53,13 +54,14 @@ export const EventDetailsModal = ({
 
   useEffect(() => {
    if(event.family_id) {
-    debugger
     fetchFamilyGroup(event.family_id)
    }
   }, [event])
 
   const { familyGroup } = useFamilyStore()
   console.log("familyGroup", familyGroup)
+  console.log("event object:", event)
+  console.log("event.food_theme:", event.food_theme)
 
   return (
     <div className="fixed inset-0 z-[99999] bg-black bg-opacity-50 flex items-center justify-center p-4">
@@ -104,7 +106,7 @@ export const EventDetailsModal = ({
                     Description
                   </Typography>
                   <Typography className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {event.event_description}
+                    {event.desc}
                   </Typography>
                 </div>
               )}
@@ -244,6 +246,14 @@ export const EventDetailsModal = ({
                     </Typography>
                   </CardBody>
                 </Card>
+              </div>
+
+              {/* Family Allergies Table */}
+              <div className="mt-6">
+                <Typography variant="h5" className="text-gray-900 dark:text-white mb-4">
+                  Family Allergies & Dietary Information
+                </Typography>
+                <FamilyAllergiesTable />
               </div>
             </div>
 

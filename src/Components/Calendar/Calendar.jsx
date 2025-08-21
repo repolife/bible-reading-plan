@@ -75,6 +75,7 @@ export const Calendar = () => {
         eventTypeLabel: eventTypeLabel, // Add the human-readable label
         familyId: event.family_id,
         createdBy: event.created_by,
+        food_theme: event.food_theme, // Add food theme property
         familyGroupName: familyGroup?.name || 'Family Group',
         familyGroupAddress: familyGroup?.address || null
       }
@@ -120,7 +121,8 @@ export const Calendar = () => {
         location: newEvent.location || null,
         family_id: profile.family_id,
         created_by: authUser.id,
-        event_type: newEvent.eventType || null
+        event_type: newEvent.eventType || null,
+        food_theme: newEvent.food_theme || null // Add food theme property
       }
 
       try {
@@ -225,7 +227,8 @@ export const Calendar = () => {
         location: selectedEvent.location,
         event_type: selectedEvent.eventType,
         family_id: selectedEvent.familyId,
-        created_by: selectedEvent.createdBy
+        created_by: selectedEvent.createdBy,
+        food_theme: selectedEvent.food_theme // Add food theme property
       }
       
       setEditingEvent(dbEvent)

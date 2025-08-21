@@ -121,7 +121,7 @@ export const MonthlyEventsPreview = () => {
               This Month's Events
             </Typography>
             <Button
-              className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+              className=" hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
               onClick={() => navigate('/calendar')}
             >
               View Calendar

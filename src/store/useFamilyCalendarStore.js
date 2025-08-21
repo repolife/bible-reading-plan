@@ -13,7 +13,8 @@ export const createFamilyCalendarEvent = (data) => ({
   location: data.location || null,
   family_id: data.family_id || null,
   created_by: data.created_by || null,
-  event_type: data.event_type || null
+  event_type: data.event_type || null,
+  food_theme: data.food_theme || null
 })
 
 // Zustand store
@@ -133,7 +134,8 @@ export const useFamilyCalendarStore = create((set, get) => ({
         location: eventData.location || null,
         family_id: eventData.family_id,
         created_by: eventData.created_by || null,
-        event_type: eventData.event_type || null
+        event_type: eventData.event_type || null,
+        food_theme: eventData.food_theme || null
       }
 
       const { data, error } = await supabase
@@ -287,7 +289,8 @@ export const useFamilyCalendarStore = create((set, get) => ({
       event.family_id === familyId &&
       (event.event_title.toLowerCase().includes(term) ||
        event.event_description.toLowerCase().includes(term) ||
-       (event.location && event.location.toLowerCase().includes(term)))
+       (event.location && event.location.toLowerCase().includes(term)) ||
+       (event.food_theme && event.food_theme.toLowerCase().includes(term)))
     )
   }
 }))

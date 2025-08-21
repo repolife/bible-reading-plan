@@ -22,7 +22,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
     endTime: '',
     allDay: false,
     location: '',
-    eventType: '' // Will be set to first available event type UUID
+    eventType: '', // Will be set to first available event type UUID
+    food_theme: 'none' // Default food theme
   })
 
   const env = import.meta.env;
@@ -65,7 +66,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         endTime: endDate.toTimeString().slice(0, 5),
         allDay: editingEvent.all_day || false,
         location: editingEvent.location || '',
-        eventType: editingEvent.event_type || ''
+        eventType: editingEvent.event_type || '',
+        food_theme: editingEvent.food_theme || 'none'
       })
     }
   }, [editingEvent, isEdit, eventTypes])
@@ -147,7 +149,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         event_end: endDateTime.toISOString(),
         all_day: eventData.allDay,
         location: eventData.location || familyGroup?.address || null,
-        event_type: eventData.eventType
+        event_type: eventData.eventType,
+        food_theme: eventData.food_theme
       }
 
       if (onEventCreate) {
@@ -162,7 +165,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         end: endDateTime,
         allDay: eventData.allDay,
         location: eventData.location || familyGroup?.address || null,
-        eventType: eventData.eventType
+        eventType: eventData.eventType,
+        food_theme: eventData.food_theme
       }
 
       if (onEventCreate) {
@@ -180,7 +184,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
       endTime: '',
       allDay: false,
       location: '',
-      eventType: '' // Reset to empty string
+      eventType: '', // Reset to empty string
+      food_theme: 'none' // Reset to default value
     })
 
     handleClose()
@@ -370,6 +375,22 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
                     No event types available. Please try refreshing.
                   </div>
                 )}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
+                Food Theme
+              </label>
+              <input
+                type="text"
+                value={eventData.food_theme}
+                onChange={(e) => handleInputChange('food_theme', e.target.value)}
+                className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
+                placeholder="e.g., Mediterranean, BBQ, Italian, Vegetarian, or leave as 'none'"
+              />
+              <div className="mt-1 text-xs text-white dark:text-neutral-400">
+                Optional: Specify the food theme for this event (default: none)
               </div>
             </div>
 

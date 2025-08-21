@@ -8,6 +8,7 @@ import {
 } from '@material-tailwind/react'
 import { XMarkIcon, PencilIcon, TrashIcon, MapPinIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'
 import {  useFamilyStore } from '@/store/useFamilyGroupStore'
+import { Cutlery, Group, InfoCircle, Eye, } from 'iconoir-react';
 
 export const EventDetailsModal = ({ 
   event, 
@@ -186,8 +187,8 @@ export const EventDetailsModal = ({
                 {/* Event Type */}
                 <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
                   <CardBody className="p-4">
-                    <Typography variant="h6" className="text-gray-700 dark:text-gray-300 mb-2">
-                      Event Type
+                    <Typography variant="h6" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-2">
+                     <Eye className="h-5 w-5 text-blue-600" /> Event Type
                     </Typography>
                     <Typography className="text-gray-900 dark:text-white">
                       {event.eventTypeLabel || 'Not specified'}
@@ -195,11 +196,24 @@ export const EventDetailsModal = ({
                   </CardBody>
                 </Card>
 
+                {/* Food Theme */}
+                <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+                  <CardBody className="p-4">
+                    <Typography variant="h6" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-2">
+                    <Cutlery className="h-5 w-5 text-blue-600"  /> Food Theme  
+                    </Typography>
+                    
+                    <Typography className="text-gray-900 dark:text-white">
+                      {event.food_theme && event.food_theme !== 'none' ? event.food_theme : 'No specific food theme'}
+                    </Typography>
+                  </CardBody>
+                </Card>
+
                 {/* Family Group Details */}
                 <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
                   <CardBody className="p-4">
-                    <Typography variant="h6" className="text-gray-700 dark:text-gray-300 mb-2">
-                      Host Details 
+                    <Typography variant="h6" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-2">
+                  <InfoCircle className="h-5 w-5 text-blue-600" />    Host Details 
                     </Typography>
                     <Typography variant="h6" className="text-gray-700 font-bold dark:text-gray-300 mb-2">
                       Allergies
@@ -222,8 +236,8 @@ export const EventDetailsModal = ({
                 {/* Created By */}
                 <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
                   <CardBody className="p-4">
-                    <Typography variant="h6" className="text-gray-700 dark:text-gray-300 mb-2">
-                      Hosted by
+                    <Typography variant="h6" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-2">
+                    <Group  className="h-5 w-5 text-blue-600" /> Hosted by
                     </Typography>
                     <Typography className="text-gray-900 dark:text-white">
                      The {familyGroup?.family_last_name || 'Unknown'} family

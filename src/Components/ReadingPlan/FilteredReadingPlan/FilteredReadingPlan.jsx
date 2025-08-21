@@ -54,7 +54,7 @@ const FilteredReadingPlan = () => {
   let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;
 
   return (
-    <Card className="w-1/2 grid grid-flow-row gap-6 pb-2 text-center m-auto bg-secondary-foreground p-4">
+    <Card className="w-full lg:w-1/2 grid grid-flow-row gap-6 pb-2 text-center m-auto bg-secondary-foreground p-4">
         <MonthlyEventsPreview />
       <Typography
         variant="h4"

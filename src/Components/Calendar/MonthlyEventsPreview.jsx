@@ -156,18 +156,13 @@ export const MonthlyEventsPreview = () => {
 
   return (
     <>
-    <Card className="mb-6">
+    <Card className="mb-6 w-full">
       <CardBody className="p-6">
         <div className="flex items-center justify-between mb-6">
           <Typography variant="h5" className="text-gray-900 dark:text-white font-semibold">
             This Month's Events
           </Typography>
-          <Button
-            className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-            onClick={() => navigate('/calendar')}
-          >
-            View More
-          </Button>
+    
         </div>
 
         <div className="space-y-4">

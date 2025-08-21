@@ -52,18 +52,15 @@ const ReadingItem = ({ passage }) => {
   }
   return (
     <div
-      style={{
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-      }}
+    className="flex flex-row content-center w-full lg:w-1/2 m-auto items-center gap-2"
+      
     >
       <Button
         as="a"
         href={blueLetter}
         target="_blank"
         rel="noopener noreferrer"
-        className="link link-primary-light visited:link-light m-1 p-1"
+        className="link link-primary-light visited:link-light m-1 p-1 flex-1 h-12 flex items-center justify-center"
       >
         {passage}
       </Button>
@@ -72,7 +69,7 @@ const ReadingItem = ({ passage }) => {
         href={audioBible}
         target="_blank"
         rel="noopener noreferrer"
-        className="link link-primary-light visited:link-success m-1 p-1"
+        className="link link-primary-light visited:link-success m-1 p-1 flex-1 h-12 flex items-center justify-center"
       >
         Mobile
       </Button>

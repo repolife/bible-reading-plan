@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Button,
   Card,
   Collapse,
   Typography,
@@ -8,6 +9,7 @@ import { useEffect } from "react";
 import { useAuthStore } from "@store/useAuthStore";
 import { supabase } from "@/supabaseClient";
 import { useNavigate } from "react-router-dom";
+import { CalendarPlus } from "iconoir-react";
 
 export const Nav = ({ classes }) => {
   const { isAuthenticated, loading, user } = useAuthStore();
@@ -82,6 +84,7 @@ export const Nav = ({ classes }) => {
         <>
           <Typography
             as="a"
+            href="/account"
             variant="small"
             color="foreground"
             className="flex items-center gap-x-2 p-1 font-medium"
@@ -105,10 +108,14 @@ export const Nav = ({ classes }) => {
                 fill="#90A4AE"
               />
             </svg>
-            <a href="/account" className="flex items-center">
-              Account
-            </a>
+            Account
           </Typography>
+          <Button as="a" href="/calendar" className="bg-primaryhover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-x-2">
+          <CalendarPlus/>
+          Calendar
+
+          </Button>
+
           <div className="flex items-center gap-x-2 p-1 font-medium">
             <button
               className="bg-primaryhover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-x-2"
@@ -116,6 +123,7 @@ export const Nav = ({ classes }) => {
             >
               <span>Log out</span>
             </button>
+
           </div>
         </>
       ) : (

@@ -192,6 +192,7 @@ export const ProfileGuard = () => {
     loadingTimeout,
   ]);
 
+ 
   // Show loading spinner only when actually loading and not processing magic link
   if (profileLoading && !isProcessingMagicLink && !loadingTimeout) {
     return <Spinner size="md" text="Loading profile..." fullScreen={true} />;

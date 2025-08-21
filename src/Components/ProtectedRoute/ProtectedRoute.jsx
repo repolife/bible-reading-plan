@@ -12,7 +12,7 @@ export const ProtectedRoute = ({ children }) => {
   const location = useLocation();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) navigate("/login");
     useProfileStore.getState().fetchAndSetUserProfile(user.id);
   }, [user]);
 

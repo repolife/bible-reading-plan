@@ -48,8 +48,8 @@ const RootLayout = () => {
   return (
     <Layout>
       <Nav />
+      {/* <ProfileGuard /> */}
       <ToastContainer />
-      <ProfileGuard />
       <Outlet />
     </Layout>
   );

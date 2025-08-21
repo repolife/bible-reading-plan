@@ -1,15 +1,6 @@
 import { create } from 'zustand'
 import { supabase } from "@/supabaseClient";
 
-
-// Event type interface (you can expand this based on your event_type table)
-export const EVENT_TYPES = {
-  SHABBAT: 'shabbat',
-  FEASTDAY: 'feastday',
-  BIRTHDAY: 'birthday',
-  OTHER: 'other'
-}
-
 // Family Calendar Event interface
 export const createFamilyCalendarEvent = (data) => ({
   id: data.id || crypto.randomUUID(),
@@ -22,13 +13,14 @@ export const createFamilyCalendarEvent = (data) => ({
   location: data.location || null,
   family_id: data.family_id || null,
   created_by: data.created_by || null,
-  event_type: data.event_type || EVENT_TYPES.OTHER
+  event_type: data.event_type || null
 })
 
 // Zustand store
 export const useFamilyCalendarStore = create((set, get) => ({
   // State
   events: [],
+  eventTypes: [], // New: store event types from database
   loading: false,
   error: null,
   selectedEvent: null,
@@ -39,6 +31,37 @@ export const useFamilyCalendarStore = create((set, get) => ({
   clearError: () => set({ error: null }),
   setSelectedEvent: (event) => set({ selectedEvent: event }),
   clearSelectedEvent: () => set({ selectedEvent: null }),
+
+  // Fetch event types from database
+  fetchEventTypes: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('event_types')
+        .select('*')
+        .order('label', { ascending: true })
+
+      if (error) throw error
+
+      set({ eventTypes: data || [] })
+      return data
+    } catch (error) {
+      console.error('Error fetching event types:', error)
+      set({ error: error.message })
+      return null
+    }
+  },
+
+  // Get event type by ID
+  getEventTypeById: (eventTypeId) => {
+    const state = get()
+    return state.eventTypes.find(type => type.id === eventTypeId) || null
+  },
+
+  // Get event type by label
+  getEventTypeByLabel: (label) => {
+    const state = get()
+    return state.eventTypes.find(type => type.label === label) || null
+  },
 
   // Fetch all events for a family
   fetchFamilyEvents: async (familyId) => {
@@ -110,7 +133,7 @@ export const useFamilyCalendarStore = create((set, get) => ({
         location: eventData.location || null,
         family_id: eventData.family_id,
         created_by: eventData.created_by || null,
-        event_type: eventData.event_type || EVENT_TYPES.OTHER
+        event_type: eventData.event_type || null
       }
 
       const { data, error } = await supabase
@@ -275,6 +298,9 @@ export const useFamilyCalendarSelectors = {
   useFamilyEvents: (familyId) => useFamilyCalendarStore(state => 
     state.events.filter(event => event.family_id === familyId)
   ),
+
+  // Get all event types
+  useEventTypes: () => useFamilyCalendarStore(state => state.eventTypes),
 
   // Get loading state
   useLoading: () => useFamilyCalendarStore(state => state.loading),

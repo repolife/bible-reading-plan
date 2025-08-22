@@ -173,26 +173,25 @@ export const MonthlyEventsPreview = () => {
           {currentMonthEvents.map((event, index) => (
             <div
               key={event.id}
-              className="flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              className="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"
               onClick={() => handleEventClick(event)}
             >
               {/* Date/Time Column */}
-              <div className="flex-shrink-0 text-center min-w-[80px]">
+              <div className="flex-shrink-0 text-center sm:min-w-[80px]">
                 <div className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-lg p-2">
                   <Typography variant="small" className="font-semibold">
                     {formatDate(event.event_start)}
                   </Typography>
-                 
                 </div>
               </div>
 
               {/* Event Details Column */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 space-y-2">
                 <Typography variant="h6" className="text-gray-900 dark:text-white font-semibold mb-1 truncate">
                  Hosted by {familyGroup?.family_last_name}
                 </Typography>
                 
-                <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm text-gray-600 dark:text-gray-400">
                   {event.location && (
                     <div className="flex items-center space-x-1">
                       <MapPinIcon className="h-4 w-4" />
@@ -209,16 +208,12 @@ export const MonthlyEventsPreview = () => {
                       </button>
                     </div>
                   )}
-                  
-                 
                 </div>
-
-             
               </div>
 
               {/* Event Type Badge */}
               {event.event_type && (
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 self-start sm:self-auto">
                   <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                     {event.eventTypeLabel}
                   </span>

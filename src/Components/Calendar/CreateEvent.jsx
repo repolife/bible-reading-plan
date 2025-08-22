@@ -92,15 +92,15 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
     }
   }, [selectedSlot, isOpen])
 
-  // Set default location when family group is loaded
+  // Set default location when family group is loaded (only once)
   useEffect(() => {
-    if (familyGroup?.address && !eventData.location) {
+    if (familyGroup?.address && !eventData.location && !editingEvent) {
       setEventData(prev => ({
         ...prev,
         location: familyGroup.address
       }))
     }
-  }, [familyGroup?.address, eventData.location])
+  }, [familyGroup?.address]) // Remove eventData.location dependency to prevent overriding user input
 
   const handleOpen = () => {
     if (isOpen) {

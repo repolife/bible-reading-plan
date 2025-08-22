@@ -25,26 +25,33 @@ export const useFamilyStore = create((set, get) => ({
 
 /**
  * 
- * @param {string} familyId 
+ * @param {string} familyId - Optional. If provided, fetches specific family group. If not provided, fetches all family groups.
  * @returns Promise
  */
 fetchFamilyGroup: async (familyId) => {
   set({ loading: true, error: null });
 
-  const { data: familyGroup, error } = await supabase
-    .from('family_groups')
-    .select('*')
-    .eq('id', familyId)
-    .single();
+  let query = supabase.from('family_groups').select('*');
+  
+  // If familyId is provided, filter by it, otherwise get all
+  if (familyId) {
+    query = query.eq('id', familyId).single();
+  }
 
-    console.log('raw', familyGroup)
+  const { data, error } = await query;
 
-  if (error || !familyGroup) {
+  if (error) {
     set({ error: error?.message || 'Family group not found', loading: false });
     return;
   }
 
-  set({ familyGroup, loading: false });
+  if (familyId) {
+    // Single family group
+    set({ familyGroup: data, loading: false });
+  } else {
+    // All family groups
+    set({ allFamilyGroups: data || [], loading: false });
+  }
 },
   /**
    * 

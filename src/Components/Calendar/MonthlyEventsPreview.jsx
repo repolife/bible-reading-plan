@@ -7,20 +7,22 @@ import { useProfileStore } from '../../store/useProfileStore'
 import { useAuthStore } from '../../store/useAuthStore'
 import { EventDetailsModal } from './EventDetailsModal'
 import { useFamilyStore } from '@/store/useFamilyGroupStore'
+import { supabase } from '@/supabaseClient'
 
 
 export const MonthlyEventsPreview = () => {
   const navigate = useNavigate()
   const { user: authUser } = useAuthStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
-  const { fetchFamilyEvents, fetchEventTypes } = useFamilyCalendarStore()
+  const {  fetchEventTypes, fetchAllEvents } = useFamilyCalendarStore()
   const { familyGroup, fetchFamilyGroup } = useFamilyStore()
   // State for event details modal
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
+  const [familyGroups, setFamilyGroups] = useState({})
   
-  // Get family events and event types
-  const familyEvents = useFamilyCalendarSelectors.useFamilyEvents(profile?.family_id)
+  // Get all events from all users and event types
+  const allEvents = useFamilyCalendarSelectors.useAllEvents()
   const eventTypes = useFamilyCalendarSelectors.useEventTypes()
   const loading = useFamilyCalendarSelectors.useLoading()
 
@@ -34,12 +36,44 @@ export const MonthlyEventsPreview = () => {
 
   // Fetch events and event types when component mounts or profile changes
   useEffect(() => {
+    fetchAllEvents()
     if (profile?.family_id) {
-      fetchFamilyEvents(profile.family_id)
       fetchEventTypes()
       fetchFamilyGroup(profile.family_id)
     }
-  }, [profile?.family_id, fetchFamilyEvents, fetchEventTypes, fetchFamilyGroup])
+  }, [profile?.family_id, fetchAllEvents, fetchEventTypes, fetchFamilyGroup])
+
+  // Fetch family group information for all events
+  useEffect(() => {
+    const fetchFamilyGroupsForEvents = async () => {
+      if (allEvents && allEvents.length > 0) {
+        const uniqueFamilyIds = [...new Set(allEvents.map(event => event.family_id).filter(Boolean))]
+        
+        for (const familyId of uniqueFamilyIds) {
+          if (!familyGroups[familyId]) {
+            try {
+              const { data, error } = await supabase
+                .from('family_groups')
+                .select('family_last_name')
+                .eq('id', familyId)
+                .single()
+              
+              if (data && !error) {
+                setFamilyGroups(prev => ({
+                  ...prev,
+                  [familyId]: data.family_last_name
+                }))
+              }
+            } catch (error) {
+              console.error('Error fetching family group:', error)
+            }
+          }
+        }
+      }
+    }
+
+    fetchFamilyGroupsForEvents()
+  }, [allEvents, familyGroups])
 
   // Handlers for event details modal
   const handleEventClick = (event) => {
@@ -66,13 +100,13 @@ export const MonthlyEventsPreview = () => {
 
   // Get current month events (limited to 4)
   const currentMonthEvents = useMemo(() => {
-    if (!familyEvents || familyEvents.length === 0) return []
+    if (!allEvents || allEvents.length === 0) return []
 
     const now = new Date()
     const currentMonth = now.getMonth()
     const currentYear = now.getFullYear()
 
-    return familyEvents
+    return allEvents
       .filter(event => {
         const eventDate = new Date(event.event_start)
         return eventDate.getMonth() === currentMonth && 
@@ -90,7 +124,7 @@ export const MonthlyEventsPreview = () => {
           eventTypeLabel
         }
       })
-  }, [familyEvents, eventTypes])
+  }, [allEvents, eventTypes])
 
   // If no profile, don't render anything
   if (!profile) {
@@ -118,7 +152,7 @@ export const MonthlyEventsPreview = () => {
         <CardBody className="p-6">
           <div className="flex items-center justify-between mb-4">
             <Typography variant="h5" className="text-gray-900 dark:text-white font-semibold">
-              This Month's Events
+              This Month's Community Events
             </Typography>
             <Button
               className=" hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -164,7 +198,7 @@ export const MonthlyEventsPreview = () => {
       <CardBody className="p-6">
         <div className="flex items-center justify-between mb-6">
           <Typography variant="h5" className="text-gray-900 dark:text-white font-semibold">
-            This Month's Events
+            This Month's Community Events
           </Typography>
     
         </div>
@@ -188,7 +222,11 @@ export const MonthlyEventsPreview = () => {
               {/* Event Details Column */}
               <div className="flex-1 min-w-0 space-y-2">
                 <Typography variant="h6" className="text-gray-900 dark:text-white font-semibold mb-1 truncate">
-                 Hosted by {familyGroup?.family_last_name}
+                  {event.event_title}
+                </Typography>
+                
+                <Typography variant="body2" className="text-gray-600 dark:text-gray-400 mb-2">
+                  Hosted by {familyGroups[event.family_id] || 'Family Group'}
                 </Typography>
                 
                 <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm text-gray-600 dark:text-gray-400">

@@ -397,14 +397,14 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
       
       <Typography
         variant="h4"
-        color="blue-gray"
+        color="primary"
         className={`text-center pt-6 pb-6 ${
           isCreatingNewGroupWithSameName ? "text-amber-600 dark:text-amber-400" : ""
         }`}
       >
         {isCreatingNewGroupWithSameName ? "⚠️ NEW Family Group Setup" : "Host details"}
       </Typography>
-      <Typography color="gray" className="mt-1 font-normal">
+      <Typography color="primary" className="mt-1 font-normal">
         {isCreatingNewGroupWithSameName 
           ? "You're creating a NEW family group with the same last name. This will be completely separate from the existing family."
           : "Update your details below."
@@ -416,7 +416,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
       )}
       <form className="mt-8 mb-2 w-full" onSubmit={handleFamily(onSubmit)}>
         <div className="mb-1 flex flex-col gap-6">
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             Family Last Name
           </Typography>
 
@@ -524,7 +524,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
                         toast.error("An unexpected error occurred while adding you to this family.");
                       }
                     }}
-                    className="bg-brand-primary hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                    className="bg-primaryhover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
                   >
                     ➕ Add Myself to This Family
                   </button>
@@ -577,7 +577,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
             </span>
           )}
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             Home Address
           </Typography>
           <Controller
@@ -610,7 +610,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
             </Typography>
           )}
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             Food Allergies
           </Typography>
           <Textarea
@@ -623,7 +623,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
             {...register("food_allergies")}
           />
 
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
+          <Typography variant="h6" color="primary" className="-mb-3">
             House Rules
           </Typography>
           <Textarea

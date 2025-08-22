@@ -126,10 +126,10 @@ class GlobalErrorBoundary extends React.Component {
 
             {this.state.errorId && (
               <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
-                <Typography variant="small" color="blue-gray" className="mb-2">
+                <Typography variant="small" color="primary" className="mb-2">
                   Error Reference ID: <code className="bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded font-mono">{this.state.errorId}</code>
                 </Typography>
-                <Typography variant="small" color="blue-gray">
+                <Typography variant="small" color="primary">
                   Please save this ID and include it when contacting support.
                 </Typography>
               </div>
@@ -175,7 +175,7 @@ class GlobalErrorBoundary extends React.Component {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <Typography variant="h6" color="blue-gray" className="mb-2">
+                <Typography variant="h6" color="primary" className="mb-2">
                   Immediate Actions
                 </Typography>
                 <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
@@ -187,7 +187,7 @@ class GlobalErrorBoundary extends React.Component {
               </div>
               
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-                <Typography variant="h6" color="blue-gray" className="mb-2">
+                <Typography variant="h6" color="primary" className="mb-2">
                   If Problem Persists
                 </Typography>
                 <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">

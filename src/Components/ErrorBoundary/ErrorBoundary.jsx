@@ -109,10 +109,10 @@ class ErrorBoundary extends React.Component {
 
             {this.state.errorId && (
               <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
-                <Typography variant="small" color="blue-gray" className="mb-2">
+                <Typography variant="small" color="primary" className="mb-2">
                   Error Reference ID: <code className="bg-blue-100 dark:bg-blue-800 px-2 py-1 rounded">{this.state.errorId}</code>
                 </Typography>
-                <Typography variant="small" color="blue-gray">
+                <Typography variant="small" color="primary">
                   Please include this ID if you contact support.
                 </Typography>
               </div>

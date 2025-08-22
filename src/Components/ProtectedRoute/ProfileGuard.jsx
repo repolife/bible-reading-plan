@@ -28,9 +28,22 @@ export const ProfileGuard = () => {
         console.warn('ProfileGuard: Loading timeout reached, forcing continue');
         setLoadingTimeout(true);
       }
-    }, 10000); // 10 second timeout
+    }, 5000); // Reduced from 10 seconds to 5 seconds
 
     return () => clearTimeout(timeout);
+  }, [authLoading, profileLoading]);
+
+  // Add more aggressive timeout for overall loading
+  useEffect(() => {
+    const aggressiveTimeout = setTimeout(() => {
+      if (authLoading || profileLoading) {
+        console.warn('ProfileGuard: Aggressive timeout reached, forcing continue');
+        setProfileLoaded(true);
+        setLoadingTimeout(true);
+      }
+    }, 8000); // 8 second aggressive timeout
+
+    return () => clearTimeout(aggressiveTimeout);
   }, [authLoading, profileLoading]);
 
   // Add fallback for auth store issues
@@ -40,7 +53,7 @@ export const ProfileGuard = () => {
         console.warn('ProfileGuard: No user after timeout, forcing continue');
         setProfileLoaded(true);
       }
-    }, 5000); // 5 second fallback
+    }, 3000); // Reduced from 5 seconds to 3 seconds
 
     return () => clearTimeout(fallbackTimeout);
   }, [user, authLoading, profileLoading]);
@@ -75,7 +88,7 @@ export const ProfileGuard = () => {
 
           // Wait for user to hydrate with a timeout
           let attempts = 0;
-          const maxAttempts = 20; // Increased attempts
+          const maxAttempts = 15; // Reduced from 20 to 15
           
           const checkUser = async () => {
             const currentUser = useAuthStore.getState().user;
@@ -87,7 +100,7 @@ export const ProfileGuard = () => {
               setIsProcessingMagicLink(false);
             } else if (attempts < maxAttempts) {
               attempts++;
-              setTimeout(checkUser, 300); // Check every 300ms
+              setTimeout(checkUser, 250); // Reduced from 300ms to 250ms
             } else {
               console.error('ProfileGuard: Magic link user hydration timeout');
               setIsProcessingMagicLink(false);
@@ -179,6 +192,7 @@ export const ProfileGuard = () => {
     loadingTimeout,
   ]);
 
+ 
   // Show loading spinner only when actually loading and not processing magic link
   if (profileLoading && !isProcessingMagicLink && !loadingTimeout) {
     return <Spinner size="md" text="Loading profile..." fullScreen={true} />;

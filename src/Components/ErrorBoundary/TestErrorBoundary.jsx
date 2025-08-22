@@ -37,7 +37,7 @@ export const TestErrorBoundary = () => {
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="text-center">
-        <Typography variant="h4" color="blue-gray" className="mb-2">
+        <Typography variant="h4" color="primary" className="mb-2">
           🧪 Error Boundary Test
         </Typography>
         <Typography color="gray" className="mb-6">
@@ -48,7 +48,7 @@ export const TestErrorBoundary = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Test with Error Boundary */}
         <div>
-          <Typography variant="h6" color="blue-gray" className="mb-3">
+          <Typography variant="h6" color="primary" className="mb-3">
             With Error Boundary Protection
           </Typography>
           <ErrorBoundary componentName="BuggyComponent">
@@ -58,7 +58,7 @@ export const TestErrorBoundary = () => {
 
         {/* Test without Error Boundary */}
         <div>
-          <Typography variant="h6" color="blue-gray" className="mb-3">
+          <Typography variant="h6" color="primary" className="mb-3">
             Without Error Boundary (Will Crash)
           </Typography>
           <BuggyComponent key={key} shouldThrow={shouldThrow} />
@@ -83,7 +83,7 @@ export const TestErrorBoundary = () => {
       </div>
 
       <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
-        <Typography variant="h6" color="blue-gray" className="mb-2">
+        <Typography variant="h6" color="primary" className="mb-2">
           📋 Test Instructions
         </Typography>
         <ol className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-decimal list-inside">

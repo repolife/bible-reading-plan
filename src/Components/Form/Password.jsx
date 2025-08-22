@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { Input, Typography, Card } from "@material-tailwind/react";
+import { Input, Typography, Card, Button } from "@material-tailwind/react";
 import { supabase } from "@/supabaseClient";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
@@ -69,7 +69,7 @@ export const ConfirmPasswordForm = ({
 
   return (
     <Card className="p-4 sm:p-6 w-full max-w-sm sm:max-w-md mx-auto mt-6 sm:mt-10 shadow-lg">
-      <Typography variant="h5" color="blue-gray" className="mb-4">
+      <Typography variant="h5" color="primary" className="mb-4">
         {isPasswordSet ? " Your Password" : "Set Your Password"}
       </Typography>
 
@@ -120,13 +120,13 @@ export const ConfirmPasswordForm = ({
           )}
         </div>
 
-        <button 
+        <Button 
           type="submit" 
           disabled={isSubmitting} 
-          className="w-full bg-brand-primary hover:bg-brand-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary hover:bg-brand-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Updating..." : `${passwordAction} Password`}
-        </button>
+        </Button>
       </form>
     </Card>
   );

@@ -80,20 +80,34 @@ export const StepForm = () => {
 
       {/* Navigation Buttons */}
       <div className="mt-8 flex justify-between w-full">
-        <button 
-          onClick={prev} 
-          disabled={isFirst}
-          className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          Previous
-        </button>
-        <button 
-          onClick={next} 
-          disabled={isLast || !isStepValid}
-          className="px-6 py-2 bg-brand-primary hover:bg-brand-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isLast ? "Finish" : "Next"}
-        </button>
+        {!isFirst && (
+          <button 
+            onClick={prev} 
+            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Previous
+          </button>
+        )}
+        
+        {!isLast && (
+          <button 
+            onClick={next} 
+            disabled={!isStepValid}
+            className="px-6 py-2 bg-primaryhover:bg-brand-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Next
+          </button>
+        )}
+        
+        {isLast && (
+          <button 
+            onClick={next} 
+            disabled={!isStepValid}
+            className="px-6 py-2 bg-primaryhover:bg-brand-600 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Finish
+          </button>
+        )}
       </div>
     </Card>
   );

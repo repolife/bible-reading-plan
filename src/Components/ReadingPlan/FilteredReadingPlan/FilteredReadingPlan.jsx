@@ -4,11 +4,12 @@ import ReadingItem from "../ReadingItem/ReadingItem";
 import Nav from "shared/Nav/Nav";
 import Layout from "shared/Layout/Layout";
 import { Link } from "react-router-dom";
-import { Typography } from "@material-tailwind/react";
+import { Button, Card, Typography } from "@material-tailwind/react";
 import { DayPicker } from "react-day-picker";
 import { Input } from "@material-tailwind/react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Chip } from "@material-tailwind/react";
+import { MonthlyEventsPreview } from '@/Components/Calendar/MonthlyEventsPreview'
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(
@@ -53,7 +54,8 @@ const FilteredReadingPlan = () => {
   let dateRange = `${startOfWeek.toLocaleDateString("default", { weekday: "long" })} (${startOfWeek.toLocaleDateString()}) - ${endOfWeek.toLocaleDateString("default", { weekday: "long" })} (${endOfWeek.toLocaleDateString()})`;
 
   return (
-    <div className="w-1/2 grid grid-flow-row gap-6 pb-2 text-center m-auto">
+    <Card className="w-full lg:w-1/2 grid grid-flow-row gap-6 pb-2 text-center m-auto bg-secondary-foreground p-4">
+        <MonthlyEventsPreview />
       <Typography
         variant="h4"
         className="text-primary flex flex-row items-center justify-between"
@@ -115,25 +117,23 @@ const FilteredReadingPlan = () => {
             justifyContent: "space-evenly",
           }}
         >
-          <a href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US">
-            <button className="bg-brand-primary hover:bg-brand-600 text-white shadow-lg shadow-brand-primary/25 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 hover:scale-105">
-              <i className="fa-brands fa-google-play text-2xl text-white" />
-            </button>
-          </a>
-          <a href="https://app.bible.com/app-ios">
-            <button className="bg-brand-primary hover:bg-brand-600 text-white shadow-lg shadow-brand-primary/25 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 hover:scale-105">
-              <i className="fa-brands fa-app-store-ios text-2xl text-white" />
-            </button>
-          </a>
+          <Button as="a"  variant="ghost" href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US" className="bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/25 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 hover:scale-105">
+            <i className="fa-brands fa-google-play text-2xl text-white" />
+          </Button>
+          <Button as="a" variant="ghost" href="https://app.bible.com/app-ios" className="bg-primary hover:bg-primary-dark text-white shadow-lg shadow-brand-primary/25 rounded-full w-12 h-12 flex items-center justify-center transition-all duration-200 hover:scale-105">
+            <i className="fa-brands fa-app-store-ios text-2xl text-white" />
+          </Button>
         </div>
-        <Link 
-          className="text-brand-primary hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300 underline hover:no-underline transition-colors text-center mt-2 font-medium" 
-          to="/plan"
+        <Button 
+          variant="ghost"
+          as="a"
+          className="link-primary-light hover:text-brand-600 dark:text-brand-400 dark:hover:text-brand-300 underline hover:no-underline transition-colors text-center mt-2 font-medium" 
+          href="/plan"
         >
           Full 2 year reading plan
-        </Link>
+        </Button>
       </section>
-    </div>
+    </Card>
   );
 };
 

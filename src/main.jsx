@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
@@ -28,14 +28,6 @@ import { ThemeProvider } from "./Components/ThemeProvider/ThemeProvider.jsx";
 import GlobalErrorBoundary from "./Components/ErrorBoundary/GlobalErrorBoundary.jsx";
 import TestErrorBoundary from "./Components/ErrorBoundary/TestErrorBoundary.jsx";
 
-// Initialize auth listener properly
-(async () => {
-  try {
-    await useAuthStore.getState().initAuthListener();
-  } catch (error) {
-    console.error('Failed to initialize auth listener:', error);
-  }
-})();
 
 const env = import.meta.env;
 
@@ -45,10 +37,16 @@ Sentry.init({
 });
 
 const RootLayout = () => {
+  const { isAuthenticated } = useAuthStore();
+
+  useEffect(() => {
+    // Initialize auth listener once when app starts
+    useAuthStore.getState().initAuthListener();
+  }, []);
+
   return (
     <Layout>
       <Nav />
-      {/* <ProfileGuard /> */}
       <ToastContainer />
       <Outlet />
     </Layout>

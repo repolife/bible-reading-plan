@@ -68,24 +68,10 @@ export const Song = () => {
         
         {/* Test input field to check visibility */}
         <div className="mb-4 w-full max-w-md">
-          <input
-            type="text"
-            placeholder="Test input field - can you see this?"
-            style={{
-              color: '#000000 !important',
-              backgroundColor: '#ffffff !important',
-              border: '2px solid #000000 !important',
-              padding: '12px',
-              fontSize: '16px',
-              width: '100%',
-              borderRadius: '8px'
-            }}
-            defaultValue="Sample text to test visibility"
-          />
+  
         </div>
         
-        <div className="text-2xl text-center w-screen h-screen  p-4">
-          {" "}
+        <div className="text-2xl text-center w-full min-h-screen p-4">
           {documentToReactComponents(song, options)}
         </div>
       </div>

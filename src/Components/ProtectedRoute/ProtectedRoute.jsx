@@ -3,28 +3,29 @@ import { useAuthStore } from "@store/useAuthStore";
 import { Loader } from "../Shared/Loader";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useProfileStore } from "@store/useProfileStore";
+import { ProfileGuard } from "./ProfileGuard";
 
 export const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading, user } = useAuthStore();
-  const { profile, loading: profileLoading } = useProfileStore();
+  const { isAuthenticated, loading } = useAuthStore();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  useEffect(() => {
-    if (!user) navigate("/login");
-    useProfileStore.getState().fetchAndSetUserProfile(user.id);
-  }, [user]);
+
 
   useEffect(() => {
-    if (loading || profileLoading) return;
+    if (loading ) return;
     if (!isAuthenticated) {
       navigate("/login");
-      return;
     }
-  }, [isAuthenticated, loading, navigate, profileLoading]);
+  }, [isAuthenticated, loading, navigate, , location.pathname]);
 
+  if (loading) {
+    return <Loader />;
+  }
 
-
-  return children;
+  return <>
+  <ProfileGuard/>
+  {children}
+  </>;
 };

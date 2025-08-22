@@ -64,23 +64,29 @@ export const useFamilyCalendarStore = create((set, get) => ({
     return state.eventTypes.find(type => type.label === label) || null
   },
 
-  // Fetch all events for a family
+  // Fetch events for a family (or all events if no familyId provided)
   fetchFamilyEvents: async (familyId) => {
     try {
       set({ loading: true, error: null })
       
-      const { data, error } = await supabase
+      let query = supabase
         .from('family_calendar')
         .select('*')
-        .eq('family_id', familyId)
         .order('event_start', { ascending: true })
+      
+      // If familyId is provided, filter by it, otherwise get all events
+      if (familyId) {
+        query = query.eq('family_id', familyId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
 
       set({ events: data || [] })
       return data
     } catch (error) {
-      console.error('Error fetching family events:', error)
+      console.error('Error fetching events:', error)
       set({ error: error.message })
       return null
     } finally {
@@ -88,18 +94,48 @@ export const useFamilyCalendarStore = create((set, get) => ({
     }
   },
 
-  // Fetch events for a specific date range
-  fetchEventsByDateRange: async (familyId, startDate, endDate) => {
+  // Fetch all events from all families
+  fetchAllEvents: async () => {
     try {
       set({ loading: true, error: null })
       
       const { data, error } = await supabase
         .from('family_calendar')
+        .select(`
+          *      `)
+        .order('event_start', { ascending: true })
+
+      if (error) throw error
+
+      set({ events: data || [] })
+      return data
+    } catch (error) {
+      console.error('Error fetching all events:', error)
+      set({ error: error.message })
+      return null
+    } finally {
+      set({ loading: false })
+    }
+  },
+
+  // Fetch events for a specific date range (optionally filtered by family)
+  fetchEventsByDateRange: async (startDate, endDate, familyId) => {
+    try {
+      set({ loading: true, error: null })
+      
+      let query = supabase
+        .from('family_calendar')
         .select('*')
-        .eq('family_id', familyId)
         .gte('event_start', startDate)
         .lte('event_start', endDate)
         .order('event_start', { ascending: true })
+      
+      // If familyId is provided, filter by it, otherwise get all events in date range
+      if (familyId) {
+        query = query.eq('family_id', familyId)
+      }
+
+      const { data, error } = await query
 
       if (error) throw error
 
@@ -236,16 +272,21 @@ export const useFamilyCalendarStore = create((set, get) => ({
     })
   },
 
-  // Get upcoming events
-  getUpcomingEvents: (familyId, limit = 10) => {
+  // Get upcoming events (optionally filtered by family)
+  getUpcomingEvents: (limit = 10, familyId) => {
     const state = get()
     const now = new Date()
     
-    return state.events
-      .filter(event => 
-        event.family_id === familyId && 
-        new Date(event.event_start) >= now
-      )
+    let filteredEvents = state.events.filter(event => 
+      new Date(event.event_start) >= now
+    )
+    
+    // If familyId is provided, filter by it
+    if (familyId) {
+      filteredEvents = filteredEvents.filter(event => event.family_id === familyId)
+    }
+    
+    return filteredEvents
       .sort((a, b) => new Date(a.event_start) - new Date(b.event_start))
       .slice(0, limit)
   },
@@ -280,18 +321,24 @@ export const useFamilyCalendarStore = create((set, get) => ({
     }
   },
 
-  // Search events
-  searchEvents: (familyId, searchTerm) => {
+  // Search events (optionally filtered by family)
+  searchEvents: (searchTerm, familyId) => {
     const state = get()
     const term = searchTerm.toLowerCase()
     
-    return state.events.filter(event => 
-      event.family_id === familyId &&
+    let filteredEvents = state.events.filter(event => 
       (event.event_title.toLowerCase().includes(term) ||
        event.event_description.toLowerCase().includes(term) ||
        (event.location && event.location.toLowerCase().includes(term)) ||
        (event.food_theme && event.food_theme.toLowerCase().includes(term)))
     )
+    
+    // If familyId is provided, filter by it
+    if (familyId) {
+      filteredEvents = filteredEvents.filter(event => event.family_id === familyId)
+    }
+    
+    return filteredEvents
   }
 }))
 
@@ -301,6 +348,9 @@ export const useFamilyCalendarSelectors = {
   useFamilyEvents: (familyId) => useFamilyCalendarStore(state => 
     state.events.filter(event => event.family_id === familyId)
   ),
+
+  // Get all events (from all families)
+  useAllEvents: () => useFamilyCalendarStore(state => state.events),
 
   // Get all event types
   useEventTypes: () => useFamilyCalendarStore(state => state.eventTypes),
@@ -314,8 +364,11 @@ export const useFamilyCalendarSelectors = {
   // Get selected event
   useSelectedEvent: () => useFamilyCalendarStore(state => state.selectedEvent),
 
-  // Get events count
-  useEventsCount: (familyId) => useFamilyCalendarStore(state => 
-    state.events.filter(event => event.family_id === familyId).length
-  )
+  // Get events count (optionally filtered by family)
+  useEventsCount: (familyId) => useFamilyCalendarStore(state => {
+    if (familyId) {
+      return state.events.filter(event => event.family_id === familyId).length
+    }
+    return state.events.length
+  })
 } 

@@ -35,9 +35,10 @@ export const Calendar = () => {
     events, 
     loading, 
     error, 
-    fetchFamilyEvents, 
+    fetchAllEvents, 
     fetchEventTypes,
-    clearError 
+    clearError,
+    fetchFamilyEvents
   } = useFamilyCalendarStore()
   
   // State for CreateEvent modal
@@ -52,18 +53,20 @@ export const Calendar = () => {
   const [showEventDetailsModal, setShowEventDetailsModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState(null)
   
-  // Get family events and event types
-  const familyEvents = useFamilyCalendarSelectors.useFamilyEvents(profile?.family_id)
+  // Get all events from all families and event types
+  const allEvents = useFamilyCalendarSelectors.useAllEvents()
   const eventTypes = useFamilyCalendarSelectors.useEventTypes()
   
-  // Convert family calendar events to React Big Calendar format
+  // Convert all calendar events to React Big Calendar format
   const calendarEvents = useMemo(() => {
-    return familyEvents.map(event => {
+    console.log('Mapping allEvents:', allEvents)
+    
+    return allEvents.map(event => {
       // Find the event type label
       const eventType = eventTypes.find(type => type.id === event.event_type)
       const eventTypeLabel = eventType ? eventType.label : 'Unknown Type'
       
-      return {
+      const mappedEvent = {
         id: event.id,
         title: event.event_title,
         start: new Date(event.event_start),
@@ -73,17 +76,26 @@ export const Calendar = () => {
         location: event.location,
         eventType: event.event_type,
         eventTypeLabel: eventTypeLabel, // Add the human-readable label
-        familyId: event.family_id,
+        family_id: event.family_id, // Keep snake_case for consistency
         createdBy: event.created_by,
         food_theme: event.food_theme, // Add food theme property
-        familyGroupName: familyGroup?.name || 'Family Group',
-        familyGroupAddress: familyGroup?.address || null
+        familyGroupName: 'Family Group', // Will be updated when we have family group data
+        familyGroupAddress: null
       }
+      
+      console.log('Mapped event:', mappedEvent)
+      return mappedEvent
     })
-  }, [familyEvents, eventTypes, familyGroup])
+  }, [allEvents, eventTypes])
 
   // Show error if any
-  // Do not early-return on error. Render a banner below instead to keep hooks order stable.
+  // Do not early-return on error. Render a bann
+  // er below instead to keep hooks order stable.
+
+  
+  useEffect(() => {
+    fetchAllEvents()
+  }, [fetchAllEvents])
 
   // Fetch profile when auth user changes
   useEffect(() => {
@@ -95,10 +107,9 @@ export const Calendar = () => {
   // Fetch events when component mounts or profile changes
   useEffect(() => {
     if (profile?.family_id) {
-      fetchFamilyEvents(profile.family_id)
       fetchFamilyGroup(profile.family_id)
     }
-  }, [profile?.family_id, fetchFamilyEvents, fetchFamilyGroup])
+  }, [profile?.family_id,  fetchFamilyGroup])
 
   // Fetch event types when component mounts
   useEffect(() => {
@@ -130,12 +141,14 @@ export const Calendar = () => {
         if (createdEvent) {
           setShowCreateModal(false)
           setSelectedSlot(null)
+          // Refresh all events to show the new event
+          fetchAllEvents()
         }
       } catch (error) {
         console.error('Error creating event:', error)
       }
     },
-    [profile?.family_id, authUser?.id]
+    [profile?.family_id, authUser?.id, fetchAllEvents]
   )
 
   const handleSelectEvent = useCallback(
@@ -158,16 +171,14 @@ export const Calendar = () => {
         if (success) {
           setShowEditModal(false)
           setEditingEvent(null)
-          // Refresh events
-          if (profile?.family_id) {
-            fetchFamilyEvents(profile.family_id)
-          }
+          // Refresh all events
+          fetchAllEvents()
         }
       } catch (error) {
         console.error('Error deleting event:', error)
       }
     },
-    [profile?.family_id, fetchFamilyEvents]
+    [fetchAllEvents]
   )
 
   const handleEditEvent = useCallback(
@@ -183,16 +194,14 @@ export const Calendar = () => {
         if (success) {
           setShowEditModal(false)
           setEditingEvent(null)
-          // Refresh events
-          if (profile?.family_id) {
-            fetchFamilyEvents(profile.family_id)
-          }
+          // Refresh all events
+          fetchAllEvents()
         }
       } catch (error) {
         console.error('Error updating event:', error)
       }
     },
-    [profile?.family_id, fetchFamilyEvents, handleDeleteEvent]
+    [fetchAllEvents, handleDeleteEvent]
   )
 
   const handleSelectSlot = useCallback(
@@ -226,7 +235,7 @@ export const Calendar = () => {
         all_day: selectedEvent.allDay,
         location: selectedEvent.location,
         event_type: selectedEvent.eventType,
-        family_id: selectedEvent.familyId,
+        family_id: selectedEvent.family_id,
         created_by: selectedEvent.createdBy,
         food_theme: selectedEvent.food_theme // Add food theme property
       }

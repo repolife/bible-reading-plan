@@ -8,6 +8,8 @@ import {
 } from '@material-tailwind/react'
 import { XMarkIcon, PencilIcon, TrashIcon, MapPinIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'
 import {  useFamilyStore } from '@/store/useFamilyGroupStore'
+import { useProfileStore } from '@/store/useProfileStore'
+import { useAuthStore } from '@/store/useAuthStore'
 import { Cutlery, Group, InfoCircle, Eye, } from 'iconoir-react';
 import { FamilyAllergiesTable } from '@/Components/FamilyAllergiesTable'
 
@@ -51,17 +53,35 @@ export const EventDetailsModal = ({
   }
 
   const { fetchFamilyGroup } = useFamilyStore()
+  const { profile, fetchAndSetUserProfile } = useProfileStore()
+  const { user: authUser } = useAuthStore()
+
+  useEffect(() => {
+    // Fetch user profile if not already loaded
+    if (authUser?.id && !profile) {
+      fetchAndSetUserProfile(authUser.id)
+    }
+  }, [authUser?.id, profile, fetchAndSetUserProfile])
 
   useEffect(() => {
    if(event.family_id) {
     fetchFamilyGroup(event.family_id)
    }
-  }, [event])
+  }, [event, fetchFamilyGroup])
 
   const { familyGroup } = useFamilyStore()
+  
+  // Check if current user can edit/delete this event
+  const canEditEvent = profile?.family_id === event.family_id
+  
   console.log("familyGroup", familyGroup)
   console.log("event object:", event)
   console.log("event.food_theme:", event.food_theme)
+  console.log("profile:", profile)
+  console.log("authUser:", authUser)
+  console.log("event.family_id:", event.family_id)
+  console.log("profile?.family_id:", profile?.family_id)
+  console.log("canEditEvent:", canEditEvent)
 
   return (
     <div className="fixed inset-0 z-[99999] bg-black bg-opacity-50 flex items-center justify-center p-4">
@@ -266,21 +286,37 @@ export const EventDetailsModal = ({
                     Quick Actions
                   </Typography>
                   <div className="space-y-3">
-                    <Button
-                      className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                      onClick={onEdit}
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                      Edit Event
-                    </Button>
-                    
-                    <Button
-                      className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white"
-                      onClick={onDelete}
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                      Delete Event
-                    </Button>
+                    {!profile ? (
+                      <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <Typography variant="small" className="text-gray-500 dark:text-gray-400">
+                          Loading permissions...
+                        </Typography>
+                      </div>
+                    ) : canEditEvent ? (
+                      <>
+                        <Button
+                          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={onEdit}
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                          Edit Event
+                        </Button>
+                        
+                        <Button
+                          className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white"
+                          onClick={onDelete}
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                          Delete Event
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <Typography variant="small" className="text-gray-500 dark:text-gray-400">
+                          You can only edit events hosted by your family
+                        </Typography>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -349,9 +385,11 @@ export const EventDetailsModal = ({
           <Button className="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200" onClick={onClose}>
             Close
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={onEdit}>
-            Edit Event
-          </Button>
+          {profile && canEditEvent && (
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={onEdit}>
+              Edit Event
+            </Button>
+          )}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+ import React, { useState } from "react";
 import { AccountProfile } from "../Profile/AccountProfile";
 import { FamilyGroupForm } from "./FamilyGroupForm";
 import { Card } from "@material-tailwind/react";
@@ -7,9 +7,20 @@ import { useAuthStore } from "@store/useAuthStore";
 
 export const StepForm = () => {
   const user = useAuthStore.getState().user;
+  const { profile, fetchAndSetUserProfile } = useProfileStore();
 
   const [activeStep, setActiveStep] = useState(0);
   const [isStepValid, setIsStepValid] = useState(false);
+
+
+  useEffect(() => {
+    if(user?.id) { 
+     fetchAndSetUserProfile(user?.id);
+    }
+  }, [user?.id]);
+
+
+// }, [profile, user?.id]);
 
   const steps = [
     <ConfirmPasswordForm

@@ -159,6 +159,12 @@ export const ProfileGuard = () => {
       profileLoaded,
       profileData: profile
     });
+    
+    if(!profile || !profile.has_password || !profile.family_id && isAuthenticated) {
+      debugger
+      navigate("/account");
+      return;
+    }
 
     // If user has no profile at all, redirect to profile setup
     if (!profile && isAuthenticated && currentRoute !== '/profile') {

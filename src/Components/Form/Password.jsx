@@ -5,6 +5,7 @@ import { supabase } from "@/supabaseClient";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
 import { useProfileStore } from "../../store/useProfileStore";
+import { InfoCircle } from "iconoir-react";
 
 export const ConfirmPasswordForm = ({
   setIsStepValid,
@@ -69,6 +70,8 @@ export const ConfirmPasswordForm = ({
 
   return (
     <Card className="p-4 sm:p-6 w-full max-w-sm sm:max-w-md mx-auto mt-6 sm:mt-10 shadow-lg">
+     
+     <Typography variant="small" color="primary"  className="mb-4 flex gap-2"><InfoCircle className="w-4 h-4 mb-4"/> {profile?.has_password ? "You can change your password if you want to" : "Set Your Password"}</Typography>
       <Typography variant="h5" color="primary" className="mb-4">
         {isPasswordSet ? " Your Password" : "Set Your Password"}
       </Typography>

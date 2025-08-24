@@ -145,6 +145,23 @@ export const MonthlyEventsPreview = () => {
     )
   }
 
+  if(!profile?.family_id) {
+    return (
+      <Card className="mb-6">
+        <CardBody className="p-6">
+          <div className="flex items-center justify-center py-8">
+            <Typography variant="h5" className="text-gray-900 dark:text-white font-semibold">
+              You need to complete your profile and join a family group to view events
+            </Typography>
+          </div>
+          <Button onClick={() => navigate('/account')}>
+            Click here to complete
+          </Button>
+        </CardBody>
+      </Card>
+    )
+  }
+
   // If no events this month
   if (currentMonthEvents.length === 0) {
     return (

@@ -10,6 +10,7 @@ import { Verse } from "components/Study/Verse.jsx";
 import { Bible } from "components/Bible/Bible.jsx";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Calendar } from "./Components/Calendar/Calendar.jsx";
+import { EventDetailsPage } from "./Components/Calendar/EventDetailsPage.jsx";
 import { ProtectedRoute } from "./Components/ProtectedRoute/ProtectedRoute.jsx";
 import { Nav } from "./Components/Shared/Nav/Nav.jsx";
 import { useAuthStore } from "@store/useAuthStore";
@@ -99,6 +100,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Calendar />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "events/:eventId",
+        element: (
+          <ProtectedRoute>
+            <EventDetailsPage />
           </ProtectedRoute>
         ),
       },

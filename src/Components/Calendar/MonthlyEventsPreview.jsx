@@ -5,7 +5,6 @@ import { CalendarIcon, MapPinIcon, ClockIcon } from '@heroicons/react/24/outline
 import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/useFamilyCalendarStore'
 import { useProfileStore } from '../../store/useProfileStore'
 import { useAuthStore } from '../../store/useAuthStore'
-import { EventDetailsModal } from './EventDetailsModal'
 import { useFamilyStore } from '@/store/useFamilyGroupStore'
 import { supabase } from '@/supabaseClient'
 
@@ -16,9 +15,7 @@ export const MonthlyEventsPreview = () => {
   const { profile, fetchAndSetUserProfile } = useProfileStore()
   const {  fetchEventTypes, fetchAllEvents } = useFamilyCalendarStore()
   const { familyGroup, fetchFamilyGroup } = useFamilyStore()
-  // State for event details modal
-  const [showEventDetailsModal, setShowEventDetailsModal] = useState(false)
-  const [selectedEvent, setSelectedEvent] = useState(null)
+  // State for family groups
   const [familyGroups, setFamilyGroups] = useState({})
   
   // Get all events from all users and event types
@@ -77,28 +74,21 @@ export const MonthlyEventsPreview = () => {
 
   // Handlers for event details modal
   const handleEventClick = (event) => {
-    setSelectedEvent(event)
-    setShowEventDetailsModal(true)
-  }
-
-  const handleCloseModal = () => {
-    setShowEventDetailsModal(false)
-    setSelectedEvent(null)
+    // Navigate to event details page
+    navigate(`/events/${event.id}`)
   }
 
   const handleEditEvent = () => {
     // Navigate to calendar for editing
     navigate('/calendar')
-    handleCloseModal()
   }
 
   const handleDeleteEvent = () => {
     // Navigate to calendar for deletion
     navigate('/calendar')
-    handleCloseModal()
   }
 
-  // Get current month events (limited to 4)
+  // Get current month events (limited to 4) - only future events
   const currentMonthEvents = useMemo(() => {
     if (!allEvents || allEvents.length === 0) return []
 
@@ -109,8 +99,12 @@ export const MonthlyEventsPreview = () => {
     return allEvents
       .filter(event => {
         const eventDate = new Date(event.event_start)
+        const eventEndDate = event.all_day ? new Date(event.event_end) : new Date(event.event_start)
+        
+        // Check if event is in current month/year AND hasn't ended yet
         return eventDate.getMonth() === currentMonth && 
-               eventDate.getFullYear() === currentYear
+               eventDate.getFullYear() === currentYear &&
+               eventEndDate > now
       })
       .sort((a, b) => new Date(a.event_start) - new Date(b.event_start))
       .slice(0, 4)
@@ -289,17 +283,6 @@ export const MonthlyEventsPreview = () => {
         </div>
       </CardBody>
     </Card>
-
-    {/* Event Details Modal */}
-    {showEventDetailsModal && selectedEvent && (
-      <EventDetailsModal
-        event={selectedEvent}
-        isOpen={showEventDetailsModal}
-        onClose={handleCloseModal}
-        onEdit={handleEditEvent}
-        onDelete={handleDeleteEvent}
-      />
-    )}
   </>
   )
 } 

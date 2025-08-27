@@ -10,6 +10,8 @@ import { Input } from "@material-tailwind/react";
 import { ErrorBoundary } from "react-error-boundary";
 import { Chip } from "@material-tailwind/react";
 import { MonthlyEventsPreview } from '@/Components/Calendar/MonthlyEventsPreview'
+import { CreatePrayerRequest } from "../../PrayerRequest/CreatePrayerRequest";
+import { WeeklyPrayerRequests } from "../../PrayerRequest/WeeklyPrayerRequests";
 
 const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(
@@ -133,6 +135,7 @@ const FilteredReadingPlan = () => {
           Full 2 year reading plan
         </Button>
       </section>
+      <WeeklyPrayerRequests />
     </Card>
   );
 };

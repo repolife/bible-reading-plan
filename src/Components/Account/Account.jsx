@@ -1,11 +1,17 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Button } from "@material-tailwind/react";
 import { ConfirmPasswordForm } from "../Form/Password";
 import { AccountProfile } from "../Profile/AccountProfile";
 import { FamilyGroupForm } from "../Form/FamilyGroupForm";
+import { useAuthStore } from "@store/useAuthStore";
+import { useProfileStore } from "@store/useProfileStore";
 
 export const Account = () => {
   const [activeTab, setActiveTab] = useState("Update Password");
+  const { profile, fetchAndSetUserProfile } = useProfileStore();
+  const user = useAuthStore.getState().user;
+
+
 
   const pages = [
     {
@@ -21,6 +27,26 @@ export const Account = () => {
       component: <FamilyGroupForm />,
     },
   ];
+
+  useEffect(() => {
+    if(user?.id) { 
+     fetchAndSetUserProfile(user?.id);
+    }
+  }, [user?.id]);
+
+
+  useEffect(() => {
+  if(!user?.id) {
+    setActiveTab(pages[0].key);
+  }
+  if(profile?.has_password && !profile?.family_id) { 
+    setActiveTab(pages[1].key);
+  } else if(profile?.has_password && profile?.family_id) {
+    setActiveTab(pages[2].key);
+  } else {
+    setActiveTab(pages[0].key);
+  }
+}, [profile, user?.id]);
 
   const currentComponent = pages.find(page => page.key === activeTab)?.component;
 

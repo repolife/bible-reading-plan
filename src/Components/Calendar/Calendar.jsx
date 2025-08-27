@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { Calendar as ReactBigCalendar, Views, dateFnsLocalizer } from 'react-big-calendar'
+import { useNavigate } from 'react-router-dom'
 import format from 'date-fns/format'
 import parse from 'date-fns/parse'
 import startOfWeek from 'date-fns/startOfWeek'
@@ -28,6 +29,7 @@ const localizer = dateFnsLocalizer({
 })
 
 export const Calendar = () => {
+  const navigate = useNavigate()
   const { user: authUser } = useAuthStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
   const { familyGroup, fetchFamilyGroup } = useFamilyStore()
@@ -153,11 +155,10 @@ export const Calendar = () => {
 
   const handleSelectEvent = useCallback(
     (event) => {
-      // Show event details modal
-      setSelectedEvent(event)
-      setShowEventDetailsModal(true)
+      // Navigate to event details page
+      navigate(`/events/${event.id}`)
     },
-    []
+    [navigate]
   )
 
   const handleDeleteEvent = useCallback(

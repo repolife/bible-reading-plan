@@ -14,6 +14,7 @@ import { useAuthStore } from '@/store/useAuthStore'
 import { useFamilyCalendarStore } from '@/store/useFamilyCalendarStore'
 import { Cutlery, Group, InfoCircle, Eye } from 'iconoir-react'
 import { FamilyAllergiesTable } from '@/Components/FamilyAllergiesTable'
+import { EventRSVPButton } from './EventRSVPButton'
 import { toast } from 'react-toastify'
 
 export const EventDetailsPage = () => {
@@ -259,7 +260,7 @@ export const EventDetailsPage = () => {
                       })
                     } else {
                       // Fallback to Telegram share
-                      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(eventUrl)}&text=${encodeURIComponent(`Check out this event: ${eventTitle} hosted by the ${familyGroup?.family_last_name || 'Unknown'} family`)}`
+                      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(eventUrl)}&text=${encodeURIComponent(`Check out this event: ${eventTitle} hosted by the ${familyGroup?.family_last_name  || 'Unknown'} family`)}`
                       window.open(shareUrl, '_blank')
                     }
                   }}
@@ -424,6 +425,21 @@ export const EventDetailsPage = () => {
                 </CardBody>
               </Card>
             </div>
+                 {/* RSVP Section */}
+                 <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+              <CardBody className="p-6">
+                <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
+                  RSVP
+                </Typography>
+                <EventRSVPButton 
+                  eventId={event.id}
+                  eventTitle={event.title}
+                  onRSVPChange={(isAttending, newCount) => {
+                    console.log(`RSVP changed: ${isAttending}, count: ${newCount}`)
+                  }}
+                />
+              </CardBody>
+            </Card>
 
             {/* Family Allergies Table */}
             <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
@@ -479,6 +495,8 @@ export const EventDetailsPage = () => {
                 </div>
               </CardBody>
             </Card>
+
+       
 
             {/* Event Summary */}
             <Card className="shadow-sm border border-gray-200 dark:border-gray-700">

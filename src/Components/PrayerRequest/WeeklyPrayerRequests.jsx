@@ -106,6 +106,9 @@ export const WeeklyPrayerRequests = () => {
     setIsEditMode(false)
     setSelectedRequest(null)
     toast.success('Prayer request created successfully')
+    
+    // Refresh the prayer requests to show the new one
+    fetchPrayerRequestsForWeek(startOfWeek, endOfWeek)
   }
 
   const handleRequestUpdated = (updatedRequest) => {
@@ -113,6 +116,9 @@ export const WeeklyPrayerRequests = () => {
     setIsEditMode(false)
     setSelectedRequest(null)
     toast.success('Prayer request updated successfully')
+    
+    // Refresh the prayer requests to show the updated one
+    fetchPrayerRequestsForWeek(startOfWeek, endOfWeek)
   }
 
   const handleEditClick = (request) => {

@@ -35,10 +35,11 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      shared: path.resolve(__dirname, "src/Components/Shared"),
+      shared: path.resolve(__dirname, "src/components/Shared"),
       data: path.resolve(__dirname, "data"),
-      components: path.resolve(__dirname, "src/Components"),
+      "@components": path.resolve(__dirname, "src/components"),
       "@store": path.resolve(__dirname, "src/store"),
+      "@hooks": path.resolve(__dirname, "src/hooks"),
       "@": path.resolve(__dirname, "src"),
     },
   },

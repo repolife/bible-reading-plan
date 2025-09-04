@@ -350,7 +350,7 @@ export const Calendar = () => {
             day: true,
             agenda: true
           }}
-          defaultView={Views.WEEK}
+          defaultView={Views.MONTH}
           toolbar={true}
           popup={true}
           longPressThreshold={500}

@@ -4,6 +4,7 @@ import { FamilyGroupForm } from "./FamilyGroupForm";
 import { Card } from "@material-tailwind/react";
 import { ConfirmPasswordForm } from "./Password";
 import { useAuthStore } from "@store/useAuthStore";
+import { NotificationPreferences } from "../Notifications/NotificationPreferences";
 
 export const StepForm = () => {
   const user = useAuthStore.getState().user;
@@ -38,6 +39,11 @@ export const StepForm = () => {
       stepIndex={2}
       setIsStepValid={setIsStepValid}
     />,
+    <NotificationPreferences
+    activeStep={activeStep}
+    stepIndex={3}
+    setIsStepValid={setIsStepValid}
+  />,
   ];
 
   const CurrentStep = steps[activeStep];

@@ -5,6 +5,7 @@ import { AccountProfile } from "../Profile/AccountProfile";
 import { FamilyGroupForm } from "../Form/FamilyGroupForm";
 import { useAuthStore } from "@store/useAuthStore";
 import { useProfileStore } from "@store/useProfileStore";
+import { NotificationPreferences } from "../Notifications/NotificationPreferences";
 
 export const Account = () => {
   const [activeTab, setActiveTab] = useState("Update Password");
@@ -25,6 +26,10 @@ export const Account = () => {
     {
       key: "Host Details",
       component: <FamilyGroupForm />,
+    },
+    {
+      key: "Notification Preferences",
+      component: <NotificationPreferences />,
     },
   ];
 

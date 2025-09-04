@@ -23,14 +23,11 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
   const error = useEventAttendeesSelectors.useError()
 
   // Local state for immediate UI feedback
-  const [localIsAttending, setLocalIsAttending] = useState(false)
-  const [localAttendeeCount, setLocalAttendeeCount] = useState(0)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Initialize local state when component mounts or data changes
   useEffect(() => {
     console.log('RSVP State Update:', { isAttending, attendeeCount, eventId })
-    setLocalIsAttending(isAttending)
-    setLocalAttendeeCount(attendeeCount)
   }, [isAttending, attendeeCount, eventId])
 
   // Fetch attendees when component mounts
@@ -47,63 +44,53 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
       return
     }
 
+    if (isProcessing) {
+      return // Prevent double-clicks
+    }
+
+    setIsProcessing(true)
+
     console.log('RSVP Toggle:', { 
       eventId, 
       familyId: profile.family_id, 
-      currentAttending: localIsAttending,
-      currentCount: localAttendeeCount 
+      currentAttending: isAttending,
+      currentCount: attendeeCount 
     })
 
     try {
-      if (localIsAttending) {
+      if (isAttending) {
         // Cancel RSVP
         console.log('Cancelling RSVP...')
         const success = await removeAttendee(eventId, profile.family_id)
         if (success) {
-          setLocalIsAttending(false)
-          setLocalAttendeeCount(prev => {
-            const newCount = Math.max(0, prev - 1)
-            console.log('RSVP Cancelled - New count:', newCount)
-            // Notify parent component with updated count
-            if (onRSVPChange) {
-              onRSVPChange(false, newCount)
-            }
-            return newCount
-          })
           toast.success('RSVP cancelled successfully')
-          
-          // Refresh attendees to sync with store
-          setTimeout(() => fetchEventAttendees(eventId), 100)
+          // Notify parent component with updated count
+          if (onRSVPChange) {
+            onRSVPChange(false, attendeeCount - 1)
+          }
         }
       } else {
         // Add RSVP
         console.log('Adding RSVP...')
         const newAttendee = await addAttendee(eventId, profile.family_id)
         if (newAttendee) {
-          setLocalIsAttending(true)
-          setLocalAttendeeCount(prev => {
-            const newCount = prev + 1
-            console.log('RSVP Added - New count:', newCount)
-            // Notify parent component with updated count
-            if (onRSVPChange) {
-              onRSVPChange(true, newCount)
-            }
-            return newCount
-          })
           toast.success('RSVP successful! You are now attending this event.')
-          
-          // Refresh attendees to sync with store
-          setTimeout(() => fetchEventAttendees(eventId), 100)
+          // Notify parent component with updated count
+          if (onRSVPChange) {
+            onRSVPChange(true, attendeeCount + 1)
+          }
         }
       }
     } catch (error) {
       console.error('RSVP error:', error)
       toast.error(error.message || 'Failed to update RSVP')
+    } finally {
+      setIsProcessing(false)
     }
   }
 
   // Show loading state
-  if (loading && localAttendeeCount === 0) {
+  if (loading && attendeeCount === 0) {
     return (
       <div className="flex items-center gap-2">
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -139,16 +126,16 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
       {/* RSVP Button */}
       <Button
         onClick={handleRSVPToggle}
-        disabled={loading}
+        disabled={loading || isProcessing}
         className={`w-full flex items-center justify-center gap-2 transition-all duration-200 ${
-          localIsAttending
+          isAttending
             ? 'bg-red-600 hover:bg-red-700 text-white border-2 border-red-500'
             : 'bg-blue-600 hover:bg-blue-700 text-white'
         }`}
       >
-        {loading ? (
+        {loading || isProcessing ? (
           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-        ) : localIsAttending ? (
+        ) : isAttending ? (
           <>
             <XMarkIcon className="h-4 w-4" />
             Cancel RSVP
@@ -164,11 +151,11 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
       {/* Attendee Count */}
       <div className="text-center">
         <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-          {localAttendeeCount} {localAttendeeCount === 1 ? 'family' : 'families'} attending
+          {attendeeCount} {attendeeCount === 1 ? 'family' : 'families'} attending
         </Typography>
         
         {/* RSVP Status Indicator */}
-        {localIsAttending && (
+        {isAttending && (
           <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
             <Typography variant="small" className="text-green-700 dark:text-green-300 font-medium">
               ✓ You are attending this event
@@ -200,7 +187,7 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
       )}
 
       {/* Quick Actions */}
-      {localIsAttending && (
+      {isAttending && (
         <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
           <Typography variant="small" className="text-blue-700 dark:text-blue-300 font-medium mb-1">
             Want to cancel?

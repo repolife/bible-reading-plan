@@ -25,6 +25,7 @@ import { Signup } from "@/Components/auth/Signup";
 import { StepForm } from "./Components/Form/StepForm.jsx";
 import { useProfileStore } from "./store/useProfileStore.js";
 import { Account } from "./Components/Account/Account.jsx";
+import { NotificationDemo } from "./Components/Notifications/NotificationDemo.jsx";
 import { ThemeProvider } from "./Components/ThemeProvider/ThemeProvider.jsx";
 import GlobalErrorBoundary from "./Components/ErrorBoundary/GlobalErrorBoundary.jsx";
 import TestErrorBoundary from "./Components/ErrorBoundary/TestErrorBoundary.jsx";

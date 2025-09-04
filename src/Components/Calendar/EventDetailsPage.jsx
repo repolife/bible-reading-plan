@@ -5,9 +5,11 @@ import {
   Card,
   CardBody,
   Typography,
-  IconButton
+  IconButton,
+  Input,
+  Textarea
 } from '@material-tailwind/react'
-import { XMarkIcon, PencilIcon, TrashIcon, MapPinIcon, CalendarIcon, ClockIcon, ArrowLeftIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, PencilIcon, TrashIcon, MapPinIcon, CalendarIcon, ClockIcon, ArrowLeftIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { useFamilyStore } from '@/store/useFamilyGroupStore'
 import { useProfileStore } from '@/store/useProfileStore'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -23,11 +25,25 @@ export const EventDetailsPage = () => {
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editForm, setEditForm] = useState({
+    title: '',
+    description: '',
+    startDate: '',
+    startTime: '',
+    endDate: '',
+    endTime: '',
+    allDay: false,
+    location: '',
+    eventType: '',
+    food_theme: 'none'
+  })
 
   const { fetchFamilyGroup } = useFamilyStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
   const { user: authUser } = useAuthStore()
-  const { fetchAllEvents } = useFamilyCalendarStore()
+  const { fetchAllEvents, updateEvent } = useFamilyCalendarStore()
 
   useEffect(() => {
     // Fetch user profile if not already loaded
@@ -55,7 +71,7 @@ export const EventDetailsPage = () => {
             const transformedEvent = {
               id: foundEvent.id,
               title: foundEvent.event_title,
-              desc: foundEvent.description,
+              desc: foundEvent.event_description,
               start: new Date(foundEvent.event_start),
               end: foundEvent.event_end ? new Date(foundEvent.event_end) : null,
               allDay: foundEvent.all_day || false,
@@ -68,6 +84,20 @@ export const EventDetailsPage = () => {
             }
             
             setEvent(transformedEvent)
+            
+            // Initialize edit form with current event data
+            setEditForm({
+              title: transformedEvent.title,
+              description: transformedEvent.desc || '',
+              startDate: transformedEvent.start.toISOString().split('T')[0],
+              startTime: transformedEvent.start.toTimeString().slice(0, 5),
+              endDate: transformedEvent.end ? transformedEvent.end.toISOString().split('T')[0] : transformedEvent.start.toISOString().split('T')[0],
+              endTime: transformedEvent.end ? transformedEvent.end.toTimeString().slice(0, 5) : transformedEvent.start.toTimeString().slice(0, 5),
+              allDay: transformedEvent.allDay,
+              location: transformedEvent.location || '',
+              eventType: transformedEvent.eventType || '',
+              food_theme: transformedEvent.food_theme || 'none'
+            })
             
             // Fetch family group information
             if (foundEvent.family_id) {
@@ -114,7 +144,81 @@ export const EventDetailsPage = () => {
   }
 
   const handleEdit = () => {
-    navigate(`/calendar?editEvent=${event.id}`)
+    setIsEditing(true)
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    // Reset form to original values
+    if (event) {
+      setEditForm({
+        title: event.title,
+        description: event.event_description || '',
+        startDate: event.start.toISOString().split('T')[0],
+        startTime: event.start.toTimeString().slice(0, 5),
+        endDate: event.end ? event.end.toISOString().split('T')[0] : event.start.toISOString().split('T')[0],
+        endTime: event.end ? event.end.toTimeString().slice(0, 5) : event.start.toTimeString().slice(0, 5),
+        allDay: event.allDay,
+        location: event.location || '',
+        eventType: event.eventType || '',
+        food_theme: event.food_theme || 'none'
+      })
+    }
+  }
+
+  const handleSaveEdit = async () => {
+    if (!event) return
+
+    setSaving(true)
+    try {
+      const startDateTime = new Date(`${editForm.startDate}T${editForm.startTime}`)
+      const endDateTime = new Date(`${editForm.endDate}T${editForm.endTime}`)
+
+      const updatedEventData = {
+        event_title: editForm.title,
+        event_description: editForm.description,
+        event_start: startDateTime.toISOString(),
+        event_end: endDateTime.toISOString(),
+        all_day: editForm.allDay,
+        location: editForm.location,
+        event_type: editForm.eventType,
+        food_theme: editForm.food_theme
+      }
+
+      const success = await updateEvent(event.id, updatedEventData)
+      
+      if (success) {
+        // Update local event state
+        setEvent(prev => ({
+          ...prev,
+          title: editForm.title,
+          desc: editForm.description,
+          start: startDateTime,
+          end: endDateTime,
+          allDay: editForm.allDay,
+          location: editForm.location,
+          eventType: editForm.eventType,
+          food_theme: editForm.food_theme
+        }))
+        
+        setIsEditing(false)
+        toast.success('Event updated successfully!')
+      } else {
+        toast.error('Failed to update event')
+      }
+    } catch (error) {
+      console.error('Error updating event:', error)
+      toast.error('Failed to update event')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleInputChange = (field, value) => {
+    setEditForm(prev => ({
+      ...prev,
+      [field]: value
+    }))
   }
 
   const handleDelete = () => {
@@ -170,7 +274,7 @@ export const EventDetailsPage = () => {
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
+          <div className="flex items-center flex-wrap justify-between py-4 gap-2">
             <div className="flex items-center gap-4">
               <Button
                 onClick={() => navigate('/calendar')}
@@ -181,13 +285,13 @@ export const EventDetailsPage = () => {
               </Button>
               <div className="h-6 w-px bg-gray-300 dark:bg-gray-600"></div>
               <Typography variant="h4" className="text-gray-900 dark:text-white font-bold">
-                Event Details
+                {isEditing ? 'Edit Event' : 'Event Details'}
               </Typography>
             </div>
             
             {/* Quick Actions */}
             <div className="flex items-center gap-3">
-              {profile && canEditEvent && (
+              {profile && canEditEvent && !isEditing && (
                 <>
                   <Button
                     className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
@@ -206,6 +310,28 @@ export const EventDetailsPage = () => {
                   </Button>
                 </>
               )}
+
+              {isEditing && (
+                <>
+                  <Button
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                    onClick={handleSaveEdit}
+                    disabled={saving}
+                  >
+                    <CheckIcon className="h-4 w-4" />
+                    {saving ? 'Saving...' : 'Save Changes'}
+                  </Button>
+                  
+                  <Button
+                    className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white"
+                    onClick={handleCancelEdit}
+                    disabled={saving}
+                  >
+                    <XMarkIcon className="h-4 w-4" />
+                    Cancel
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -219,9 +345,18 @@ export const EventDetailsPage = () => {
             {/* Event Title */}
             <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
               <CardBody className="p-6">
-                <Typography variant="h2" className="text-gray-900 dark:text-white font-bold mb-3">
-                  {event.title}
-                </Typography>
+                {isEditing ? (
+                  <Input
+                    label="Event Title"
+                    value={editForm.title}
+                    onChange={(e) => handleInputChange('title', e.target.value)}
+                    className="text-2xl font-bold"
+                  />
+                ) : (
+                  <Typography variant="h2" className="text-gray-900 dark:text-white font-bold mb-3">
+                    {event.title}
+                  </Typography>
+                )}
                <div className="flex items-center gap-2">
                {event.eventTypeLabel && (
                   <div className="inline-flex items-center  px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
@@ -229,70 +364,31 @@ export const EventDetailsPage = () => {
                     
                   </div>
                 )}
-                  <button
-                 
-                  onClick={() => {
-                    // Create a more Telegram-friendly share format with proper URL formatting
-                    let eventUrl = window.location.href
-                    const eventTitle = event.title || 'Event'
-                    
-                    // For development (localhost), keep as is
-                    // For production, ensure proper format
-                    if (!eventUrl.includes('localhost')) {
-                      // Only modify production URLs
-                      if (!eventUrl.includes('www.')) {
-                        // Add www. if it's missing
-                        eventUrl = eventUrl.replace('https://', 'https://www.')
-                      }
-                    }
-                    
-                    const shareText = `Check out this event: ${eventTitle}\n\n${eventUrl}`
-                    
-                    // Try to use Telegram's direct share if available
-                    if (navigator.share) {
-                      navigator.share({
-                        title: eventTitle,
-                        text: `Check out this event: ${eventTitle}`,
-                        url: eventUrl
-                      }).catch(() => {
-                        // Fallback to Telegram share
-                        const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(eventUrl)}&text=${encodeURIComponent(`Check out this event: ${eventTitle} hosted by the ${familyGroup?.family_last_name || 'Unknown'} family`)}`
-                        window.open(shareUrl, '_blank')
-                      })
-                    } else {
-                      // Fallback to Telegram share
-                      const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(eventUrl)}&text=${encodeURIComponent(`Check out this event: ${eventTitle} hosted by the ${familyGroup?.family_last_name  || 'Unknown'} family`)}`
-                      window.open(shareUrl, '_blank')
-                    }
-                  }}
-                  className="p-3 bg-blue-500 hover:bg-blue-600 rounded-full text-white transition-colors cursor-pointer"
-                  title="Share on Telegram"
-                >
-                  <svg 
-                    className="w-6 h-6" 
-                    fill="currentColor" 
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-                  </svg>
-                </button>
+               
                </div>
               </CardBody>
             </Card>
 
             {/* Event Description */}
-            {event.desc && (
-              <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
-                <CardBody className="p-6">
-                  <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-3">
-                    Description
-                  </Typography>
+            <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+              <CardBody className="p-6">
+                <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-3">
+                  Description
+                </Typography>
+                {isEditing ? (
+                  <Textarea
+                    label="Event Description"
+                    value={editForm.description}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    rows={4}
+                  />
+                ) : (
                   <Typography className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {event.desc}
+                    {event.desc || 'No description provided'}
                   </Typography>
-                </CardBody>
-              </Card>
-            )}
+                )}
+              </CardBody>
+            </Card>
 
             {/* Event Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -306,33 +402,80 @@ export const EventDetailsPage = () => {
                     </Typography>
                   </div>
                   
-                  <div className="space-y-3">
-                    <div>
-                      <Typography variant="small" className="text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                        Start
-                      </Typography>
-                      <Typography className="text-gray-900 dark:text-white font-medium text-lg">
-                        {formatDateTime(event.start)}
-                      </Typography>
+                  {isEditing ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <Input
+                          type="date"
+                          label="Start Date"
+                          value={editForm.startDate}
+                          onChange={(e) => handleInputChange('startDate', e.target.value)}
+                        />
+                        <Input
+                          type="time"
+                          label="Start Time"
+                          value={editForm.startTime}
+                          onChange={(e) => handleInputChange('startTime', e.target.value)}
+                          disabled={editForm.allDay}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <Input
+                          type="date"
+                          label="End Date"
+                          value={editForm.endDate}
+                          onChange={(e) => handleInputChange('endDate', e.target.value)}
+                        />
+                        <Input
+                          type="time"
+                          label="End Time"
+                          value={editForm.endTime}
+                          onChange={(e) => handleInputChange('endTime', e.target.value)}
+                          disabled={editForm.allDay}
+                        />
+                      </div>
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          id="allDay"
+                          checked={editForm.allDay}
+                          onChange={(e) => handleInputChange('allDay', e.target.checked)}
+                          className="mr-2"
+                        />
+                        <label htmlFor="allDay" className="text-sm text-gray-600 dark:text-gray-400">
+                          All Day Event
+                        </label>
+                      </div>
                     </div>
-                    
-                    {event.end && event.end.getTime() !== event.start.getTime() && (
+                  ) : (
+                    <div className="space-y-3">
                       <div>
                         <Typography variant="small" className="text-gray-500 dark:text-gray-400 uppercase tracking-wide">
-                          End
+                          Start
                         </Typography>
                         <Typography className="text-gray-900 dark:text-white font-medium text-lg">
-                          {formatDateTime(event.end)}
+                          {formatDateTime(event.start)}
                         </Typography>
                       </div>
-                    )}
-                    
-                    {event.allDay && (
-                      <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        All Day Event
-                      </div>
-                    )}
-                  </div>
+                      
+                      {event.end && event.end.getTime() !== event.start.getTime() && (
+                        <div>
+                          <Typography variant="small" className="text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+                            End
+                          </Typography>
+                          <Typography className="text-gray-900 dark:text-white font-medium text-lg">
+                            {formatDateTime(event.end)}
+                          </Typography>
+                        </div>
+                      )}
+                      
+                      {event.allDay && (
+                        <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                          All Day Event
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </CardBody>
               </Card>
 
@@ -346,22 +489,30 @@ export const EventDetailsPage = () => {
                     </Typography>
                   </div>
                   
-                  {event.location ? (
-                    <button
-                      onClick={() => {
-                        const encodedAddress = encodeURIComponent(event.location)
-                        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
-                        window.open(googleMapsUrl, '_blank')
-                      }}
-                      className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer text-left text-lg"
-                      title="Click to open in Google Maps"
-                    >
-                      {event.location}
-                    </button>
+                  {isEditing ? (
+                    <Input
+                      label="Location"
+                      value={editForm.location}
+                      onChange={(e) => handleInputChange('location', e.target.value)}
+                    />
                   ) : (
-                    <Typography className="text-gray-900 dark:text-white text-lg">
-                      No location specified
-                    </Typography>
+                    event.location ? (
+                      <button
+                        onClick={() => {
+                          const encodedAddress = encodeURIComponent(event.location)
+                          const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
+                          window.open(googleMapsUrl, '_blank')
+                        }}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer text-left text-lg"
+                        title="Click to open in Google Maps"
+                      >
+                        {event.location}
+                      </button>
+                    ) : (
+                      <Typography className="text-gray-900 dark:text-white text-lg">
+                        No location specified
+                      </Typography>
+                    )
                   )}
                 </CardBody>
               </Card>
@@ -388,9 +539,17 @@ export const EventDetailsPage = () => {
                     <Cutlery className="h-6 w-6 text-blue-600" /> Food Theme  
                   </Typography>
                   
-                  <Typography className="text-gray-900 dark:text-white text-lg">
-                    {event.food_theme && event.food_theme !== 'none' ? event.food_theme : 'No specific food theme'}
-                  </Typography>
+                  {isEditing ? (
+                    <Input
+                      label="Food Theme"
+                      value={editForm.food_theme}
+                      onChange={(e) => handleInputChange('food_theme', e.target.value)}
+                    />
+                  ) : (
+                    <Typography className="text-gray-900 dark:text-white text-lg">
+                      {event.food_theme && event.food_theme !== 'none' ? event.food_theme : 'No specific food theme'}
+                    </Typography>
+                  )}
                 </CardBody>
               </Card>
 
@@ -454,8 +613,9 @@ export const EventDetailsPage = () => {
             </Card>
           </div>
 
-          {/* Sidebar - Actions & Quick Info */}
-          <div className="lg:col-span-1 space-y-6">
+          {/* Sidebar - Actions & Quick Info - Only show when not editing */}
+          {!isEditing && (
+            <div className="lg:col-span-1 space-y-6">
             {/* Quick Actions */}
             <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
               <CardBody className="p-6">
@@ -562,6 +722,7 @@ export const EventDetailsPage = () => {
               </CardBody>
             </Card>
           </div>
+          )}
         </div>
       </div>
     </div>

@@ -12,6 +12,7 @@ import { useFCMSubscription } from '@/hooks/useFCMSubscription'
 import { useAuthStore } from '@/store/useAuthStore'
 import { useProfileStore } from '@/store/useProfileStore'
 import { toast } from 'react-toastify'
+import { FCMDebug } from './FCMDebug'
 
 export const NotificationPreferences = () => {
   const { user } = useAuthStore()
@@ -156,7 +157,18 @@ export const NotificationPreferences = () => {
           {!available && (
             <Alert color="amber" className="mb-4">
               <ExclamationTriangleIcon className="h-5 w-5" />
-              Push notifications are not supported in this browser or environment.
+              {(() => {
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+                const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone
+                
+                if (isIOS && !isStandalone) {
+                  return "On iPhone/iPad, notifications require installing this app to your home screen. Tap the share button and select 'Add to Home Screen'."
+                } else if (isIOS && isStandalone) {
+                  return "Notifications should be supported. Please check your iOS version (requires iOS 16.4+) and browser settings."
+                } else {
+                  return "Push notifications are not supported in this browser or environment."
+                }
+              })()}
             </Alert>
           )}
 
@@ -187,12 +199,43 @@ export const NotificationPreferences = () => {
               
               <div className="flex justify-between items-center">
                 <span className="text-gray-600 dark:text-gray-400">Subscription:</span>
-                <span className={`font-medium ${subscribed ? 'text-green-600' : 'text-gray-600'}`}>
+            <span className={`font-medium ${subscribed ? 'text-green-600' : 'text-gray-600'}`}>
                   {subscribed ? 'Active' : 'Not Active'}
                 </span>
               </div>
             </div>
           </div>
+
+          {/* iOS Installation Prompt */}
+          {(() => {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone
+            
+            if (isIOS && !isStandalone) {
+              return (
+                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-3">
+                    <div className="text-blue-600 text-2xl">📱</div>
+                    <div>
+                      <Typography variant="h6" className="text-blue-700 dark:text-blue-300 mb-2">
+                        Install App for Notifications
+                      </Typography>
+                      <Typography variant="small" className="text-blue-600 dark:text-blue-400 mb-3">
+                        To receive push notifications on iPhone/iPad, you need to install this app to your home screen:
+                      </Typography>
+                      <ol className="text-sm text-blue-600 dark:text-blue-400 space-y-1 ml-4">
+                        <li>1. Tap the <strong>Share</strong> button (square with arrow) in Safari</li>
+                        <li>2. Scroll down and tap <strong>"Add to Home Screen"</strong></li>
+                        <li>3. Tap <strong>"Add"</strong> to install the app</li>
+                        <li>4. Open the app from your home screen</li>
+                      </ol>
+                    </div>
+                  </div>
+                </div>
+              )
+            }
+            return null
+          })()}
 
           {/* Main Subscription Controls */}
           <div className="space-y-4">
@@ -350,6 +393,9 @@ export const NotificationPreferences = () => {
           </Typography>
         </CardBody>
       </Card>
+
+      {/* Debug Component (Development Only) */}
+      <FCMDebug />
     </div>
   )
 } 

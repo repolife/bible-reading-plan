@@ -34,29 +34,69 @@ export const getFCMToken = async () => {
   }
 
   try {
+    // Check if we're on iOS and not in standalone mode
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                        window.navigator.standalone
+    
+    if (isIOS && !isStandalone) {
+      console.warn('FCM tokens are not available on iOS Safari. Please install the app to home screen.')
+      throw new Error('iOS requires PWA installation for push notifications')
+    }
+
+    // Check if service worker is registered
+    if (!('serviceWorker' in navigator)) {
+      throw new Error('Service workers not supported')
+    }
+
+    // Wait for service worker to be ready
+    const registration = await navigator.serviceWorker.ready
+    console.log('Service worker ready:', registration)
+
     // Request permission for notifications
     const permission = await Notification.requestPermission()
+    console.log('Notification permission:', permission)
     
-    if (permission === 'granted') {
-      // Get registration token
-      const token = await getToken(messaging, {
-        vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY
-      })
-      
-      if (token) {
-        console.log('FCM token:', token)
-        return token
-      } else {
-        console.log('No registration token available')
-        return null
-      }
-    } else {
-      console.log('Notification permission denied')
-      return null
+    if (permission !== 'granted') {
+      throw new Error(`Notification permission ${permission}`)
     }
+
+    // Check if VAPID key is configured
+    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY
+    if (!vapidKey) {
+      throw new Error('VAPID key not configured. Please set VITE_FIREBASE_VAPID_KEY in your environment.')
+    }
+
+    console.log('Getting FCM token with VAPID key...')
+    
+    // Get registration token with service worker registration
+    const token = await getToken(messaging, {
+      vapidKey: vapidKey,
+      serviceWorkerRegistration: registration
+    })
+    
+    if (token) {
+      console.log('FCM token retrieved successfully:', token.substring(0, 20) + '...')
+      return token
+    } else {
+      throw new Error('No registration token available. This may be due to browser restrictions, network issues, or missing service worker.')
+    }
+    
   } catch (error) {
-    console.error('An error occurred while retrieving token:', error)
-    return null
+    console.error('Error retrieving FCM token:', error)
+    
+    // Provide more specific error messages
+    if (error.message.includes('messaging/unsupported-browser')) {
+      throw new Error('Your browser does not support push notifications')
+    } else if (error.message.includes('messaging/permission-blocked')) {
+      throw new Error('Notification permissions are blocked. Please enable them in browser settings.')
+    } else if (error.message.includes('messaging/token-unsubscribe-failed')) {
+      throw new Error('Failed to unsubscribe from previous token. Please try again.')
+    } else if (error.message.includes('iOS requires PWA')) {
+      throw new Error('On iPhone/iPad, notifications require installing the app to your home screen')
+    } else {
+      throw new Error(`Failed to get FCM token: ${error.message}`)
+    }
   }
 }
 
@@ -75,10 +115,28 @@ export const onForegroundMessage = (callback) => {
 
 // Check if FCM is supported
 export const isFCMSupported = () => {
-  return typeof window !== 'undefined' && 
-         'serviceWorker' in navigator && 
-         'Notification' in window &&
-         messaging !== null
+  if (typeof window === 'undefined') return false
+  
+  // Basic requirements
+  const hasBasicSupport = 'serviceWorker' in navigator && 
+                         'Notification' in window &&
+                         messaging !== null
+  
+  if (!hasBasicSupport) return false
+  
+  // iOS specific checks
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+  if (isIOS) {
+    // Check if running as PWA (standalone mode)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                        window.navigator.standalone
+    
+    // On iOS, notifications only work in standalone mode (installed PWA)
+    return isStandalone
+  }
+  
+  // For non-iOS devices, basic support is sufficient
+  return true
 }
 
 // Get current notification permission

@@ -391,23 +391,36 @@ export const notifyPrayerRequestUpdated = async (prayerData, updaterName, oldSta
 // FCM subscription management
 export const subscribeToFCM = async (userId) => {
   if (!isFCMSupported()) {
-    throw new Error('FCM not supported in this environment')
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                        window.navigator.standalone
+    
+    if (isIOS && !isStandalone) {
+      throw new Error('On iPhone/iPad, please install the app to your home screen first, then try enabling notifications.')
+    } else {
+      throw new Error('Push notifications are not supported in this browser.')
+    }
   }
 
   try {
-    // Request permission
+    console.log('Starting FCM subscription process for user:', userId)
+    
+    // Request permission first
     const permission = await requestNotificationPermission()
+    console.log('Permission result:', permission)
     
     if (permission !== 'granted') {
-      throw new Error('Notification permission denied')
+      throw new Error('Notification permissions are required. Please allow notifications and try again.')
     }
 
-    // Get FCM token
+    // Get FCM token (this will throw detailed errors)
     const token = await getFCMToken()
     
     if (!token) {
-      throw new Error('Failed to get FCM token')
+      throw new Error('Unable to generate notification token. Please check your internet connection and try again.')
     }
+
+    console.log('FCM token obtained, saving to database...')
 
     // Store token in user profile
     const { error } = await supabase
@@ -416,7 +429,8 @@ export const subscribeToFCM = async (userId) => {
       .eq('id', userId)
 
     if (error) {
-      throw error
+      console.error('Database error storing FCM token:', error)
+      throw new Error('Failed to save notification settings. Please try again.')
     }
 
     console.log('FCM subscription successful for user:', userId)

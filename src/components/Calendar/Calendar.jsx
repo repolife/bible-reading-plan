@@ -14,6 +14,7 @@ import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/
 import { useProfileStore } from '../../store/useProfileStore'
 import { useFamilyStore } from '../../store/useFamilyGroupStore'
 import { useAuthStore } from '../../store/useAuthStore'
+import { toast } from 'react-toastify'
 
 // Set up the localizer
 const locales = {
@@ -163,20 +164,42 @@ export const Calendar = () => {
 
   const handleDeleteEvent = useCallback(
     async (eventId) => {
-      if (!window.confirm('Are you sure you want to delete this event?')) {
+      if (!eventId) {
+        console.error('No event ID provided for deletion')
+        return
+      }
+
+      const confirmMessage = 'Are you sure you want to delete this event? This action cannot be undone.'
+      if (!window.confirm(confirmMessage)) {
         return
       }
 
       try {
+        console.log('Deleting event with ID:', eventId)
         const success = await useFamilyCalendarStore.getState().deleteEvent(eventId)
+        
         if (success) {
+          console.log('Event deleted successfully')
+          // Close any open modals
           setShowEditModal(false)
           setEditingEvent(null)
-          // Refresh all events
-          fetchAllEvents()
+          setShowEventDetailsModal(false)
+          setSelectedEvent(null)
+          
+          // Refresh all events to ensure UI is in sync
+          await fetchAllEvents()
+          
+          // Show success message
+          toast.success('Event deleted successfully!')
+          console.log('Event deleted and calendar refreshed')
+        } else {
+          console.error('Delete operation returned false')
+          const errorMessage = useFamilyCalendarStore.getState().error || 'Failed to delete event'
+          toast.error(`Error: ${errorMessage}`)
         }
       } catch (error) {
         console.error('Error deleting event:', error)
+        toast.error(`Failed to delete event: ${error.message}`)
       }
     },
     [fetchAllEvents]
@@ -248,10 +271,16 @@ export const Calendar = () => {
   }, [selectedEvent])
 
   const handleDeleteFromDetails = useCallback(() => {
+    console.log('handleDeleteFromDetails called')
+    console.log('selectedEvent:', selectedEvent)
+    
     if (selectedEvent) {
+      console.log('Calling handleDeleteEvent with ID:', selectedEvent.id)
       handleDeleteEvent(selectedEvent.id)
       setShowEventDetailsModal(false)
       setSelectedEvent(null)
+    } else {
+      console.error('No selectedEvent available for deletion')
     }
   }, [selectedEvent, handleDeleteEvent])
 

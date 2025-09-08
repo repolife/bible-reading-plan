@@ -43,7 +43,7 @@ export const EventDetailsPage = () => {
   const { fetchFamilyGroup } = useFamilyStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
   const { user: authUser } = useAuthStore()
-  const { fetchAllEvents, updateEvent } = useFamilyCalendarStore()
+  const { fetchAllEvents, updateEvent, deleteEvent, loading: storeLoading } = useFamilyCalendarStore()
 
   useEffect(() => {
     // Fetch user profile if not already loaded
@@ -221,10 +221,30 @@ export const EventDetailsPage = () => {
     }))
   }
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
-      // Navigate to calendar for deletion
-      navigate('/calendar')
+  const handleDelete = async () => {
+    if (!event) return
+    
+    const confirmMessage = 'Are you sure you want to delete this event? This action cannot be undone.'
+    if (!window.confirm(confirmMessage)) {
+      return
+    }
+
+    try {
+      console.log('Deleting event from EventDetailsPage:', event.id)
+      const success = await deleteEvent(event.id)
+      
+      if (success) {
+        toast.success('Event deleted successfully!')
+        console.log('Event deleted, navigating to calendar')
+        navigate('/calendar')
+      } else {
+        console.error('Delete operation returned false')
+        const errorMessage = useFamilyCalendarStore.getState().error || 'Failed to delete event'
+        toast.error(`Error: ${errorMessage}`)
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error)
+      toast.error(`Failed to delete event: ${error.message}`)
     }
   }
 
@@ -304,9 +324,10 @@ export const EventDetailsPage = () => {
                   <Button
                     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
                     onClick={handleDelete}
+                    disabled={storeLoading}
                   >
                     <TrashIcon className="h-4 w-4" />
-                    Delete Event
+                    {storeLoading ? 'Deleting...' : 'Delete Event'}
                   </Button>
                 </>
               )}
@@ -642,9 +663,10 @@ export const EventDetailsPage = () => {
                       <Button
                         className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white"
                         onClick={handleDelete}
+                        disabled={storeLoading}
                       >
                         <TrashIcon className="h-4 w-4" />
-                        Delete Event
+                        {storeLoading ? 'Deleting...' : 'Delete Event'}
                       </Button>
                     </>
                   ) : (

@@ -121,7 +121,7 @@ export const MonthlyEventsPreview = () => {
   }, [allEvents, eventTypes])
 
   // If no profile, don't render anything
-  if (!profile) {
+  if (!authUser || !profile) {
     return null
   }
 

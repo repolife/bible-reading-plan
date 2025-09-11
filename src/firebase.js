@@ -62,7 +62,8 @@ export const getFCMToken = async () => {
     }
 
     // Check if VAPID key is configured
-    const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY
+    const env = import.meta.env
+    const vapidKey = env.VITE_FIREBASE_VAPID_KEY
     if (!vapidKey) {
       throw new Error('VAPID key not configured. Please set VITE_FIREBASE_VAPID_KEY in your environment.')
     }

@@ -2,6 +2,9 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js')
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js')
 
+const env = import.meta.env;
+
+
 // Initialize Firebase in service worker
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",

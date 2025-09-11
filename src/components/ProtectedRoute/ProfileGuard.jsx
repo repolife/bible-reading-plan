@@ -161,7 +161,6 @@ export const ProfileGuard = () => {
     });
     
     if(!profile || !profile.has_password || !profile.family_id && isAuthenticated) {
-      debugger
       navigate("/account");
       return;
     }

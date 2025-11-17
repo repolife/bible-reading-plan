@@ -2,18 +2,16 @@
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js')
 importScripts('https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging-compat.js')
 
-const env = import.meta.env;
-
 
 // Initialize Firebase in service worker
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_STORAGE_BUCKET",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID",
-  measurementId: "YOUR_MEASUREMENT_ID"
+  apiKey: "AIzaSyCK5I7fGF93eVP7fxn2KKKhUg_330oV8wc",
+  authDomain: "fellowship-app-41ca8.firebaseapp.com",
+  projectId: "fellowship-app-41ca8",
+  storageBucket: "fellowship-app-41ca8.firebasestorage.app",
+  messagingSenderId: "338215059678",
+  appId: "1:338215059678:web:f31fa4633e1ede72d3024f",
+  measurementId: "G-XXXXXXXXXX"
 }
 
 firebase.initializeApp(firebaseConfig)

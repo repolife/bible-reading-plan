@@ -461,7 +461,7 @@ export const unsubscribeFromFCM = async (userId) => {
   }
 }
 
-// Send test notification
+// Send test notification (local browser notification)
 export const sendTestNotification = async (title, message, url = null) => {
   if (!isFCMSupported()) {
     throw new Error('FCM not supported')
@@ -497,4 +497,87 @@ export const sendTestNotification = async (title, message, url = null) => {
   }
 
   return false
+}
+
+// Send test push notification through FCM
+export const sendTestPushNotification = async (userId, title = 'Test Push Notification', message = 'This is a test push notification from your Bible Reading Plan app!') => {
+  try {
+    console.log('Sending test push notification to user:', userId)
+    
+    // First, check if user has an FCM token
+    const { data: profile, error: fetchError } = await supabase
+      .from('profiles')
+      .select('fcm_token')
+      .eq('id', userId)
+      .single()
+
+    if (fetchError) {
+      throw new Error(`Failed to fetch user profile: ${fetchError.message}`)
+    }
+
+    if (!profile?.fcm_token) {
+      throw new Error('User does not have an FCM token. Please enable notifications first.')
+    }
+
+    // Get user's family_id first
+    const { data: userProfile, error: userError } = await supabase
+      .from('profiles')
+      .select('family_id')
+      .eq('id', userId)
+      .single()
+
+    if (userError || !userProfile?.family_id) {
+      throw new Error('User does not belong to a family group')
+    }
+
+    // Create a test calendar event to trigger the FCM webhook
+    // This will use your existing send-fcm function
+    const testEventData = {
+      event_title: title,
+      event_description: message,
+      event_start: new Date().toISOString(),
+      location: 'Test Location',
+      created_by: userId,
+      family_id: userProfile.family_id,
+      is_test: true // Flag to indicate this is a test event
+    }
+
+    const { data: event, error: eventError } = await supabase
+      .from('family_calendar')
+      .insert([testEventData])
+      .select()
+      .single()
+
+    if (eventError) {
+      throw new Error(`Failed to create test event: ${eventError.message}`)
+    }
+
+    console.log('Test push notification sent successfully via calendar event:', event.id)
+    
+    // Clean up the test event after a short delay
+    setTimeout(async () => {
+      try {
+        await supabase
+          .from('family_calendar')
+          .delete()
+          .eq('id', event.id)
+        console.log('Test event cleaned up:', event.id)
+      } catch (cleanupError) {
+        console.warn('Failed to clean up test event:', cleanupError)
+      }
+    }, 5000)
+
+    return {
+      success: true,
+      message: 'Test push notification sent successfully',
+      eventId: event.id
+    }
+
+  } catch (error) {
+    console.error('Error sending test push notification:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
 }

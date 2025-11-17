@@ -49,11 +49,7 @@ export const getFCMToken = async () => {
       throw new Error('Service workers not supported')
     }
 
-    // Wait for service worker to be ready
-    const registration = await navigator.serviceWorker.ready
-    console.log('Service worker ready:', registration)
-
-    // Request permission for notifications
+    // Request permission for notifications first
     const permission = await Notification.requestPermission()
     console.log('Notification permission:', permission)
     
@@ -70,10 +66,10 @@ export const getFCMToken = async () => {
 
     console.log('Getting FCM token with VAPID key...')
     
-    // Get registration token with service worker registration
+    // Get registration token - Firebase will automatically use the firebase-messaging-sw.js service worker
+    // We don't need to specify serviceWorkerRegistration as Firebase handles this automatically
     const token = await getToken(messaging, {
-      vapidKey: vapidKey,
-      serviceWorkerRegistration: registration
+      vapidKey: vapidKey
     })
     
     if (token) {

@@ -146,6 +146,7 @@ export const Calendar = () => {
           setSelectedSlot(null)
           // Refresh all events to show the new event
           fetchAllEvents()
+          return createdEvent
         }
       } catch (error) {
         console.error('Error creating event:', error)

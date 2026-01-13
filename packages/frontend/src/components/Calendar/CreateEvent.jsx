@@ -127,7 +127,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
     }))
   }
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!eventData.title || !eventData.startDate) {
       return
     }
@@ -158,7 +158,12 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         // Send Telegram Alert
         fetch('/.netlify/functions/telegram-alert', {
           method: 'POST',
-          body: JSON.stringify({ action: 'update', event: updatedEvent })
+          body: JSON.stringify({ 
+            action: 'update', 
+            event: updatedEvent,
+            familyName: familyGroup?.family_last_name,
+            origin: window.location.origin
+          })
         }).catch(err => console.error('Failed to send alert:', err))
       }
     } else {
@@ -175,12 +180,21 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
       }
 
       if (onEventCreate) {
-        onEventCreate(newEvent)
-        // Send Telegram Alert
-        fetch('/.netlify/functions/telegram-alert', {
-          method: 'POST',
-          body: JSON.stringify({ action: 'create', event: newEvent })
-        }).catch(err => console.error('Failed to send alert:', err))
+        const createdEvent = await onEventCreate(newEvent)
+        console.log('Created event in CreateEvent.jsx:', createdEvent)
+        
+        if (createdEvent) {
+          // Send Telegram Alert
+          fetch('/.netlify/functions/telegram-alert', {
+            method: 'POST',
+            body: JSON.stringify({ 
+              action: 'create', 
+              event: createdEvent,
+              familyName: familyGroup?.family_last_name,
+              origin: window.location.origin
+            })
+          }).catch(err => console.error('Failed to send alert:', err))
+        }
       }
     }
 

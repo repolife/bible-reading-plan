@@ -210,9 +210,17 @@ export const EventDetailsPage = () => {
         toast.success('Event updated successfully!')
         
         // Send Telegram Alert
+        const alertPayload = { 
+          action: 'update', 
+          event: { ...updatedEventData, id: event.id },
+          familyName: familyGroup?.family_last_name,
+          origin: window.location.origin
+        }
+        console.log('Sending Telegram Alert from EventDetailsPage:', alertPayload)
+
         fetch('/.netlify/functions/telegram-alert', {
           method: 'POST',
-          body: JSON.stringify({ action: 'update', event: updatedEventData })
+          body: JSON.stringify(alertPayload)
         }).catch(err => console.error('Failed to send alert:', err))
       } else {
         toast.error('Failed to update event')

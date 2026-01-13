@@ -19,20 +19,29 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
         return { statusCode: 400, body: 'Missing body' };
     }
     const data = JSON.parse(event.body);
+    console.log('Telegram Alert Payload:', JSON.stringify(data, null, 2));
     const { action, event: eventDetails } = data;
     
     let message = '';
     const eventTitle = eventDetails.event_title || eventDetails.title || 'Untitled Event';
     const eventDate = new Date(eventDetails.event_start || eventDetails.start).toLocaleDateString();
     
-    if (action === 'create') {
-      message = `📅 *New Event Created*\n\n*${eventTitle}*\nDate: ${eventDate}\nLocation: ${eventDetails.location || 'No location'}`;
-    } else if (action === 'update') {
-      message = `✏️ *Event Updated*\n\n*${eventTitle}*\nDate: ${eventDate}\nLocation: ${eventDetails.location || 'No location'}`;
-    } else if (action === 'delete') {
-      message = `🗑️ *Event Deleted*\n\n*${eventTitle}*\nDate: ${eventDate}`;
-    } else {
-      message = `ℹ️ *Event Alert*: ${action}\n${eventTitle}`;
+    const familyName = data.familyName || 'Unknown';
+    const origin = data.origin || 'https://bible-reading-plan.netlify.app';
+    
+    // Construct event URL
+    // Always link to the specific event
+    const eventId = eventDetails.id || eventDetails.event_id;
+    console.log('Event ID:', eventId);
+    
+    const eventUrl = `${origin}/events/${eventId}`;
+      
+    console.log('Generated URL:', eventUrl);
+
+    message = `*${familyName} hosting:*\n\n*${eventTitle}*\nDate: ${eventDate}\nLink: ${eventUrl}`;
+    
+    if (action === 'delete') {
+       message = `🗑️ *Event Deleted*\n\n*${eventTitle}*\nDate: ${eventDate}`;
     }
 
     // Send to Telegram

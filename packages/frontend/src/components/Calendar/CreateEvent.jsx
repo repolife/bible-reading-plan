@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react'
-import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/useFamilyCalendarStore'
-import { useFamilyStore } from '../../store/useFamilyGroupStore'
+import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/useFamilyCalendarStore' 
+import { useFamilyStore } from '../../store/useFamilyGroupStore' 
 import { useProfileStore } from '../../store/useProfileStore'
 import { Button } from '@material-tailwind/react'
 import Autocomplete from "react-google-autocomplete"
@@ -11,7 +11,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
   const { fetchEventTypes } = useFamilyCalendarStore()
   const eventTypes = useFamilyCalendarSelectors.useEventTypes()
   const loading = useFamilyCalendarSelectors.useLoading()
-  
+
   const [open, setOpen] = useState(false)
   const [eventData, setEventData] = useState({
     title: '',
@@ -43,7 +43,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
       // Find "Weekly Shabbat" by label and set it as default, or use first available
       const shabbatType = eventTypes.find(type => type.label === 'Weekly Shabbat')
       const defaultType = shabbatType || eventTypes[0]
-      
+
       setEventData(prev => ({
         ...prev,
         eventType: defaultType.id
@@ -56,7 +56,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
     if (editingEvent && isEdit && eventTypes.length > 0) {
       const startDate = new Date(editingEvent.event_start)
       const endDate = editingEvent.event_end ? new Date(editingEvent.event_end) : startDate
-      
+
       setEventData({
         title: editingEvent.event_title,
         description: editingEvent.event_description || '',
@@ -77,11 +77,11 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
     if (selectedSlot && isOpen) {
       const { date, time } = selectedSlot
       const formattedDate = date.toISOString().split('T')[0] // YYYY-MM-DD
-      
+
       // Create a proper end time (1 hour after start time)
       const startTime = time
       const endTime = new Date(date.getTime() + 60 * 60 * 1000).toTimeString().slice(0, 5) // 1 hour later
-      
+
       setEventData(prev => ({
         ...prev,
         startDate: formattedDate,
@@ -200,9 +200,9 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
   // If controlled externally (from calendar), always respect isOpen
   if (isOpen !== undefined && !isOpen && !open) {
     content = (
-      <Button 
-      variant='outlined'
-        onClick={handleOpen} 
+      <Button
+        variant='outlined'
+        onClick={handleOpen}
         className="mb-4 bt-primary hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
       >
         + Create New Event
@@ -212,7 +212,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
   // Show loading state while event types are being fetched
   else if (eventTypes.length === 0 && !loading) {
     content = (
-      <button 
+      <button
         onClick={() => fetchEventTypes()}
         className="mb-4 bg-gray-500 hover:bg-gray-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
       >
@@ -238,7 +238,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
                 ×
               </button>
             </div>
-            
+
             {/* Show selected slot info if available */}
             {selectedSlot && (
               <div className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
@@ -431,15 +431,15 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
               )}
               <div className="flex space-x-3">
                 <Button
-                 variant="solid"
-                 color='secondary'
+                  variant="solid"
+                  color='secondary'
                   onClick={handleClose}
                 >
                   Cancel
                 </Button>
                 <Button
-                color='secondary'
-                               variant="solid"
+                  color='secondary'
+                  variant="solid"
 
                   onClick={handleSubmit}
                   disabled={!eventData.title || !eventData.startDate}
@@ -456,10 +456,10 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
   // Fallback: show the button
   else {
     content = (
-      <Button 
-      className='mb-2'
-      
-        onClick={handleOpen} 
+      <Button
+        className='mb-2'
+
+        onClick={handleOpen}
       >
         + Create New Event
       </Button>

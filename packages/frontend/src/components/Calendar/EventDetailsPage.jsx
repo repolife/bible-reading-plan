@@ -1,19 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { 
+import {
   Button,
   Card,
   CardBody,
   Typography,
-  IconButton,
   Input,
   Textarea
 } from '@material-tailwind/react'
 import { XMarkIcon, PencilIcon, TrashIcon, MapPinIcon, CalendarIcon, ClockIcon, ArrowLeftIcon, CheckIcon } from '@heroicons/react/24/outline'
-import { useFamilyStore } from '@store/useFamilyGroupStore'
+import { useFamilyStore, } from '@store/useFamilyGroupStore'
 import { useProfileStore } from '@store/useProfileStore'
 import { useAuthStore } from '@store/useAuthStore'
-import { useFamilyCalendarStore } from '@store/useFamilyCalendarStore'
+import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '@store/useFamilyCalendarStore'
 import { Cutlery, Group, InfoCircle, Eye } from 'iconoir-react'
 import { FamilyAllergiesTable } from '@components/FamilyAllergiesTable'
 import { EventRSVPButton } from './EventRSVPButton'
@@ -40,18 +39,21 @@ export const EventDetailsPage = () => {
     food_theme: 'none'
   })
 
+  const { fetchEventTypes } = useFamilyCalendarStore()
+
   const { fetchFamilyGroup } = useFamilyStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
   const { user: authUser } = useAuthStore()
   const { fetchAllEvents, updateEvent, deleteEvent, loading: storeLoading } = useFamilyCalendarStore()
+  const eventTypes = useFamilyCalendarSelectors.useEventTypes()
 
-  useEffect(() => {
-    // Fetch user profile if not already loaded
-    if (authUser?.id && !profile) {
-      fetchAndSetUserProfile(authUser.id)
-    }
-  }, [authUser?.id, profile, fetchAndSetUserProfile])
 
+
+
+  useEffect(() => { 
+    fetchAllEvents()
+    fetchEventTypes()
+  }, [])
   useEffect(() => {
     const fetchEvent = async () => {
       if (!eventId) return
@@ -59,14 +61,17 @@ export const EventDetailsPage = () => {
       try {
         setLoading(true)
         setError(null)
-
         // Fetch all events to get the specific one
         const events = await fetchAllEvents()
-        
+
         if (events) {
           const foundEvent = events.find(e => e.id === eventId)
-          
+
           if (foundEvent) {
+            // Find event type label from store if available
+            const matchingType = eventTypes.find(t => t.id === foundEvent.event_type)
+            const typeLabel = matchingType ? matchingType.label : (foundEvent.event_type_label || 'Event')
+
             // Transform the event data to match the expected format
             const transformedEvent = {
               id: foundEvent.id,
@@ -77,14 +82,14 @@ export const EventDetailsPage = () => {
               allDay: foundEvent.all_day || false,
               location: foundEvent.location,
               eventType: foundEvent.event_type,
-              eventTypeLabel: foundEvent.event_type_label || 'Event',
+              eventTypeLabel: typeLabel,
               family_id: foundEvent.family_id,
               createdBy: foundEvent.created_by,
               food_theme: foundEvent.food_theme
             }
-            
+
             setEvent(transformedEvent)
-            
+
             // Initialize edit form with current event data
             setEditForm({
               title: transformedEvent.title,
@@ -98,7 +103,7 @@ export const EventDetailsPage = () => {
               eventType: transformedEvent.eventType || '',
               food_theme: transformedEvent.food_theme || 'none'
             })
-            
+
             // Fetch family group information
             if (foundEvent.family_id) {
               fetchFamilyGroup(foundEvent.family_id)
@@ -116,10 +121,10 @@ export const EventDetailsPage = () => {
     }
 
     fetchEvent()
-  }, [eventId, fetchAllEvents, fetchFamilyGroup])
+  }, [eventId, fetchAllEvents, fetchFamilyGroup, eventTypes])
 
   const { familyGroup } = useFamilyStore()
-  
+
   // Check if current user can edit/delete this event
   const canEditEvent = profile?.family_id === event?.family_id
 
@@ -186,7 +191,7 @@ export const EventDetailsPage = () => {
       }
 
       const success = await updateEvent(event.id, updatedEventData)
-      
+
       if (success) {
         // Update local event state
         setEvent(prev => ({
@@ -200,7 +205,7 @@ export const EventDetailsPage = () => {
           eventType: editForm.eventType,
           food_theme: editForm.food_theme
         }))
-        
+
         setIsEditing(false)
         toast.success('Event updated successfully!')
       } else {
@@ -223,7 +228,7 @@ export const EventDetailsPage = () => {
 
   const handleDelete = async () => {
     if (!event) return
-    
+
     const confirmMessage = 'Are you sure you want to delete this event? This action cannot be undone.'
     if (!window.confirm(confirmMessage)) {
       return
@@ -232,7 +237,7 @@ export const EventDetailsPage = () => {
     try {
       console.log('Deleting event from EventDetailsPage:', event.id)
       const success = await deleteEvent(event.id)
-      
+
       if (success) {
         toast.success('Event deleted successfully!')
         console.log('Event deleted, navigating to calendar')
@@ -272,13 +277,13 @@ export const EventDetailsPage = () => {
             The event you're looking for doesn't exist or has been removed.
           </Typography>
           <div className="space-x-4">
-            <Button 
+            <Button
               onClick={() => navigate('/calendar')}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               View Calendar
             </Button>
-            <Button 
+            <Button
               onClick={() => navigate('/')}
             >
               Go Home
@@ -308,7 +313,7 @@ export const EventDetailsPage = () => {
                 {isEditing ? 'Edit Event' : 'Event Details'}
               </Typography>
             </div>
-            
+
             {/* Quick Actions */}
             <div className="flex items-center gap-3">
               {profile && canEditEvent && !isEditing && (
@@ -320,7 +325,7 @@ export const EventDetailsPage = () => {
                     <PencilIcon className="h-4 w-4" />
                     Edit Event
                   </Button>
-                  
+
                   <Button
                     className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
                     onClick={handleDelete}
@@ -342,7 +347,7 @@ export const EventDetailsPage = () => {
                     <CheckIcon className="h-4 w-4" />
                     {saving ? 'Saving...' : 'Save Changes'}
                   </Button>
-                  
+
                   <Button
                     className="flex items-center gap-2 bg-gray-600 hover:bg-gray-700 text-white"
                     onClick={handleCancelEdit}
@@ -378,15 +383,15 @@ export const EventDetailsPage = () => {
                     {event.title}
                   </Typography>
                 )}
-               <div className="flex items-center gap-2">
-               {event.eventTypeLabel && (
-                  <div className="inline-flex items-center  px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                    {event.eventTypeLabel}
-                    
-                  </div>
-                )}
-               
-               </div>
+                <div className="flex items-center gap-2">
+                  {event.eventTypeLabel && (
+                    <div className="inline-flex items-center  px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      {event.eventTypeLabel}
+
+                    </div>
+                  )}
+
+                </div>
               </CardBody>
             </Card>
 
@@ -422,7 +427,7 @@ export const EventDetailsPage = () => {
                       Date & Time
                     </Typography>
                   </div>
-                  
+
                   {isEditing ? (
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
@@ -478,7 +483,7 @@ export const EventDetailsPage = () => {
                           {formatDateTime(event.start)}
                         </Typography>
                       </div>
-                      
+
                       {event.end && event.end.getTime() !== event.start.getTime() && (
                         <div>
                           <Typography variant="small" className="text-gray-500 dark:text-gray-400 uppercase tracking-wide">
@@ -489,7 +494,7 @@ export const EventDetailsPage = () => {
                           </Typography>
                         </div>
                       )}
-                      
+
                       {event.allDay && (
                         <div className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
                           All Day Event
@@ -509,7 +514,7 @@ export const EventDetailsPage = () => {
                       Location
                     </Typography>
                   </div>
-                  
+
                   {isEditing ? (
                     <Input
                       label="Location"
@@ -547,9 +552,28 @@ export const EventDetailsPage = () => {
                   <Typography variant="h5" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3">
                     <Eye className="h-6 w-6 text-blue-600" /> Event Type
                   </Typography>
-                  <Typography className="text-gray-900 dark:text-white text-lg">
-                    {event.eventTypeLabel || 'Not specified'}
-                  </Typography>
+                  {isEditing ? (
+                    <select
+                      value={editForm.eventType}
+                      onChange={(e) => handleInputChange('eventType', e.target.value)}
+                      className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
+                      disabled={eventTypes.length === 0}
+                    >
+                      {eventTypes.length === 0 ? (
+                        <option value="">Loading event types...</option>
+                      ) : (
+                        eventTypes.map(type => (
+                          <option key={type.id} value={type.id}>{type.label}</option>
+                        ))
+                      )}
+                    </select>
+
+                  )
+                    : <Typography className="text-gray-900 dark:text-white text-lg">
+                      {event.eventTypeLabel || 'Not specified'}
+                    </Typography>
+
+                  }
                 </CardBody>
               </Card>
 
@@ -557,9 +581,9 @@ export const EventDetailsPage = () => {
               <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
                 <CardBody className="p-6">
                   <Typography variant="h5" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3">
-                    <Cutlery className="h-6 w-6 text-blue-600" /> Food Theme  
+                    <Cutlery className="h-6 w-6 text-blue-600" /> Food Theme
                   </Typography>
-                  
+
                   {isEditing ? (
                     <Input
                       label="Food Theme"
@@ -578,7 +602,7 @@ export const EventDetailsPage = () => {
               <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
                 <CardBody className="p-6">
                   <Typography variant="h5" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3">
-                    <InfoCircle className="h-6 w-6 text-blue-600" /> Host Details 
+                    <InfoCircle className="h-6 w-6 text-blue-600" /> Host Details
                   </Typography>
                   <Typography variant="h6" className="text-gray-700 font-bold dark:text-gray-300 mb-2">
                     Allergies
@@ -607,13 +631,13 @@ export const EventDetailsPage = () => {
                 </CardBody>
               </Card>
             </div>
-                 {/* RSVP Section */}
-                 <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+            {/* RSVP Section */}
+            <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
               <CardBody className="p-6">
                 <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
                   RSVP
                 </Typography>
-                <EventRSVPButton 
+                <EventRSVPButton
                   eventId={event.id}
                   eventTitle={event.title}
                   onRSVPChange={(isAttending, newCount) => {
@@ -637,113 +661,113 @@ export const EventDetailsPage = () => {
           {/* Sidebar - Actions & Quick Info - Only show when not editing */}
           {!isEditing && (
             <div className="lg:col-span-1 space-y-6">
-            {/* Quick Actions */}
-            <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
-              <CardBody className="p-6">
-                <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
-                  Quick Actions
-                </Typography>
-                <div className="space-y-3">
-                  {!profile ? (
-                    <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <Typography variant="small" className="text-gray-500 dark:text-gray-400">
-                        Loading permissions...
-                      </Typography>
+              {/* Quick Actions */}
+              <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+                <CardBody className="p-6">
+                  <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
+                    Quick Actions
+                  </Typography>
+                  <div className="space-y-3">
+                    {!profile ? (
+                      <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <Typography variant="small" className="text-gray-500 dark:text-gray-400">
+                          Loading permissions...
+                        </Typography>
+                      </div>
+                    ) : canEditEvent ? (
+                      <>
+                        <Button
+                          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={handleEdit}
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                          Edit Event
+                        </Button>
+
+                        <Button
+                          className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white"
+                          onClick={handleDelete}
+                          disabled={storeLoading}
+                        >
+                          <TrashIcon className="h-4 w-4" />
+                          {storeLoading ? 'Deleting...' : 'Delete Event'}
+                        </Button>
+                      </>
+                    ) : (
+                      <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <Typography variant="small" className="text-gray-500 dark:text-gray-400">
+                          You can only edit events hosted by your family
+                        </Typography>
+                      </div>
+                    )}
+                  </div>
+                </CardBody>
+              </Card>
+
+
+
+              {/* Event Summary */}
+              <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+                <CardBody className="p-6">
+                  <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
+                    Event Summary
+                  </Typography>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 dark:text-gray-400">Duration:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {event.start && event.end ?
+                          `${Math.round((event.end - event.start) / (1000 * 60 * 60) * 10) / 10} hours` :
+                          'Not specified'
+                        }
+                      </span>
                     </div>
-                  ) : canEditEvent ? (
-                    <>
-                      <Button
-                        className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
-                        onClick={handleEdit}
-                      >
-                        <PencilIcon className="h-4 w-4" />
-                        Edit Event
-                      </Button>
-                      
-                      <Button
-                        className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white"
-                        onClick={handleDelete}
-                        disabled={storeLoading}
-                      >
-                        <TrashIcon className="h-4 w-4" />
-                        {storeLoading ? 'Deleting...' : 'Delete Event'}
-                      </Button>
-                    </>
-                  ) : (
-                    <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                      <Typography variant="small" className="text-gray-500 dark:text-gray-400">
-                        You can only edit events hosted by your family
-                      </Typography>
+
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 dark:text-gray-400">All Day:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {event.allDay ? 'Yes' : 'No'}
+                      </span>
                     </div>
-                  )}
-                </div>
-              </CardBody>
-            </Card>
 
-       
+                    <div className="flex justify-between">
+                      <span className="text-gray-500 dark:text-gray-400">Has Location:</span>
+                      <span className="text-gray-900 dark:text-white font-medium">
+                        {event.location ? 'Yes' : 'No'}
+                      </span>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
 
-            {/* Event Summary */}
-            <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
-              <CardBody className="p-6">
-                <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
-                  Event Summary
-                </Typography>
-                <div className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">Duration:</span>
-                    <span className="text-gray-900 dark:text-white font-medium">
-                      {event.start && event.end ? 
-                        `${Math.round((event.end - event.start) / (1000 * 60 * 60) * 10) / 10} hours` : 
-                        'Not specified'
-                      }
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">All Day:</span>
-                    <span className="text-gray-900 dark:text-white font-medium">
-                      {event.allDay ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span className="text-gray-500 dark:text-gray-400">Has Location:</span>
-                    <span className="text-gray-900 dark:text-white font-medium">
-                      {event.location ? 'Yes' : 'No'}
-                    </span>
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-
-            {/* Time Details */}
-            <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
-              <CardBody className="p-6">
-                <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
-                  Time Details
-                </Typography>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <ClockIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
-                    <span className="text-gray-900 dark:text-white">
-                      {event.start ? formatTime(event.start) : 'Not specified'}
-                    </span>
-                  </div>
-                  
-                  {event.end && event.end.getTime() !== event.start.getTime() && (
+              {/* Time Details */}
+              <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+                <CardBody className="p-6">
+                  <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
+                    Time Details
+                  </Typography>
+                  <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
                       <ClockIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
                       <span className="text-gray-900 dark:text-white">
-                        {event.end ? formatTime(event.end) : 'Not specified'}
+                        {event.start ? formatTime(event.start) : 'Not specified'}
                       </span>
                     </div>
-                  )}
-                </div>
-              
 
-              </CardBody>
-            </Card>
-          </div>
+                    {event.end && event.end.getTime() !== event.start.getTime() && (
+                      <div className="flex items-center gap-2">
+                        <ClockIcon className="h-5 w-5 text-gray-500 dark:text-gray-400" />
+                        <span className="text-gray-900 dark:text-white">
+                          {event.end ? formatTime(event.end) : 'Not specified'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+
+                </CardBody>
+              </Card>
+            </div>
           )}
         </div>
       </div>

@@ -1,0 +1,12 @@
+{
+  "name": "supabase",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "start": "supabase start",
+    "test": "supabase test"
+  },
+  "devDependencies": {
+    "supabase": "^1.165.0"
+  }
+}

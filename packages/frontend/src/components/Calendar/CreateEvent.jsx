@@ -155,6 +155,11 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
 
       if (onEventCreate) {
         onEventCreate(updatedEvent)
+        // Send Telegram Alert
+        fetch('/.netlify/functions/telegram-alert', {
+          method: 'POST',
+          body: JSON.stringify({ action: 'update', event: updatedEvent })
+        }).catch(err => console.error('Failed to send alert:', err))
       }
     } else {
       // Create mode - create new event
@@ -171,6 +176,11 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
 
       if (onEventCreate) {
         onEventCreate(newEvent)
+        // Send Telegram Alert
+        fetch('/.netlify/functions/telegram-alert', {
+          method: 'POST',
+          body: JSON.stringify({ action: 'create', event: newEvent })
+        }).catch(err => console.error('Failed to send alert:', err))
       }
     }
 

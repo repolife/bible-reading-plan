@@ -160,6 +160,15 @@ importers:
         specifier: ^5.2.0
         version: 5.4.21(@types/node@24.10.1)
 
+  packages/netlify:
+    dependencies:
+      '@netlify/functions':
+        specifier: ^5.1.2
+        version: 5.1.2
+      types:
+        specifier: github:netlify/functions
+        version: functions@https://codeload.github.com/netlify/functions/tar.gz/c3f47247079e7de2f9f8303f154f4f914ec93589
+
   packages/supabase:
     devDependencies:
       supabase:
@@ -945,6 +954,14 @@ packages:
     resolution: {integrity: sha512-OeoPhtLR/f5f6xe0xGnqyaN5VY/IdAJJRLvmQkO17zj2WSOpTkwU0sRIPU9/jauZzMDaHALQcK+gejZgVqd66w==}
     peerDependencies:
       react: '>=18'
+
+  '@netlify/functions@5.1.2':
+    resolution: {integrity: sha512-tpPiLSkQatuexH8AdAZ8RlALvT7ixOE9VhvpkzQGNvihcms8hzmvUDuSxQa7UneTj/sHsdirnXmnJ+nmf+Nx/w==}
+    engines: {node: '>=18.0.0'}
+
+  '@netlify/types@2.3.0':
+    resolution: {integrity: sha512-5gxMWh/S7wr0uHKSTbMv4bjWmWSpwpeLYvErWeVNAPll5/QNFo9aWimMAUuh8ReLY3/fg92XAroVVu7+z27Snw==}
+    engines: {node: ^18.14.0 || >=20}
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -2031,6 +2048,10 @@ packages:
 
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
+
+  functions@https://codeload.github.com/netlify/functions/tar.gz/c3f47247079e7de2f9f8303f154f4f914ec93589:
+    resolution: {tarball: https://codeload.github.com/netlify/functions/tar.gz/c3f47247079e7de2f9f8303f154f4f914ec93589}
+    version: 0.0.0
 
   generator-function@2.0.1:
     resolution: {integrity: sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==}
@@ -4241,6 +4262,12 @@ snapshots:
     transitivePeerDependencies:
       - react-dom
 
+  '@netlify/functions@5.1.2':
+    dependencies:
+      '@netlify/types': 2.3.0
+
+  '@netlify/types@2.3.0': {}
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -5592,6 +5619,8 @@ snapshots:
       is-callable: 1.2.7
 
   functions-have-names@1.2.3: {}
+
+  functions@https://codeload.github.com/netlify/functions/tar.gz/c3f47247079e7de2f9f8303f154f4f914ec93589: {}
 
   generator-function@2.0.1: {}
 

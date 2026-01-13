@@ -253,6 +253,20 @@ export const EventDetailsPage = () => {
       const success = await deleteEvent(event.id)
 
       if (success) {
+        // Send Telegram Alert
+        const alertPayload = { 
+          action: 'delete', 
+          event: { ...event, id: event.id },
+          familyName: familyGroup?.family_last_name,
+          origin: window.location.origin
+        }
+        console.log('Sending Delete Alert from EventDetailsPage:', alertPayload)
+
+        fetch('/.netlify/functions/telegram-alert', {
+          method: 'POST',
+          body: JSON.stringify(alertPayload)
+        }).catch(err => console.error('Failed to send delete alert:', err))
+
         toast.success('Event deleted successfully!')
         console.log('Event deleted, navigating to calendar')
         navigate('/calendar')

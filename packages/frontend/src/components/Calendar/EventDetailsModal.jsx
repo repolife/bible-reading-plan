@@ -234,6 +234,18 @@ export const EventDetailsModal = ({
                   </CardBody>
                 </Card>
 
+                {/* Max Capacity */}
+                <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+                  <CardBody className="p-4">
+                    <Typography variant="h6" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-2">
+                    <Group className="h-5 w-5 text-blue-600" /> Max Families/People
+                    </Typography>
+                    <Typography className="text-gray-900 dark:text-white">
+                      {event.max_capacity || 'No limit'}
+                    </Typography>
+                  </CardBody>
+                </Card>
+
                 {/* Family Group Details */}
                 <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
                   <CardBody className="p-4">

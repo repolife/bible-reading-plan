@@ -14,7 +14,8 @@ export const createFamilyCalendarEvent = (data) => ({
   family_id: data.family_id || null,
   created_by: data.created_by || null,
   event_type: data.event_type || null,
-  food_theme: data.food_theme || null
+  food_theme: data.food_theme || null,
+  max_capacity: data.max_capacity || null
 })
 
 // Zustand store
@@ -171,7 +172,8 @@ export const useFamilyCalendarStore = create((set, get) => ({
         family_id: eventData.family_id,
         created_by: eventData.created_by || null,
         event_type: eventData.event_type || null,
-        food_theme: eventData.food_theme || null
+        food_theme: eventData.food_theme || null,
+        max_capacity: eventData.max_capacity || null
       }
 
       const { data, error } = await supabase

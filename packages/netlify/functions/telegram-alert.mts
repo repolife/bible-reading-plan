@@ -45,7 +45,9 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       ? `*The ${familyName} family is hosting:*` 
       : `*New Event Alert:*`;
 
-    message = `${hostText}\n\n*${eventTitle}*\nDate: ${eventDate}\nFood Theme: ${foodTheme}\nEvent Type: ${eventType}\nLink: ${eventUrl}`;
+    const maxCapacity = eventDetails.max_capacity ? `\nMax Families/People: ${eventDetails.max_capacity}` : '';
+
+    message = `${hostText}\n\n*${eventTitle}*\nDate: ${eventDate}\nFood Theme: ${foodTheme}\nEvent Type: ${eventType}${maxCapacity}\nLink: ${eventUrl}`;
     
     if (action === 'delete') {
        message = `🗑️ *Event Deleted*\n\n*${eventTitle}*\nDate: ${eventDate}`;

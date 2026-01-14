@@ -82,6 +82,7 @@ export const Calendar = () => {
         family_id: event.family_id, // Keep snake_case for consistency
         createdBy: event.created_by,
         food_theme: event.food_theme, // Add food theme property
+        max_capacity: event.max_capacity, // Add max capacity property
         familyGroupName: 'Family Group', // Will be updated when we have family group data
         familyGroupAddress: null
       }
@@ -136,7 +137,8 @@ export const Calendar = () => {
         family_id: profile.family_id,
         created_by: authUser.id,
         event_type: newEvent.eventType || null,
-        food_theme: newEvent.food_theme || null // Add food theme property
+        food_theme: newEvent.food_theme || null, // Add food theme property
+        max_capacity: newEvent.max_capacity || null // Add max capacity property
       }
 
       try {
@@ -262,7 +264,8 @@ export const Calendar = () => {
         event_type: selectedEvent.eventType,
         family_id: selectedEvent.family_id,
         created_by: selectedEvent.createdBy,
-        food_theme: selectedEvent.food_theme // Add food theme property
+        food_theme: selectedEvent.food_theme, // Add food theme property
+        max_capacity: selectedEvent.max_capacity // Add max capacity property
       }
       
       setEditingEvent(dbEvent)

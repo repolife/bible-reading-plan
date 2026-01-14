@@ -45,7 +45,8 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       ? `*The ${familyName} family is hosting:*` 
       : `*New Event Alert:*`;
 
-    const maxCapacity = eventDetails.max_capacity ? `\nMax Families/People: ${eventDetails.max_capacity}` : '';
+    const maxCapValue = data.max_capacity || eventDetails.max_capacity;
+    const maxCapacity = maxCapValue ? `\nMax Capacity: ${maxCapValue}` : '';
 
     message = `${hostText}\n\n*${eventTitle}*\nDate: ${eventDate}\nFood Theme: ${foodTheme}\nEvent Type: ${eventType}${maxCapacity}\nLink: ${eventUrl}`;
     

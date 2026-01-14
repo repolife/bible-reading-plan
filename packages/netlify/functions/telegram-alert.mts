@@ -28,7 +28,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     
     const familyName = eventDetails.familyName || 'Unknown';
     const foodTheme = eventDetails.food_theme || 'None';
-    const eventType = eventDetails.eventType || 'Unknown';
+    const eventType = eventDetails.event_type || 'Unknown';
     const origin = data.origin || 'https://bible-reading-plan.netlify.app';
     
     // Construct event URL

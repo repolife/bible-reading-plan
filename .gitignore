@@ -25,3 +25,9 @@ dist-ssr
 .env
 # Sentry Config File
 .env.sentry-build-plugin
+supabase/.temp/
+supabase/.supabase/
+
+
+# Local Netlify folder
+.netlify

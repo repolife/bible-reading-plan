@@ -1,0 +1,4 @@
+[build]
+  command = "turbo run build --filter=frontend"
+  publish = "packages/frontend/dist"
+  functions = "packages/netlify/functions"

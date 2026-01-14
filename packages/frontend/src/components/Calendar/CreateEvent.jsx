@@ -5,6 +5,9 @@ import { useProfileStore } from '../../store/useProfileStore'
 import { Button } from '@material-tailwind/react'
 import Autocomplete from "react-google-autocomplete"
 
+
+const env = import.meta.env;
+
 export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editingEvent, isEdit = false }) => {
   const { profile } = useProfileStore()
   const { familyGroup, fetchFamilyGroup } = useFamilyStore()
@@ -26,10 +29,6 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
     food_theme: 'none', // Default food theme
     max_capacity: ''
   })
-
-  const env = import.meta.env;
-
-
   // Fetch family group and event types when component mounts
   useEffect(() => {
     if (profile?.family_id) {
@@ -159,7 +158,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
       if (onEventCreate) {
         onEventCreate(updatedEvent)
         // Send Telegram Alert
-        fetch('/.netlify/functions/telegram-alert', {
+        fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
           method: 'POST',
           body: JSON.stringify({ 
             action: 'update', 
@@ -193,7 +192,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         
         if (createdEvent) {
           // Send Telegram Alert
-          fetch('/.netlify/functions/telegram-alert', {
+          fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
             method: 'POST',
             body: JSON.stringify({ 
               action: 'create', 

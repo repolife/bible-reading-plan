@@ -7,6 +7,7 @@
     "start": "doppler run -- netlify dev"
   },
   "dependencies": {
-    "@netlify/functions": "^5.1.2"
+    "@netlify/functions": "^5.1.2",
+    "@supabase/supabase-js": "^2.52.0"
   }
 }

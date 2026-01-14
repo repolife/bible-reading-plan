@@ -20,6 +20,8 @@ import { DateTimePicker } from '../Shared/DateTimePicker'
 import { toast } from 'react-toastify'
 import { useEventType } from '../../hooks/useEventType'
 
+const env = import.meta.env;
+
 export const EventDetailsPage = () => {
   const { eventId } = useParams()
   const navigate = useNavigate()
@@ -234,7 +236,7 @@ export const EventDetailsPage = () => {
         }
         console.log('Sending Telegram Alert from EventDetailsPage:', alertPayload)
 
-        fetch('/.netlify/functions/telegram-alert', {
+        fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
           method: 'POST',
           body: JSON.stringify(alertPayload)
         }).catch(err => console.error('Failed to send alert:', err))
@@ -298,7 +300,7 @@ export const EventDetailsPage = () => {
         }
         console.log('Sending Delete Alert from EventDetailsPage:', alertPayload)
 
-        fetch('/.netlify/functions/telegram-alert', {
+        fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
           method: 'POST',
           body: JSON.stringify(alertPayload)
         }).catch(err => console.error('Failed to send delete alert:', err))

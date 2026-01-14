@@ -213,7 +213,7 @@ export const EventDetailsPage = () => {
         // Send Telegram Alert
         const alertPayload = { 
           action: 'update', 
-          event: { ...updatedEventData, id: event.id, event_type: event.eventTypeLabel },
+          event: { ...updatedEventData, id: event.id, event_type: updatedEventData.event_type },
           familyName: familyGroup?.family_last_name,
           origin: window.location.origin
         }

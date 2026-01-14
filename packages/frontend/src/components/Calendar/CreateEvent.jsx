@@ -161,7 +161,10 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
           body: JSON.stringify({ 
             action: 'update', 
             
-            event: updatedEvent,
+            event: {
+              ...updatedEvent,
+              event_type: eventTypes.find(type => type.id === updatedEvent.event_type)?.label || updatedEvent.event_type
+            },
             familyName: familyGroup?.family_last_name,
             origin: window.location.origin
           })
@@ -190,7 +193,10 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
             method: 'POST',
             body: JSON.stringify({ 
               action: 'create', 
-              event: createdEvent,
+              event: {
+                ...createdEvent,
+                event_type: eventTypes.find(type => type.id === createdEvent.event_type)?.label || createdEvent.event_type
+              },
               familyName: familyGroup?.family_last_name,
               origin: window.location.origin
             })

@@ -165,9 +165,7 @@ importers:
       '@netlify/functions':
         specifier: ^5.1.2
         version: 5.1.2
-      types:
-        specifier: github:netlify/functions
-        version: functions@https://codeload.github.com/netlify/functions/tar.gz/c3f47247079e7de2f9f8303f154f4f914ec93589
+
 
   packages/supabase:
     devDependencies:

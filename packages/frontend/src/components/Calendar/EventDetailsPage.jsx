@@ -223,23 +223,38 @@ export const EventDetailsPage = () => {
         setIsEditing(false)
         toast.success('Event updated successfully!')
         
-        // Send Telegram Alert
-        const alertPayload = { 
-          action: 'update', 
-          event: {
-            ...updatedEventData,
-            id: event.id,
-            event_type: eventTypes.find(type => type.id === editForm.eventType)?.label || editForm.eventTypeLabel || updatedEventData.event_type
-          },
-          familyName: familyGroup?.family_last_name || 'Family',
-          origin: window.location.origin
-        }
-        console.log('Sending Telegram Alert from EventDetailsPage:', alertPayload)
+        // Send Telegram Alert only if fields changed
+        const hasChanges = 
+          updatedEventData.event_title !== event.title ||
+          updatedEventData.event_description !== (event.desc || '') ||
+          updatedEventData.event_start !== event.start.toISOString() ||
+          (updatedEventData.event_end !== (event.end ? event.end.toISOString() : null)) ||
+          updatedEventData.all_day !== event.allDay ||
+          (updatedEventData.location || '') !== (event.location || '') ||
+          updatedEventData.event_type !== event.eventType ||
+          (updatedEventData.food_theme || 'none') !== (event.food_theme || 'none') ||
+          (updatedEventData.max_capacity || '') !== (event.max_capacity || '')
 
-        fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
-          method: 'POST',
-          body: JSON.stringify(alertPayload)
-        }).catch(err => console.error('Failed to send alert:', err))
+        if (hasChanges) {
+          const alertPayload = { 
+            action: 'update', 
+            event: {
+              ...updatedEventData,
+              id: event.id,
+              event_type: eventTypes.find(type => type.id === editForm.eventType)?.label || editForm.eventTypeLabel || updatedEventData.event_type
+            },
+            familyName: familyGroup?.family_last_name || 'Family',
+            origin: window.location.origin
+          }
+          console.log('Sending Telegram Alert from EventDetailsPage (changes detected):', alertPayload)
+
+          fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
+            method: 'POST',
+            body: JSON.stringify(alertPayload)
+          }).catch(err => console.error('Failed to send alert:', err))
+        } else {
+          console.log('No changes detected, skipping Telegram alert.')
+        }
       } else {
         toast.error('Failed to update event')
       }

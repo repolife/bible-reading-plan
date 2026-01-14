@@ -41,7 +41,11 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       
     console.log('Generated URL:', eventUrl);
 
-    message = `*${familyName} hosting:*\n\n*${eventTitle}*\nDate: ${eventDate}\nFood Theme: ${foodTheme}\nEvent Type: ${eventType}\nLink: ${eventUrl}`;
+    const hostText = familyName && familyName !== 'Unknown' && familyName !== 'Family' 
+      ? `*The ${familyName} family is hosting:*` 
+      : `*New Event Alert:*`;
+
+    message = `${hostText}\n\n*${eventTitle}*\nDate: ${eventDate}\nFood Theme: ${foodTheme}\nEvent Type: ${eventType}\nLink: ${eventUrl}`;
     
     if (action === 'delete') {
        message = `🗑️ *Event Deleted*\n\n*${eventTitle}*\nDate: ${eventDate}`;

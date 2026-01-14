@@ -26,9 +26,9 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     const eventTitle = eventDetails.event_title || eventDetails.title || 'Untitled Event';
     const eventDate = new Date(eventDetails.event_start || eventDetails.start).toLocaleDateString();
     
-    const familyName = data.familyName || 'Unknown';
-    const foodTheme = data.food_theme || 'None';
-    const eventType = data.eventType || 'Unknown';
+    const familyName = eventDetails.familyName || 'Unknown';
+    const foodTheme = eventDetails.food_theme || 'None';
+    const eventType = eventDetails.eventType || 'Unknown';
     const origin = data.origin || 'https://bible-reading-plan.netlify.app';
     
     // Construct event URL
@@ -40,18 +40,10 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
       
     console.log('Generated URL:', eventUrl);
 
-    message = `*${familyName} hosting:*\n\n*${eventTitle}*\nDate: food theme:${foodTheme}\nEvent type: ${eventType}\n${eventDate}\nLink: ${eventUrl}`;
+    message = `*${familyName} hosting:*\n\n*${eventTitle}*\nDate: ${eventDate}\nFood Theme: ${foodTheme}\nEvent Type: ${eventType}\nLink: ${eventUrl}`;
     
     if (action === 'delete') {
        message = `🗑️ *Event Deleted*\n\n*${eventTitle}*\nDate: ${eventDate}`;
-    }
-
-    if (foodTheme !== 'None') {
-      message += `\nFood Theme: ${foodTheme}`;
-    }
-
-    if (eventType !== 'Unknown') {
-      message += `\nEvent Type: ${eventType}`;
     }
 
     // Send to Telegram

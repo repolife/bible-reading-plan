@@ -165,7 +165,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
               ...updatedEvent,
               event_type: eventTypes.find(type => type.id === updatedEvent.event_type)?.label || updatedEvent.event_type
             },
-            familyName: familyGroup?.family_last_name,
+            familyName: familyGroup?.family_last_name || 'Family',
             origin: window.location.origin
           })
         }).catch(err => console.error('Failed to send alert:', err))
@@ -197,7 +197,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
                 ...createdEvent,
                 event_type: eventTypes.find(type => type.id === createdEvent.event_type)?.label || createdEvent.event_type
               },
-              familyName: familyGroup?.family_last_name,
+              familyName: familyGroup?.family_last_name || 'Family',
               origin: window.location.origin
             })
           }).catch(err => console.error('Failed to send alert:', err))

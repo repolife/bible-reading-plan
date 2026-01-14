@@ -223,7 +223,7 @@ export const EventDetailsPage = () => {
             id: event.id,
             event_type: eventTypes.find(type => type.id === editForm.eventType)?.label || editForm.eventTypeLabel || updatedEventData.event_type
           },
-          familyName: familyGroup?.family_last_name,
+          familyName: familyGroup?.family_last_name || 'Family',
           origin: window.location.origin
         }
         console.log('Sending Telegram Alert from EventDetailsPage:', alertPayload)
@@ -287,7 +287,7 @@ export const EventDetailsPage = () => {
             id: event.id,
             event_type: event.eventTypeLabel || event.eventType
           },
-          familyName: familyGroup?.family_last_name,
+          familyName: familyGroup?.family_last_name || 'Family',
           origin: window.location.origin
         }
         console.log('Sending Delete Alert from EventDetailsPage:', alertPayload)

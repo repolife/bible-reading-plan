@@ -18,6 +18,7 @@ import { FamilyAllergiesTable } from '@components/FamilyAllergiesTable'
 import { EventRSVPButton } from './EventRSVPButton'
 import { DateTimePicker } from '../Shared/DateTimePicker'
 import { toast } from 'react-toastify'
+import { useEventType } from '../../hooks/useEventType'
 
 export const EventDetailsPage = () => {
   const { eventId } = useParams()
@@ -46,7 +47,9 @@ export const EventDetailsPage = () => {
   const { profile, fetchAndSetUserProfile } = useProfileStore()
   const { user: authUser } = useAuthStore()
   const { fetchAllEvents, updateEvent, deleteEvent, loading: storeLoading } = useFamilyCalendarStore()
-  const eventTypes = useFamilyCalendarSelectors.useEventTypes()
+  const   eventTypes = useFamilyCalendarSelectors.useEventTypes()
+
+  const { eventTypeLabel } = useEventType(eventId)
 
 
 
@@ -55,6 +58,7 @@ export const EventDetailsPage = () => {
     fetchAllEvents()
     fetchEventTypes()
   }, [])
+
   useEffect(() => {
     const fetchEvent = async () => {
       if (!eventId) return
@@ -70,9 +74,7 @@ export const EventDetailsPage = () => {
 
           if (foundEvent) {
             // Find event type label from store if available
-            const matchingType = eventTypes.find(t => t.id === foundEvent.event_type)
-            const typeLabel = matchingType ? matchingType.label : (foundEvent.event_type_label || 'Event')
-
+           
             // Transform the event data to match the expected format
             const transformedEvent = {
               id: foundEvent.id,
@@ -83,7 +85,7 @@ export const EventDetailsPage = () => {
               allDay: foundEvent.all_day || false,
               location: foundEvent.location,
               eventType: foundEvent.event_type,
-              eventTypeLabel: typeLabel,
+              eventTypeLabel: eventTypeLabel,
               family_id: foundEvent.family_id,
               createdBy: foundEvent.created_by,
               food_theme: foundEvent.food_theme
@@ -102,7 +104,8 @@ export const EventDetailsPage = () => {
               allDay: transformedEvent.allDay,
               location: transformedEvent.location || '',
               eventType: transformedEvent.eventType || '',
-              food_theme: transformedEvent.food_theme || 'none'
+              food_theme: transformedEvent.food_theme || 'none',
+              eventTypeLabel: transformedEvent.eventTypeLabel || ''
             })
 
             // Fetch family group information
@@ -122,7 +125,7 @@ export const EventDetailsPage = () => {
     }
 
     fetchEvent()
-  }, [eventId, fetchAllEvents, fetchFamilyGroup, eventTypes])
+  }, [eventId, fetchAllEvents, fetchFamilyGroup, eventTypes, eventTypeLabel])
 
   const { familyGroup } = useFamilyStore()
 
@@ -167,6 +170,7 @@ export const EventDetailsPage = () => {
         allDay: event.allDay,
         location: event.location || '',
         eventType: event.eventType || '',
+        eventTypeLabel: event.eventTypeLabel || '',
         food_theme: event.food_theme || 'none'
       })
     }
@@ -188,7 +192,7 @@ export const EventDetailsPage = () => {
         all_day: editForm.allDay,
         location: editForm.location,
         event_type: editForm.eventType,
-        food_theme: editForm.food_theme
+        food_theme: editForm.food_theme,
       }
 
       const success = await updateEvent(event.id, updatedEventData)
@@ -204,7 +208,8 @@ export const EventDetailsPage = () => {
           allDay: editForm.allDay,
           location: editForm.location,
           eventType: editForm.eventType,
-          food_theme: editForm.food_theme
+          food_theme: editForm.food_theme,
+          eventTypeLabel: editForm.eventTypeLabel
         }))
 
         setIsEditing(false)
@@ -238,6 +243,22 @@ export const EventDetailsPage = () => {
     setEditForm(prev => ({
       ...prev,
       [field]: value
+    }))
+  }
+
+  const handleEventTypeChange = (eventTypeId) => {
+    const selectedType = eventTypes.find(type => type.id === eventTypeId)
+    const selectedLabel = selectedType?.label || ''
+
+    setEditForm(prev => ({
+      ...prev,
+      eventType: eventTypeId,
+      eventTypeLabel: selectedLabel
+    }))
+    setEvent(prev => ({
+      ...prev,
+      eventType: eventTypeId,
+      eventTypeLabel: selectedLabel
     }))
   }
 
@@ -580,7 +601,7 @@ export const EventDetailsPage = () => {
                   {isEditing ? (
                     <select
                       value={editForm.eventType}
-                      onChange={(e) => handleInputChange('eventType', e.target.value)}
+                      onChange={(e) => handleEventTypeChange(e.target.value)}
                       className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                       disabled={eventTypes.length === 0}
                     >
@@ -595,7 +616,7 @@ export const EventDetailsPage = () => {
 
                   )
                     : <Typography className="text-gray-900 dark:text-white text-lg">
-                      {event.eventTypeLabel || 'Not specified'}
+                      {event.eventTypeLabel ?? 'Not specified'}
                     </Typography>
 
                   }

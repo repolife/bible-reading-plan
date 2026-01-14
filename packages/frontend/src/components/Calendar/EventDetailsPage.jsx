@@ -458,8 +458,11 @@ export const EventDetailsPage = () => {
                   </div>
 
                   {isEditing ? (
-                    <div className="space-y-4">
+                    <div className="flex flex-col space-y-2">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Typography variant="h5" className="text-gray-700 dark:text-gray-300">
+                      Start:
+                    </Typography>
                         <DateTimePicker
                           label="Start Date"
                           date={editForm.startDate.toString()}
@@ -469,6 +472,9 @@ export const EventDetailsPage = () => {
                             if (time) handleInputChange('startTime', time)
                           }}
                         />
+                        <Typography variant="h5" className="text-gray-700 dark:text-gray-300">
+                        End:
+                      </Typography>
                          <DateTimePicker
                           label="End Date"
                           date={editForm.endDate}

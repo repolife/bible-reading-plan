@@ -42,6 +42,7 @@ export const DateTimePicker = ({
         <Popover.Trigger>
           <Input
             label={label}
+            color="blue-gray"
             onChange={() => null}
             value={dateDate ? format(dateDate, "PPP") : ""}
             disabled={disabled}

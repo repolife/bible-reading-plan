@@ -14,6 +14,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     return { statusCode: 500, body: 'Server Error: Missing credentials' };
   }
 
+  
   try {
     if (!event.body) {
         return { statusCode: 400, body: 'Missing body' };
@@ -26,7 +27,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     const eventTitle = eventDetails.event_title || eventDetails.title || 'Untitled Event';
     const eventDate = new Date(eventDetails.event_start || eventDetails.start).toLocaleDateString();
     
-    const familyName = eventDetails.familyName || 'Unknown';
+    const familyName = data.familyName || eventDetails.familyName || 'Unknown';
     const foodTheme = eventDetails.food_theme || 'None';
     const eventType = eventDetails.event_type || 'Unknown';
     const origin = data.origin || 'https://bible-reading-plan.netlify.app';

@@ -48,7 +48,7 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     const maxCapValue = data.max_capacity || eventDetails.max_capacity;
     const maxCapacity = maxCapValue ? `\nMax Capacity: ${maxCapValue}` : '';
 
-    message = `${hostText}\n\n*${eventTitle}*\nDate: ${eventDate}\nFood Theme: ${foodTheme}\nEvent Type: ${eventType}${maxCapacity}\nLink: ${eventUrl}`;
+    message = `${hostText}\n\n*${eventTitle}*\nDate: ${eventDate}\nEvent Type: ${eventType}\nFood Theme: ${foodTheme}\n${maxCapacity}\nLink: ${eventUrl}`;
     
     if (action === 'delete') {
        message = `🗑️ *Event Deleted*\n\n*${eventTitle}*\nDate: ${eventDate}`;

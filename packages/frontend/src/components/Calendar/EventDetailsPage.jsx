@@ -16,6 +16,7 @@ import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '@store/useFa
 import { Cutlery, Group, InfoCircle, Eye } from 'iconoir-react'
 import { FamilyAllergiesTable } from '@components/FamilyAllergiesTable'
 import { EventRSVPButton } from './EventRSVPButton'
+import { DateTimePicker } from '../Shared/DateTimePicker'
 import { toast } from 'react-toastify'
 
 export const EventDetailsPage = () => {
@@ -458,35 +459,25 @@ export const EventDetailsPage = () => {
 
                   {isEditing ? (
                     <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <Input
-                          type="date"
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <DateTimePicker
                           label="Start Date"
-                          value={editForm.startDate}
-                          onChange={(e) => handleInputChange('startDate', e.target.value)}
+                          date={editForm.startDate.toString()}
+                          time={editForm.startTime.toString()}
+                          onDateTimeChange={(date, time) => {
+                            if (date) handleInputChange('startDate', date.toISOString().split('T')[0])
+                            if (time) handleInputChange('startTime', time)
+                          }}
                         />
-                        <Input
-                          type="time"
-                          label="Start Time"
-                          value={editForm.startTime}
-                          onChange={(e) => handleInputChange('startTime', e.target.value)}
-                          disabled={editForm.allDay}
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <Input
-                          type="date"
+                         <DateTimePicker
                           label="End Date"
-                          value={editForm.endDate}
-                          onChange={(e) => handleInputChange('endDate', e.target.value)}
-                        />
-                        <Input
-                          type="time"
-                          label="End Time"
-                          value={editForm.endTime}
-                          onChange={(e) => handleInputChange('endTime', e.target.value)}
-                          disabled={editForm.allDay}
-                        />
+                          date={editForm.endDate}
+                          time={editForm.endTime}
+                          onDateTimeChange={(date, time) => {
+                            if (date) handleInputChange('endDate', date.toISOString().split('T')[0])
+                            if (time) handleInputChange('endTime', time)
+                          }}
+                        /> 
                       </div>
                       <div className="flex items-center">
                         <input
@@ -545,7 +536,7 @@ export const EventDetailsPage = () => {
 
                   {isEditing ? (
                     <Input
-                      label="Location"
+                      label="Locations"
                       value={editForm.location}
                       onChange={(e) => handleInputChange('location', e.target.value)}
                     />

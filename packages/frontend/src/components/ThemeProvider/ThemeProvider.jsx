@@ -11,22 +11,23 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') || 'light';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove('light', 'dark');
+    root.classList.add(theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const changeTheme = (newTheme) => {
     setTheme(newTheme);
-    document.documentElement.classList.remove('dark', 'light');
-    document.documentElement.classList.add(newTheme);
-    localStorage.setItem('theme', newTheme);
   };
-
-  useEffect(() => {
-    // Load theme from localStorage or use default
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    setTheme(savedTheme);
-    document.documentElement.classList.remove('dark', 'light');
-    document.documentElement.classList.add(savedTheme);
-  }, []);
 
   const value = {
     theme,

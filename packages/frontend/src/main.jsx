@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
+import 'react-day-picker/dist/style.css';
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { FilteredReadingPlan } from "@components/ReadingPlan/FilteredReadingPlan/FilteredReadingPlan";
 import { SongList } from "@components/Songs/SongList";

@@ -160,6 +160,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
           method: 'POST',
           body: JSON.stringify({ 
             action: 'update', 
+            
             event: updatedEvent,
             familyName: familyGroup?.family_last_name,
             origin: window.location.origin

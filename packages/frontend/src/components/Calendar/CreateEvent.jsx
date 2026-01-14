@@ -157,20 +157,35 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
 
       if (onEventCreate) {
         onEventCreate(updatedEvent)
-        // Send Telegram Alert
-        fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
-          method: 'POST',
-          body: JSON.stringify({ 
-            action: 'update', 
-            
-            event: {
-              ...updatedEvent,
-              event_type: eventTypes.find(type => type.id === updatedEvent.event_type)?.label || updatedEvent.event_type
-            },
-            familyName: familyGroup?.family_last_name || 'Family',
-            origin: window.location.origin
-          })
-        }).catch(err => console.error('Failed to send alert:', err))
+        // Send Telegram Alert only if fields changed
+        const hasChanges = 
+          updatedEvent.event_title !== editingEvent.event_title ||
+          updatedEvent.event_description !== (editingEvent.event_description || '') ||
+          updatedEvent.event_start !== editingEvent.event_start ||
+          updatedEvent.event_end !== editingEvent.event_end ||
+          updatedEvent.all_day !== editingEvent.all_day ||
+          (updatedEvent.location || '') !== (editingEvent.location || '') ||
+          updatedEvent.event_type !== editingEvent.event_type ||
+          (updatedEvent.food_theme || 'none') !== (editingEvent.food_theme || 'none') ||
+          (updatedEvent.max_capacity || '') !== (editingEvent.max_capacity || '')
+
+        if (hasChanges) {
+          fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
+            method: 'POST',
+            body: JSON.stringify({ 
+              action: 'update', 
+              
+              event: {
+                ...updatedEvent,
+                event_type: eventTypes.find(type => type.id === updatedEvent.event_type)?.label || updatedEvent.event_type
+              },
+              familyName: familyGroup?.family_last_name || 'Family',
+              origin: window.location.origin
+            })
+          }).catch(err => console.error('Failed to send alert:', err))
+        } else {
+          console.log('No changes detected in CreateEvent, skipping Telegram alert.')
+        }
       }
     } else {
       // Create mode - create new event

@@ -221,7 +221,7 @@ export const EventDetailsPage = () => {
           event: {
             ...updatedEventData,
             id: event.id,
-            event_type: editForm.eventTypeLabel || updatedEventData.event_type
+            event_type: eventTypes.find(type => type.id === editForm.eventType)?.label ||   updatedEventData.event_type
           },
           familyName: familyGroup?.family_last_name,
           origin: window.location.origin

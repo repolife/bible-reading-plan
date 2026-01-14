@@ -38,7 +38,8 @@ export const EventDetailsPage = () => {
     allDay: false,
     location: '',
     eventType: '',
-    food_theme: 'none'
+    food_theme: 'none',
+    max_capacity: ''
   })
 
   const { fetchEventTypes } = useFamilyCalendarStore()
@@ -88,7 +89,8 @@ export const EventDetailsPage = () => {
               eventTypeLabel: eventTypeLabel,
               family_id: foundEvent.family_id,
               createdBy: foundEvent.created_by,
-              food_theme: foundEvent.food_theme
+              food_theme: foundEvent.food_theme,
+              max_capacity: foundEvent.max_capacity
             }
 
             setEvent(transformedEvent)
@@ -105,7 +107,8 @@ export const EventDetailsPage = () => {
               location: transformedEvent.location || '',
               eventType: transformedEvent.eventType || '',
               food_theme: transformedEvent.food_theme || 'none',
-              eventTypeLabel: transformedEvent.eventTypeLabel || ''
+              eventTypeLabel: transformedEvent.eventTypeLabel || '',
+              max_capacity: transformedEvent.max_capacity || ''
             })
 
             // Fetch family group information
@@ -171,7 +174,8 @@ export const EventDetailsPage = () => {
         location: event.location || '',
         eventType: event.eventType || '',
         eventTypeLabel: event.eventTypeLabel || '',
-        food_theme: event.food_theme || 'none'
+        food_theme: event.food_theme || 'none',
+        max_capacity: event.max_capacity || ''
       })
     }
   }
@@ -193,6 +197,7 @@ export const EventDetailsPage = () => {
         location: editForm.location,
         event_type: editForm.eventType,
         food_theme: editForm.food_theme,
+        max_capacity: editForm.max_capacity || null,
       }
 
       const success = await updateEvent(event.id, updatedEventData)
@@ -209,7 +214,8 @@ export const EventDetailsPage = () => {
           location: editForm.location,
           eventType: editForm.eventType,
           food_theme: editForm.food_theme,
-          eventTypeLabel: editForm.eventTypeLabel
+          eventTypeLabel: editForm.eventTypeLabel,
+          max_capacity: editForm.max_capacity
         }))
 
         setIsEditing(false)
@@ -647,6 +653,28 @@ export const EventDetailsPage = () => {
                   ) : (
                     <Typography className="text-gray-900 dark:text-white text-lg">
                       {event.food_theme && event.food_theme !== 'none' ? event.food_theme : 'No specific food theme'}
+                    </Typography>
+                  )}
+                </CardBody>
+              </Card>
+
+              {/* Max Capacity */}
+              <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+                <CardBody className="p-6">
+                  <Typography variant="h5" className="flex items-center gap-2 text-gray-700 dark:text-gray-300 mb-3">
+                    <Group className="h-6 w-6 text-blue-600" /> Max Families/People
+                  </Typography>
+
+                  {isEditing ? (
+                    <Input
+                      label="Max Families/People"
+                      type="text"
+                      value={editForm.max_capacity}
+                      onChange={(e) => handleInputChange('max_capacity', e.target.value)}
+                    />
+                  ) : (
+                    <Typography className="text-gray-900 dark:text-white text-lg">
+                      {event.max_capacity || 'No limit'}
                     </Typography>
                   )}
                 </CardBody>

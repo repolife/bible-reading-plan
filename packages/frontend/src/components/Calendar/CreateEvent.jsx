@@ -23,7 +23,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
     allDay: false,
     location: '',
     eventType: '', // Will be set to first available event type UUID
-    food_theme: 'none' // Default food theme
+    food_theme: 'none', // Default food theme
+    max_capacity: ''
   })
 
   const env = import.meta.env;
@@ -67,7 +68,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         allDay: editingEvent.all_day || false,
         location: editingEvent.location || '',
         eventType: editingEvent.event_type || '',
-        food_theme: editingEvent.food_theme || 'none'
+        food_theme: editingEvent.food_theme || 'none',
+        max_capacity: editingEvent.max_capacity || ''
       })
     }
   }, [editingEvent, isEdit, eventTypes])
@@ -150,7 +152,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         all_day: eventData.allDay,
         location: eventData.location || familyGroup?.address || null,
         event_type: eventData.eventType,
-        food_theme: eventData.food_theme
+        food_theme: eventData.food_theme,
+        max_capacity: eventData.max_capacity || null
       }
 
       if (onEventCreate) {
@@ -180,7 +183,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         allDay: eventData.allDay,
         location: eventData.location || familyGroup?.address || null,
         eventType: eventData.eventType,
-        food_theme: eventData.food_theme
+        food_theme: eventData.food_theme,
+        max_capacity: eventData.max_capacity || null
       }
 
       if (onEventCreate) {
@@ -216,7 +220,8 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
       allDay: false,
       location: '',
       eventType: '', // Reset to empty string
-      food_theme: 'none' // Reset to default value
+      food_theme: 'none', // Reset to default value
+      max_capacity: ''
     })
 
     handleClose()
@@ -423,6 +428,19 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
               <div className="mt-1 text-xs text-white dark:text-neutral-400">
                 Optional: Specify the food theme for this event (default: none)
               </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
+                Max Families/People
+              </label>
+              <input
+                type="text"
+                value={eventData.max_capacity}
+                onChange={(e) => handleInputChange('max_capacity', e.target.value)}
+                className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
+                placeholder="e.g., 5 families or 10 people (leave empty for no limit)"
+              />
             </div>
 
             <div className="flex items-center">

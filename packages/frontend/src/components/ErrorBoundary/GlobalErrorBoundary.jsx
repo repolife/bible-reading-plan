@@ -1,16 +1,16 @@
 import React from "react";
 import { Typography, Button, Card } from "@material-tailwind/react";
-import * as Sentry from "@sentry/react";
+// import * as Sentry from "@sentry/react";
 
 class GlobalErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { 
-      hasError: false, 
-      error: null, 
+    this.state = {
+      hasError: false,
+      error: null,
       errorInfo: null,
       errorId: null,
-      errorBoundaryError: null 
+      errorBoundaryError: null
     };
   }
 
@@ -21,7 +21,9 @@ class GlobalErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     console.error("Global error caught:", error, errorInfo);
 
-    // Capture error with Sentry
+    // Capture error with Sentry (Disabled for debugging)
+    const errorId = null;
+    /*
     const errorId = Sentry.captureException(error, {
       contexts: {
         react: {
@@ -34,6 +36,7 @@ class GlobalErrorBoundary extends React.Component {
         timestamp: new Date().toISOString(),
       },
     });
+    */
 
     this.setState({
       error,
@@ -59,14 +62,14 @@ class GlobalErrorBoundary extends React.Component {
 
   handleRetry = () => {
     // Try to reset the error state
-    this.setState({ 
-      hasError: false, 
-      error: null, 
+    this.setState({
+      hasError: false,
+      error: null,
       errorInfo: null,
       errorId: null,
       errorBoundaryError: null
     });
-    
+
     // Force a page reload as a fallback
     window.location.reload();
   };
@@ -137,22 +140,22 @@ class GlobalErrorBoundary extends React.Component {
 
             <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-700 rounded-lg p-4 mb-6">
               <Typography variant="small" color="yellow-800 dark:text-yellow-200">
-                <strong>What happened?</strong> This error occurred in the application's core functionality. 
+                <strong>What happened?</strong> This error occurred in the application's core functionality.
                 It may be related to a recent update or an unexpected data format.
               </Typography>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center mb-6">
-              <Button 
-                color="blue" 
+              <Button
+                color="blue"
                 onClick={this.handleRetry}
                 size="lg"
                 className="flex-1 sm:flex-none"
               >
                 🔄 Reload Application
               </Button>
-              <Button 
-                color="gray" 
+              <Button
+                color="gray"
                 onClick={this.handleGoHome}
                 variant="outlined"
                 size="lg"
@@ -161,8 +164,8 @@ class GlobalErrorBoundary extends React.Component {
                 🏠 Go Home
               </Button>
               {this.state.errorId && (
-                <Button 
-                  color="amber" 
+                <Button
+                  color="amber"
                   onClick={this.handleReportError}
                   variant="outlined"
                   size="lg"
@@ -185,7 +188,7 @@ class GlobalErrorBoundary extends React.Component {
                   <li>• Try a different browser</li>
                 </ul>
               </div>
-              
+
               <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
                 <Typography variant="h6" color="primary" className="mb-2">
                   If Problem Persists

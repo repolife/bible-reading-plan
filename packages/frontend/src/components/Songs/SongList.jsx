@@ -2,22 +2,23 @@ import { useState, useEffect } from "react";
 import { createClient } from "contentful";
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
-import {ScrollToTop} from "@components/Shared/ScrollToTop";
+import { ScrollToTop } from "@components/Shared/ScrollToTop";
 import { Typography } from "@material-tailwind/react";
 import { Spinner } from "@components/Shared/Spinner/Spinner";
 
 const env = import.meta.env;
 
-// Use VITE_ACCESS_TOKEN if available, otherwise fall back to VITE_CONTENT_ID
-const accessToken = env.VITE_ACCESS_TOKEN || env.VITE_CONTENT_ID;
+// Use VITE_CONTENT_ID as the primary access token, fallback to VITE_ACCESS_TOKEN
+const accessToken = env.VITE_CONTENT_ID || env.VITE_ACCESS_TOKEN;
 
 if (!accessToken) {
-  console.error('Contentful access token is missing. Please set VITE_ACCESS_TOKEN or VITE_CONTENT_ID in your .env file');
+  console.error('Contentful access token is missing. Please set VITE_CONTENT_ID or VITE_ACCESS_TOKEN in your .env file');
 }
 
 const client = createClient({
   space: env.VITE_SPACE_ID,
-  accessToken: accessToken || '', // Provide empty string as fallback to prevent crash
+  accessToken: accessToken || '',
+  environment: "master",
 });
 
 export const SongList = () => {
@@ -56,16 +57,18 @@ export const SongList = () => {
   const filteredSongs = useMemo(() => {
     if (!songs) return [];
     if (songs.length <= 0) return [];
-    if (inputValue === "") songs;
+    if (inputValue === "") return songs;
 
     const meh = songs
       .filter((item) =>
         item.title.toLowerCase().includes(inputValue.toLowerCase())
       )
-      .sort((item) => item.isShabbat)
-      .sort(
-        (a, b) => b.isShabbat - a.isShabbat || a.title.localeCompare(b.title)
-      );
+      .sort((a, b) => {
+        if (a.isShabbat !== b.isShabbat) {
+          return b.isShabbat ? 1 : -1;
+        }
+        return a.title.localeCompare(b.title);
+      });
 
     return meh;
   }, [songs, inputValue, setSongs]);

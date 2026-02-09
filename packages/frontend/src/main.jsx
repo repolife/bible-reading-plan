@@ -16,25 +16,22 @@ import { ProtectedRoute } from "@components/ProtectedRoute/ProtectedRoute";
 import { Nav } from "@components/Shared/Nav/Nav";
 import { useAuthStore } from "@store/useAuthStore";
 import { Outlet } from "react-router-dom";
-import {Layout} from "shared/Layout/Layout";
+import { Layout } from "shared/Layout/Layout";
 import { Login } from "@components/auth/Login";
 import { ToastContainer } from "react-toastify";
-import * as Sentry from "@sentry/react";
+// import * as Sentry from "@sentry/react";
 import { Signup } from "@components/auth/Signup";
 import { StepForm } from "@components/Form/StepForm";
 import { Account } from "@components/Account/Account";
 import { ThemeProvider } from "@components/ThemeProvider/ThemeProvider";
-import  GlobalErrorBoundary  from "@components/ErrorBoundary/GlobalErrorBoundary";
+import GlobalErrorBoundary from "@components/ErrorBoundary/GlobalErrorBoundary";
 import { TestErrorBoundary } from "@components/ErrorBoundary/TestErrorBoundary";
 import "@/utils/pwa"; // Initialize PWA functionality
 
 
 const env = import.meta.env;
 
-Sentry.init({
-  dsn: env.VITE_SENTRY_AUTH_TOKEN,
-  sendDefaultPii: true,
-});
+// Sentry initialization removed for debugging
 
 const RootLayout = () => {
   const { isAuthenticated } = useAuthStore();
@@ -132,12 +129,10 @@ const queryClient = new QueryClient();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <GlobalErrorBoundary>
-          <RouterProvider router={router} />
-        </GlobalErrorBoundary>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <GlobalErrorBoundary>
+        <RouterProvider router={router} />
+      </GlobalErrorBoundary>
+    </QueryClientProvider>
   </React.StrictMode>
 );

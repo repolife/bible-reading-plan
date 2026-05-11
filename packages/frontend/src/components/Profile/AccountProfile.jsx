@@ -15,6 +15,22 @@ import { toast } from "react-toastify";
 import { useProfileStore } from "../../store/useProfileStore";
 import { Spinner } from "../Shared/Spinner/Spinner";
 
+const SERVANT_ROLES = [
+  'Schedule Coordination',
+  'Adult Teaching',
+  'Kid Ministry',
+  "Women's Events",
+  "Men's Events",
+  'New Member Care',
+  'Encouragement',
+  'Needs',
+  'Prayer',
+  'Discipleship',
+  'Outreach',
+  'Planning / Coordination',
+  'Evangelism',
+]
+
 export const AccountProfile = ({ setIsStepValid }) => {
   // Get user, profile (existing data), loading state, and allProfiles for suggestions
   const { user, loading: authLoading } = useAuthStore();
@@ -24,6 +40,8 @@ export const AccountProfile = ({ setIsStepValid }) => {
     allProfiles,
     fetchAndSetUserProfile,
   } = useProfileStore();
+
+  const [servantRoles, setServantRoles] = useState([]);
 
   console.log("existingProfile", existingProfile);
 
@@ -51,7 +69,6 @@ export const AccountProfile = ({ setIsStepValid }) => {
   // Effect to pre-fill the form with existing profile data
   useEffect(() => {
     if (existingProfile) {
-      // Format birthday for input type="date" (YYYY-MM-DD)
       const formattedBirthday = existingProfile.birthday
         ? existingProfile.birthday.split("T")[0]
         : "";
@@ -60,8 +77,9 @@ export const AccountProfile = ({ setIsStepValid }) => {
         name: existingProfile.name || "",
         email_alerts: existingProfile.email_alerts,
       });
+      setServantRoles(existingProfile.servant_roles || []);
     }
-  }, [existingProfile, reset]); // Reset form when existingProfile changes
+  }, [existingProfile, reset]);
 
   useEffect(() => {
     if (setIsStepValid) {
@@ -117,11 +135,11 @@ export const AccountProfile = ({ setIsStepValid }) => {
     }
 
     const profileData = {
-      id: user.id, // Link profile to Supabase auth user ID
-
-      birthday: data.birthday, // YYYY-MM-DD string
+      id: user.id,
+      birthday: data.birthday,
       name: data.name,
       email_alerts: data.email_alerts,
+      servant_roles: servantRoles,
     };
 
     try {
@@ -266,11 +284,32 @@ export const AccountProfile = ({ setIsStepValid }) => {
                 {errors.birthday.message}
               </Typography>
             )}
+
+            <Typography variant="h6" color="primary" className="-mb-3">
+              Servant Roles
+            </Typography>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {SERVANT_ROLES.map((role) => (
+                <label key={role} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={servantRoles.includes(role)}
+                    onChange={() =>
+                      setServantRoles((prev) =>
+                        prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+                      )
+                    }
+                    className="w-4 h-4 rounded border-neutral-300 text-[#0e9496] focus:ring-[#0e9496]"
+                  />
+                  <span className="text-sm text-neutral-800 dark:text-neutral-200">{role}</span>
+                </label>
+              ))}
+            </div>
           </div>
           <Button
             className="mt-6 w-full bg-primary hover:bg-brand-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             type="submit"
-            disabled={isSubmitting || !isDirty}
+            disabled={isSubmitting}
           >
             {isSubmitting ? "Saving..." : "Update Profile"}
           </Button>

@@ -8,6 +8,11 @@ import Autocomplete from "react-google-autocomplete"
 
 const env = import.meta.env;
 
+const toLocalDateString = (d) => {
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}
+
 export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editingEvent, isEdit = false }) => {
   const { profile } = useProfileStore()
   const { familyGroup, fetchFamilyGroup } = useFamilyStore()
@@ -60,9 +65,9 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
       setEventData({
         title: editingEvent.event_title,
         description: editingEvent.event_description || '',
-        startDate: startDate.toISOString().split('T')[0],
+        startDate: toLocalDateString(startDate),
         startTime: startDate.toTimeString().slice(0, 5),
-        endDate: endDate.toISOString().split('T')[0],
+        endDate: toLocalDateString(endDate),
         endTime: endDate.toTimeString().slice(0, 5),
         allDay: editingEvent.all_day || false,
         location: editingEvent.location || '',
@@ -77,7 +82,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
   useEffect(() => {
     if (selectedSlot && isOpen) {
       const { date, time } = selectedSlot
-      const formattedDate = date.toISOString().split('T')[0] // YYYY-MM-DD
+      const formattedDate = toLocalDateString(date)
 
       // Create a proper end time (1 hour after start time)
       const startTime = time

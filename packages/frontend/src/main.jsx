@@ -14,6 +14,7 @@ import { Calendar } from "@components/Calendar/Calendar";
 import { EventDetailsPage } from "@components/Calendar/EventDetailsPage";
 import { ProtectedRoute } from "@components/ProtectedRoute/ProtectedRoute";
 import { Nav } from "@components/Shared/Nav/Nav";
+import { BottomTabBar } from "@components/Shared/Nav/BottomTabBar";
 import { useAuthStore } from "@store/useAuthStore";
 import { Outlet } from "react-router-dom";
 import { Layout } from "shared/Layout/Layout";
@@ -44,8 +45,11 @@ const RootLayout = () => {
   return (
     <Layout>
       <Nav />
-      <ToastContainer />
-      <Outlet />
+      <ToastContainer position="top-center" />
+      <div className="flex-1 overflow-y-auto pb-16">
+        <Outlet />
+      </div>
+      <BottomTabBar />
     </Layout>
   );
 };

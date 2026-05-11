@@ -1,79 +1,49 @@
 import { useMemo } from "react";
 import youVersion from "data/youversion.json";
-import { Button } from "@material-tailwind/react";
 
-// ReadingItem component
 export const ReadingItem = ({ passage }) => {
-  //  let parsedBook = passage.split(" ")[0];
-  //let chapter = passage.split(" ")[1];
-
   const preparedPassage = useMemo(() => {
     const words = passage.split(" ");
     const firstWord = words[0];
-    let parsedBook = null;
-    let chapter = null;
-    let filteredBook = null;
+    let parsedBook, chapter, filteredBook;
 
     if (isNaN(Number(firstWord))) {
       parsedBook = firstWord;
       chapter = words.pop();
-      filteredBook = youVersion.filter((book) => book.name === parsedBook);
-
-      return {
-        parsedBook,
-        filteredBook,
-        chapter,
-      };
-    }
-
-    if (!isNaN(Number(firstWord))) {
+      filteredBook = youVersion.filter((b) => b.name === parsedBook);
+    } else {
       parsedBook = `${firstWord} ${words[1]}`;
       chapter = words.pop();
-      filteredBook = youVersion.filter((book) => book.name === parsedBook);
-
-      console.log(passage, `chapter: ${chapter}`);
-      return {
-        parsedBook,
-        chapter,
-        filteredBook,
-      };
+      filteredBook = youVersion.filter((b) => b.name === parsedBook);
     }
 
-    return null;
+    return { parsedBook, filteredBook, chapter };
   }, [passage]);
 
-  let audioBible = preparedPassage
-    ? `https://www.bible.com/bible/111/${preparedPassage.filteredBook[0].code}.${preparedPassage.chapter}`
-    : null;
+  if (!preparedPassage?.filteredBook?.[0]) return <p className="text-sm text-[#3d6e70]">{passage}</p>;
 
-  const blueLetter = `https://www.blueletterbible.org/esv/${preparedPassage.filteredBook[0].code}/${preparedPassage.chapter}`;
-  if (!preparedPassage) {
-    return <h2>{passage}</h2>;
-  }
+  const { filteredBook, chapter } = preparedPassage;
+  const audioBible = `https://www.bible.com/bible/111/${filteredBook[0].code}.${chapter}`;
+  const blueLetter = `https://www.blueletterbible.org/esv/${filteredBook[0].code}/${chapter}`;
+
   return (
-    <div
-    className="flex flex-row content-center w-full lg:w-1/2 m-auto items-center gap-2"
-      
-    >
-      <Button
-        as="a"
+    <div className="flex gap-2 items-center">
+      <a
         href={blueLetter}
         target="_blank"
         rel="noopener noreferrer"
-        className="link link-primary-light visited:link-light m-1 p-1 flex-1 h-12 flex items-center justify-center"
+        className="flex-1 flex items-center justify-center bg-[#e7f4f5] border border-[#9fd4d5] text-[#0b7678] text-sm font-medium rounded-xl py-2.5 px-3 no-underline"
       >
         {passage}
-      </Button>
-      <Button
-        as="a"
+      </a>
+      <a
         href={audioBible}
         target="_blank"
         rel="noopener noreferrer"
-        className="link link-primary-light visited:link-success m-1 p-1 flex-1 h-12 flex items-center justify-center"
+        className="flex items-center justify-center bg-[#0e9496] text-white text-xs font-semibold rounded-xl py-2.5 px-3 no-underline w-20"
       >
         Mobile
-      </Button>
+      </a>
     </div>
   );
 };
-

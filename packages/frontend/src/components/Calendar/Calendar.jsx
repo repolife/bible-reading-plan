@@ -297,13 +297,13 @@ export const Calendar = () => {
   )
 
   return (
-    <>
+    <div className="px-4 py-4">
       {error && (
-        <div className="p-4">
+        <div className="mb-4">
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
             <strong className="font-bold">Error:</strong>
             <span className="block sm:inline"> {error}</span>
-            <button 
+            <button
               onClick={clearError}
               className="ml-2 text-red-700 hover:text-red-900 underline"
             >
@@ -430,6 +430,6 @@ export const Calendar = () => {
           onDelete={handleDeleteFromDetails}
         />
       )}
-    </>
+    </div>
   )
 }

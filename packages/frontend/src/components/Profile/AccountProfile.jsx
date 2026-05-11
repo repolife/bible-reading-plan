@@ -29,6 +29,9 @@ const SERVANT_ROLES = [
   'Outreach',
   'Planning / Coordination',
   'Evangelism',
+  'Worship',
+  'Feasts',
+  'Planning & Implementation',
 ]
 
 export const AccountProfile = ({ setIsStepValid }) => {

@@ -178,7 +178,7 @@ export const AccountProfile = ({ setIsStepValid }) => {
       birthday: data.birthday,
       name: data.name,
       email_alerts: data.email_alerts,
-      servant_roles: servantRoles,
+      ...(existingProfile?.is_admin && { servant_roles: servantRoles }),
     };
 
     try {
@@ -366,23 +366,38 @@ export const AccountProfile = ({ setIsStepValid }) => {
             <Typography variant="h6" color="primary" className="-mb-3">
               Servant Roles
             </Typography>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {SERVANT_ROLES.map((role) => (
-                <label key={role} className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={servantRoles.includes(role)}
-                    onChange={() =>
-                      setServantRoles((prev) =>
-                        prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
-                      )
-                    }
-                    className="w-4 h-4 rounded border-neutral-300 text-[#0e9496] focus:ring-[#0e9496]"
-                  />
-                  <span className="text-sm text-neutral-800 dark:text-neutral-200">{role}</span>
-                </label>
-              ))}
-            </div>
+            {existingProfile?.is_admin ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {SERVANT_ROLES.map((role) => (
+                  <label key={role} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={servantRoles.includes(role)}
+                      onChange={() =>
+                        setServantRoles((prev) =>
+                          prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+                        )
+                      }
+                      className="w-4 h-4 rounded border-neutral-300 text-[#0e9496] focus:ring-[#0e9496]"
+                    />
+                    <span className="text-sm text-neutral-800 dark:text-neutral-200">{role}</span>
+                  </label>
+                ))}
+              </div>
+            ) : servantRoles.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {servantRoles.map((role) => (
+                  <span
+                    key={role}
+                    className="text-xs bg-[#e0f5f5] text-[#0e9496] dark:bg-[#0e9496]/20 dark:text-[#5ecfcf] px-2 py-1 rounded-full"
+                  >
+                    {role}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">No roles assigned</p>
+            )}
           </div>
           <Button
             className="mt-6 w-full bg-primary hover:bg-brand-600 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"

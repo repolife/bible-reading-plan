@@ -1,16 +1,45 @@
 import { useEffect, useState } from 'react'
 import { useProfileStore } from '@store/useProfileStore'
+import { useAuthStore } from '@store/useAuthStore'
 import { Typography } from '@material-tailwind/react'
+import { toast } from 'react-toastify'
+
+const SERVANT_ROLES = [
+  'Schedule Coordination',
+  'Adult Teaching',
+  'Kid Ministry',
+  "Women's Events",
+  "Men's Events",
+  'New Member Care',
+  'Encouragement',
+  'Needs',
+  'Prayer',
+  'Discipleship',
+  'Outreach',
+  'Planning / Coordination',
+  'Evangelism',
+  'Worship',
+  'Feasts',
+  'Planning & Implementation',
+]
 
 export const Directory = () => {
-  const { profiles, fetchAllUserProfiles, loading } = useProfileStore()
+  const { profiles, fetchAllUserProfiles, loading, updateMemberServantRoles, updateMemberDirectoryVisibility } = useProfileStore()
+  const { user } = useAuthStore()
   const [search, setSearch] = useState('')
+  const [editingMember, setEditingMember] = useState(null)
+  const [editRoles, setEditRoles] = useState([])
+  const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     fetchAllUserProfiles()
   }, [fetchAllUserProfiles])
 
+  const currentProfile = (profiles || []).find((p) => p.id === user?.id)
+  const isAdmin = currentProfile?.is_admin === true
+
   const filtered = (profiles || []).filter((p) => {
+    if (!isAdmin && p.hidden_from_directory) return false
     if (!search) return true
     const term = search.toLowerCase()
     return (
@@ -18,6 +47,38 @@ export const Directory = () => {
       p.servant_roles?.some((r) => r.toLowerCase().includes(term))
     )
   })
+
+  const openEdit = (member) => {
+    setEditingMember(member)
+    setEditRoles(member.servant_roles || [])
+  }
+
+  const closeEdit = () => {
+    setEditingMember(null)
+    setEditRoles([])
+  }
+
+  const saveRoles = async () => {
+    setSaving(true)
+    try {
+      await updateMemberServantRoles(editingMember.id, editRoles)
+      toast.success('Roles updated')
+      closeEdit()
+    } catch (e) {
+      toast.error(e.message || 'Failed to update roles')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const toggleHide = async (member) => {
+    try {
+      await updateMemberDirectoryVisibility(member.id, !member.hidden_from_directory)
+      toast.success(member.hidden_from_directory ? 'Member visible in directory' : 'Member hidden from directory')
+    } catch (e) {
+      toast.error(e.message || 'Failed to update visibility')
+    }
+  }
 
   return (
     <div className="px-4 py-4">
@@ -44,7 +105,11 @@ export const Directory = () => {
           {filtered.map((member) => (
             <div
               key={member.id}
-              className="flex items-center gap-4 p-4 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl"
+              className={`flex items-center gap-4 p-4 bg-white dark:bg-neutral-800 border rounded-xl ${
+                member.hidden_from_directory
+                  ? 'border-amber-300 dark:border-amber-600 opacity-60'
+                  : 'border-gray-200 dark:border-neutral-700'
+              }`}
             >
               {/* Avatar */}
               <div className="w-14 h-14 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-700 shrink-0 border-2 border-[#0e9496]">
@@ -56,10 +121,17 @@ export const Directory = () => {
               </div>
 
               {/* Info */}
-              <div className="min-w-0">
-                <p className="font-semibold text-gray-900 dark:text-white truncate">
-                  {member.name || 'Unnamed Member'}
-                </p>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-gray-900 dark:text-white truncate">
+                    {member.name || 'Unnamed Member'}
+                  </p>
+                  {isAdmin && member.hidden_from_directory && (
+                    <span className="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-1.5 py-0.5 rounded">
+                      hidden
+                    </span>
+                  )}
+                </div>
                 {member.servant_roles?.length > 0 ? (
                   <div className="flex flex-wrap gap-1 mt-1">
                     {member.servant_roles.map((role) => (
@@ -75,8 +147,89 @@ export const Directory = () => {
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">No roles assigned</p>
                 )}
               </div>
+
+              {/* Admin controls */}
+              {isAdmin && (
+                <div className="flex flex-col gap-1 shrink-0">
+                  <button
+                    onClick={() => openEdit(member)}
+                    title="Edit roles"
+                    className="p-1.5 rounded-lg text-gray-500 hover:text-[#0e9496] hover:bg-[#e0f5f5] dark:hover:bg-[#0e9496]/20 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => toggleHide(member)}
+                    title={member.hidden_from_directory ? 'Show in directory' : 'Hide from directory'}
+                    className={`p-1.5 rounded-lg transition-colors ${
+                      member.hidden_from_directory
+                        ? 'text-amber-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+                        : 'text-gray-500 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20'
+                    }`}
+                  >
+                    {member.hidden_from_directory ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3.707 2.293a1 1 0 00-1.414 1.414l14 14a1 1 0 001.414-1.414l-1.473-1.473A10.014 10.014 0 0019.542 10C18.268 5.943 14.478 3 10 3a9.958 9.958 0 00-4.512 1.074l-1.78-1.781zm4.261 4.26l1.514 1.515a2.003 2.003 0 012.45 2.45l1.514 1.514a4 4 0 00-5.478-5.478z" clipRule="evenodd" />
+                        <path d="M12.454 16.697L9.75 13.992a4 4 0 01-3.742-3.741L2.335 6.578A9.98 9.98 0 00.458 10c1.274 4.057 5.064 7 9.542 7 .847 0 1.669-.105 2.454-.303z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Admin role edit modal */}
+      {editingMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={closeEdit}>
+          <div
+            className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-sm p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Edit Roles</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{editingMember.name}</p>
+            <div className="grid grid-cols-1 gap-2 max-h-72 overflow-y-auto pr-1 mb-5">
+              {SERVANT_ROLES.map((role) => (
+                <label key={role} className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editRoles.includes(role)}
+                    onChange={() =>
+                      setEditRoles((prev) =>
+                        prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+                      )
+                    }
+                    className="w-4 h-4 rounded border-neutral-300 text-[#0e9496] focus:ring-[#0e9496]"
+                  />
+                  <span className="text-sm text-neutral-800 dark:text-neutral-200">{role}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={closeEdit}
+                className="flex-1 py-2 rounded-lg border border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={saveRoles}
+                disabled={saving}
+                className="flex-1 py-2 rounded-lg bg-[#0e9496] text-white text-sm font-medium hover:bg-[#0c7c7e] transition-colors disabled:opacity-50"
+              >
+                {saving ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

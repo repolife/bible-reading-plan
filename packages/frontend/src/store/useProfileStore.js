@@ -24,6 +24,32 @@ export const useProfileStore = create((set, get) => ({
     set({ profiles, loading: false });
   },
 
+  updateMemberServantRoles: async (userId, roles) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ servant_roles: roles })
+      .eq('id', userId)
+    if (error) throw error
+    set((state) => ({
+      profiles: state.profiles.map((p) =>
+        p.id === userId ? { ...p, servant_roles: roles } : p
+      ),
+    }))
+  },
+
+  updateMemberDirectoryVisibility: async (userId, hidden) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ hidden_from_directory: hidden })
+      .eq('id', userId)
+    if (error) throw error
+    set((state) => ({
+      profiles: state.profiles.map((p) =>
+        p.id === userId ? { ...p, hidden_from_directory: hidden } : p
+      ),
+    }))
+  },
+
   fetchAndSetUserProfile: async (userId) => {
     set({ loading: true });
 

@@ -12,6 +12,7 @@ import { Bible } from "@components/Bible/Bible";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Calendar } from "@components/Calendar/Calendar";
 import { EventDetailsPage } from "@components/Calendar/EventDetailsPage";
+import { Directory } from "@components/Directory/Directory";
 import { ProtectedRoute } from "@components/ProtectedRoute/ProtectedRoute";
 import { Nav } from "@components/Shared/Nav/Nav";
 import { BottomTabBar } from "@components/Shared/Nav/BottomTabBar";
@@ -100,6 +101,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Calendar />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "directory",
+        element: (
+          <ProtectedRoute>
+            <Directory />
           </ProtectedRoute>
         ),
       },

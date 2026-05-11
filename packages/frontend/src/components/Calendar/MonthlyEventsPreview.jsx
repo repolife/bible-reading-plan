@@ -88,35 +88,23 @@ export const MonthlyEventsPreview = () => {
     navigate('/calendar')
   }
 
-  // Get current month events (limited to 4) - only future events
-  const currentMonthEvents = useMemo(() => {
+  // Get upcoming events in the next 30 days (limited to 4)
+  const upcomingEvents = useMemo(() => {
     if (!allEvents || allEvents.length === 0) return []
 
     const now = new Date()
-    const currentMonth = now.getMonth()
-    const currentYear = now.getFullYear()
+    const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
 
     return allEvents
       .filter(event => {
         const eventDate = new Date(event.event_start)
-        const eventEndDate = event.all_day ? new Date(event.event_end) : new Date(event.event_start)
-        
-        // Check if event is in current month/year AND hasn't ended yet
-        return eventDate.getMonth() === currentMonth && 
-               eventDate.getFullYear() === currentYear &&
-               eventEndDate > now
+        return eventDate >= now && eventDate <= thirtyDaysFromNow
       })
       .sort((a, b) => new Date(a.event_start) - new Date(b.event_start))
       .slice(0, 4)
       .map(event => {
-        // Find the event type label
         const eventType = eventTypes.find(type => type.id === event.event_type)
-        const eventTypeLabel = eventType ? eventType.label : 'Unknown Type'
-        
-        return {
-          ...event,
-          eventTypeLabel
-        }
+        return { ...event, eventTypeLabel: eventType ? eventType.label : 'Unknown Type' }
       })
   }, [allEvents, eventTypes])
 
@@ -157,13 +145,13 @@ export const MonthlyEventsPreview = () => {
   }
 
   // If no events this month
-  if (currentMonthEvents.length === 0) {
+  if (upcomingEvents.length === 0) {
     return (
       <Card className="mb-6">
         <CardBody className="p-6">
           <div className="flex items-center justify-between mb-4">
             <Typography variant="h5" className="text-gray-900 dark:text-white font-semibold">
-              This Month's Community Events
+              Upcoming Community Events
             </Typography>
             <Button
               className=" hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -175,7 +163,7 @@ export const MonthlyEventsPreview = () => {
           <div className="text-center py-8 text-gray-500 dark:text-gray-400">
             <CalendarIcon className="h-12 w-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
             <Typography variant="h6" className="text-gray-500 dark:text-gray-400 mb-2">
-              No events scheduled this month
+              No events in the next 30 days
             </Typography>
             <Typography className="text-gray-400 dark:text-gray-500">
               Create your first event to get started!
@@ -209,13 +197,13 @@ export const MonthlyEventsPreview = () => {
       <CardBody className="p-6">
         <div className="flex items-center justify-between mb-6">
           <Typography variant="h5" className="text-gray-900 dark:text-white font-semibold">
-            This Month's Community Events
+            Upcoming Community Events
           </Typography>
     
         </div>
 
         <div className="space-y-4">
-          {currentMonthEvents.map((event, index) => (
+          {upcomingEvents.map((event, index) => (
             <div
               key={event.id}
               className="flex flex-col sm:flex-row sm:items-start space-y-3 sm:space-y-0 sm:space-x-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer"

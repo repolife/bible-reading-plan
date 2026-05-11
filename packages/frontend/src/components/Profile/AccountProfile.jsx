@@ -45,6 +45,10 @@ export const AccountProfile = ({ setIsStepValid }) => {
   } = useProfileStore();
 
   const [servantRoles, setServantRoles] = useState([]);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const avatarInputRef = useRef(null);
 
   console.log("existingProfile", existingProfile);
 
@@ -81,8 +85,40 @@ export const AccountProfile = ({ setIsStepValid }) => {
         email_alerts: existingProfile.email_alerts,
       });
       setServantRoles(existingProfile.servant_roles || []);
+      setAvatarUrl(existingProfile.avatar_url || null);
     }
   }, [existingProfile, reset]);
+
+  const handleAvatarChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !user?.id) return;
+
+    setAvatarPreview(URL.createObjectURL(file));
+    setAvatarUploading(true);
+
+    const ext = file.name.split('.').pop();
+    const path = `${user.id}/avatar.${ext}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(path, file, { upsert: true });
+
+    if (uploadError) {
+      toast.error('Failed to upload photo: ' + uploadError.message);
+      setAvatarPreview(null);
+      setAvatarUploading(false);
+      return;
+    }
+
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+    const url = `${data.publicUrl}?t=${Date.now()}`;
+
+    await supabase.from('profiles').update({ avatar_url: url }).eq('id', user.id);
+    setAvatarUrl(url);
+    setAvatarUploading(false);
+    toast.success('Photo updated!');
+    useProfileStore.getState().fetchAndSetUserProfile(user.id);
+  };
 
   useEffect(() => {
     if (setIsStepValid) {
@@ -210,6 +246,45 @@ export const AccountProfile = ({ setIsStepValid }) => {
       <Typography color="primary" className="mt-1 font-normal">
         Update your details below.
       </Typography>
+      {/* Avatar */}
+      <div className="flex flex-col items-center gap-3 mt-6">
+        <div
+          className="relative w-24 h-24 rounded-full overflow-hidden bg-neutral-200 dark:bg-neutral-700 cursor-pointer border-2 border-[#0e9496]"
+          onClick={() => avatarInputRef.current?.click()}
+        >
+          {(avatarPreview || avatarUrl) ? (
+            <img
+              src={avatarPreview || avatarUrl}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-neutral-400 text-3xl">
+              👤
+            </div>
+          )}
+          {avatarUploading && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            </div>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={() => avatarInputRef.current?.click()}
+          className="text-sm text-[#0e9496] hover:underline"
+        >
+          {avatarUrl ? 'Change photo' : 'Upload photo'}
+        </button>
+        <input
+          ref={avatarInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleAvatarChange}
+        />
+      </div>
+
       <form className="mt-8 mb-2 w-full" onSubmit={handleSubmit(onSubmit)}>
           <div className="mb-1 flex flex-col gap-6">
             <Typography variant="h6" color="primary" className="-mb-3">

@@ -120,7 +120,7 @@ export const FamilyAllergiesTable = () => {
         </div>
 
         {/* Summary Statistics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
             <CardBody className="p-4">
               <Typography variant="h6" className="text-blue-800 dark:text-blue-200 mb-1">
@@ -155,28 +155,59 @@ export const FamilyAllergiesTable = () => {
           </Card>
         </div>
 
-        {/* Allergies Table */}
-        <div className="overflow-x-auto">
+        {/* Mobile cards */}
+        <div className="sm:hidden space-y-3">
+          {filteredFamilies.length === 0 ? (
+            <p className="py-8 text-center text-gray-500 dark:text-gray-400">
+              No families found matching your search criteria
+            </p>
+          ) : (
+            filteredFamilies.map((family) => (
+              <div key={family.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2">
+                <Typography className="font-semibold text-gray-900 dark:text-white">
+                  {family.family_last_name ? `The ${family.family_last_name} Family` : 'Unnamed Family'}
+                </Typography>
+                {family.family_first_name && (
+                  <Typography variant="small" className="text-gray-600 dark:text-gray-400">
+                    {family.family_first_name}
+                  </Typography>
+                )}
+                <div>
+                  {hasAllergies(family.food_allergies) ? (
+                    <Typography variant="small" className="text-gray-900 dark:text-white">
+                      <span className="font-medium">Allergies: </span>{family.food_allergies}
+                    </Typography>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <CheckCircleIcon className="h-4 w-4 text-green-500 shrink-0" />
+                      <Typography variant="small" className="text-green-600 dark:text-green-400">No allergies</Typography>
+                    </div>
+                  )}
+                </div>
+                <Typography variant="small" className="text-gray-500 dark:text-gray-400">
+                  Updated: {family.last_modified
+                    ? new Date(family.last_modified).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                    : 'Unknown'}
+                </Typography>
+              </div>
+            ))
+          )}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="min-w-full">
             <thead>
               <tr className="bg-gray-50 dark:bg-gray-800">
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 dark:text-white uppercase tracking-wider">
-                  Family Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 dark:text-white uppercase tracking-wider">
-                  Allergies
-                </th>
-               
-              
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 dark:text-white uppercase tracking-wider">
-                  Last Updated
-                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 dark:text-white uppercase tracking-wider">Family Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 dark:text-white uppercase tracking-wider">Allergies</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-900 dark:text-white uppercase tracking-wider">Last Updated</th>
               </tr>
             </thead>
             <tbody>
               {filteredFamilies.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                  <td colSpan={3} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                     No families found matching your search criteria
                   </td>
                 </tr>
@@ -184,49 +215,30 @@ export const FamilyAllergiesTable = () => {
                 filteredFamilies.map((family) => (
                   <tr key={family.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div>
-                        <Typography className="font-semibold text-gray-900 dark:text-white">
-                          {family.family_last_name ? `The ${family.family_last_name} Family` : 'Unnamed Family'}
+                      <Typography className="font-semibold text-gray-900 dark:text-white">
+                        {family.family_last_name ? `The ${family.family_last_name} Family` : 'Unnamed Family'}
+                      </Typography>
+                      {family.family_first_name && (
+                        <Typography variant="small" className="text-gray-600 dark:text-gray-400">
+                          {family.family_first_name}
                         </Typography>
-                        {family.family_first_name && (
-                          <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                            {family.family_first_name}
-                          </Typography>
-                        )}
-                      </div>
+                      )}
                     </td>
-                    
                     <td className="px-6 py-4">
                       {hasAllergies(family.food_allergies) ? (
-                        <div className="max-w-xs">
-                          <Typography className="text-gray-900 dark:text-white">
-                            {family.food_allergies}
-                          </Typography>
-                        </div>
+                        <Typography className="text-gray-900 dark:text-white">{family.food_allergies}</Typography>
                       ) : (
                         <div className="flex items-center gap-2">
                           <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                          <Typography className="text-green-600 dark:text-green-400">
-                            No allergies
-                          </Typography>
+                          <Typography className="text-green-600 dark:text-green-400">No allergies</Typography>
                         </div>
                       )}
                     </td>
-                    
-                 
-                    
-                   
-                    
                     <td className="px-6 py-4 whitespace-nowrap">
                       <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                        {family.last_modified ? 
-                          new Date(family.last_modified).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          }) : 
-                          'Unknown'
-                        }
+                        {family.last_modified
+                          ? new Date(family.last_modified).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+                          : 'Unknown'}
                       </Typography>
                     </td>
                   </tr>

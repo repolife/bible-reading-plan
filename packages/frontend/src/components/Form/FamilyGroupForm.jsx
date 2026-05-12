@@ -270,12 +270,26 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
       return;
     }
 
+    // Block duplicate: same last name + same address (different household)
+    const normalize = (s) => (s || "").trim().toLowerCase();
+    const duplicate = (allFamilyGroups || []).find(
+      (g) =>
+        g.id !== familyGroup?.id &&
+        normalize(g.family_last_name) === normalize(data.family_last_name) &&
+        normalize(g.address) === normalize(data.address)
+    );
+    if (duplicate) {
+      toast.error(
+        `A "${data.family_last_name}" family at this address already exists. Search for it above and join instead.`
+      );
+      return;
+    }
+
     const familyData = {
       family_last_name: data.family_last_name,
       address: data.address,
       food_allergies: data.food_allergies,
       house_rules: data.house_rules,
-      // Optionally: isOnboarded: true
     };
 
     try {

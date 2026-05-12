@@ -238,11 +238,26 @@ export const AccountProfile = ({ setIsStepValid }) => {
             {...register("family_id")}
           >
             <option value="">— No family group —</option>
-            {(allFamilyGroups || []).map((fg) => (
-              <option key={fg.id} value={fg.id}>
-                {fg.family_last_name}
-              </option>
-            ))}
+            {(allFamilyGroups || []).map((fg) => {
+              const duplicates = (allFamilyGroups || []).filter(
+                (g) => g.family_last_name === fg.family_last_name
+              )
+              let label = fg.family_last_name
+              if (duplicates.length > 1) {
+                if (fg.address) {
+                  label = `${fg.family_last_name} (${fg.address.split(',').slice(-2).join(',').trim()})`
+                } else if (fg.family_total) {
+                  label = `${fg.family_last_name} (${fg.family_total} members)`
+                } else {
+                  label = `${fg.family_last_name} (#${fg.id.slice(0, 4)})`
+                }
+              }
+              return (
+                <option key={fg.id} value={fg.id}>
+                  {label}
+                </option>
+              )
+            })}
           </select>
 
           <div className="flex flex-row justify-between">

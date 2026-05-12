@@ -34,6 +34,8 @@ export const Directory = () => {
   const [editingMember, setEditingMember] = useState(null)
   const [editRoles, setEditRoles] = useState([])
   const [saving, setSaving] = useState(false)
+  const [reachOutMember, setReachOutMember] = useState(null)
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     fetchAllUserProfiles()
@@ -73,6 +75,26 @@ export const Directory = () => {
   const closeEdit = () => {
     setEditingMember(null)
     setEditRoles([])
+  }
+
+  const openReachOut = (member) => {
+    setReachOutMember(member)
+    setCopied(false)
+  }
+
+  const closeReachOut = () => {
+    setReachOutMember(null)
+    setCopied(false)
+  }
+
+  const reachOutMessage = reachOutMember
+    ? `Hi ${reachOutMember.name?.split(' ')[0] || 'there'}! We'd love to have you serve in our community. Would you be interested in taking on a servant role? Let us know and we'll get you added to the directory!`
+    : ''
+
+  const copyMessage = async () => {
+    await navigator.clipboard.writeText(reachOutMessage)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   const saveRoles = async () => {
@@ -204,6 +226,16 @@ export const Directory = () => {
                     </svg>
                   </button>
                   <button
+                    onClick={() => openReachOut(member)}
+                    title="Reach out to invite to a role"
+                    className="p-1.5 rounded-lg text-gray-500 hover:text-[#0e9496] hover:bg-[#e0f5f5] dark:hover:bg-[#0e9496]/20 transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                      <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                  </button>
+                  <button
                     onClick={() => toggleHide(member)}
                     title={member.hidden_from_directory ? 'Show in directory' : 'Hide from directory'}
                     className={`p-1.5 rounded-lg transition-colors ${
@@ -270,6 +302,37 @@ export const Directory = () => {
                 className="flex-1 py-2 rounded-lg bg-[#0e9496] text-white text-sm font-medium hover:bg-[#0c7c7e] transition-colors disabled:opacity-50"
               >
                 {saving ? 'Saving…' : 'Save'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Reach out modal */}
+      {reachOutMember && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={closeReachOut}>
+          <div
+            className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-sm p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Reach Out</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Invite {reachOutMember.name} to serve</p>
+            <div className="bg-gray-50 dark:bg-neutral-800 rounded-xl p-4 mb-5 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+              {reachOutMessage}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={closeReachOut}
+                className="flex-1 py-2 rounded-lg border border-gray-300 dark:border-neutral-600 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors"
+              >
+                Close
+              </button>
+              <button
+                onClick={copyMessage}
+                className={`flex-1 py-2 rounded-lg text-white text-sm font-medium transition-colors ${
+                  copied ? 'bg-green-500 hover:bg-green-600' : 'bg-[#0e9496] hover:bg-[#0c7c7e]'
+                }`}
+              >
+                {copied ? 'Copied!' : 'Copy Message'}
               </button>
             </div>
           </div>

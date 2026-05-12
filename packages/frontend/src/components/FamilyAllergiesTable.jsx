@@ -121,38 +121,18 @@ export const FamilyAllergiesTable = () => {
 
         {/* Summary Statistics */}
         <div className="grid grid-cols-3 gap-3 mb-6">
-          <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-            <CardBody className="p-4">
-              <Typography variant="h6" className="text-blue-800 dark:text-blue-200 mb-1">
-                Total Families
-              </Typography>
-              <Typography variant="h4" className="text-blue-900 dark:text-blue-100 font-bold">
-                {filteredFamilies.length}
-              </Typography>
-            </CardBody>
-          </Card>
-          
-          <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-            <CardBody className="p-4">
-              <Typography variant="h6" className="text-red-800 dark:text-red-200 mb-1">
-                Families with Allergies
-              </Typography>
-              <Typography variant="h4" className="text-red-900 dark:text-red-100 font-bold">
-                {familiesWithAllergies.length}
-              </Typography>
-            </CardBody>
-          </Card>
-          
-          <Card className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-            <CardBody className="p-4">
-              <Typography variant="h6" className="text-green-800 dark:text-green-200 mb-1">
-                No Allergies
-              </Typography>
-              <Typography variant="h4" className="text-green-900 dark:text-green-100 font-bold">
-                {familiesWithoutAllergies.length}
-              </Typography>
-            </CardBody>
-          </Card>
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-3 flex flex-col items-center text-center">
+            <span className="text-2xl font-bold text-blue-900 dark:text-blue-100">{filteredFamilies.length}</span>
+            <span className="text-xs font-medium text-blue-700 dark:text-blue-300 mt-1 leading-tight">Total<br/>Families</span>
+          </div>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-3 flex flex-col items-center text-center">
+            <span className="text-2xl font-bold text-red-900 dark:text-red-100">{familiesWithAllergies.length}</span>
+            <span className="text-xs font-medium text-red-700 dark:text-red-300 mt-1 leading-tight">Have<br/>Allergies</span>
+          </div>
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-3 flex flex-col items-center text-center">
+            <span className="text-2xl font-bold text-green-900 dark:text-green-100">{familiesWithoutAllergies.length}</span>
+            <span className="text-xs font-medium text-green-700 dark:text-green-300 mt-1 leading-tight">No<br/>Allergies</span>
+          </div>
         </div>
 
         {/* Mobile cards */}

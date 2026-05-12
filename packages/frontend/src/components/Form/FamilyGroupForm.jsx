@@ -39,7 +39,8 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
   // State for autocomplete suggestions for family last name
   const [familySuggestions, setFamilySuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [selectedFamilyMembers, setSelectedFamilyMembers] = useState([]); // <-- Add this new state
+  const [selectedFamilyMembers, setSelectedFamilyMembers] = useState([]);
+  const [selectedFamilyId, setSelectedFamilyId] = useState(null);
   const [isCreatingNewGroupWithSameName, setIsCreatingNewGroupWithSameName] =
     useState(false);
 
@@ -122,6 +123,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
         return {
           id: group.id,
           family_last_name: group.family_last_name,
+          address: group.address || null,
           members,
         };
       });
@@ -197,13 +199,11 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
     };
   }, []);
 
-  // Handle selecting a suggestion
+  // Handle selecting a suggestion — accepts the full suggestion object to avoid
+  // ambiguous name-based lookup when multiple families share the same last name
   const handleSelectSuggestion = useCallback(
     (suggestion) => {
-      const isDifferentFamily = suggestion.startsWith("⚠️ Create NEW");
-
-      if (isDifferentFamily) {
-        // User wants to create a new family with the same name
+      if (suggestion.isNewGroup) {
         reset({
           family_last_name: familyLastNameValue,
           address: "",
@@ -211,15 +211,11 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
           house_rules: "",
         });
         setSelectedFamilyMembers([]);
+        setSelectedFamilyId(null);
         setIsCreatingNewGroupWithSameName(true);
-        
-        // Clear any existing family group data since we're creating new
         useFamilyStore.getState().familyGroup = null;
       } else {
-        // User selected an existing family
-        const selectedFamily = allFamilyGroups.find(
-          (group) => group.family_last_name === suggestion
-        );
+        const selectedFamily = allFamilyGroups.find((g) => g.id === suggestion.id);
 
         if (selectedFamily) {
           const familyMembers = profiles
@@ -234,6 +230,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
           });
 
           setSelectedFamilyMembers(familyMembers);
+          setSelectedFamilyId(selectedFamily.id);
           setIsCreatingNewGroupWithSameName(false);
         }
       }
@@ -417,7 +414,7 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
       <form className="mt-8 mb-2 w-full" onSubmit={handleFamily(onSubmit)}>
         <div className="mb-1 flex flex-col gap-6">
           <Typography variant="h6" color="primary" className="-mb-3">
-            Family Last Name
+            Family Name
           </Typography>
 
           <div className="relative" ref={autocompleteContainerRef}>
@@ -450,22 +447,24 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
                 {familySuggestions.map((suggestion, index) => (
                   <li
                     key={index}
-                    onClick={() =>
-                      handleSelectSuggestion(suggestion.family_last_name)
-                    }
+                    onClick={() => handleSelectSuggestion(suggestion)}
                     className="px-4 py-2 hover:bg-neutral-200 dark:hover:bg-neutral-700 cursor-pointer text-neutral-900 dark:text-neutral-100"
                   >
-                    <strong className="text-neutral-900 dark:text-neutral-100">{suggestion.family_last_name}</strong>
+                    <div className="flex items-center gap-2">
+                      <strong className="text-neutral-900 dark:text-neutral-100">{suggestion.family_last_name}</strong>
+                      {profile?.family_id === suggestion.id && (
+                        <span className="text-xs text-brand-primary">(Your current group)</span>
+                      )}
+                    </div>
                     {suggestion.members && suggestion.members.length > 0 && (
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                        Members: {suggestion.members.join(", ")}
+                      <p className="text-xs text-neutral-600 dark:text-neutral-400 mt-0.5">
+                        {suggestion.members.join(", ")}
                       </p>
                     )}
-                    {suggestion.family_last_name ===
-                      profile?.family_last_name && (
-                      <span className="text-xs text-brand-primary ml-2">
-                        (Your current group)
-                      </span>
+                    {!suggestion.isNewGroup && suggestion.address && (
+                      <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5">
+                        📍 {suggestion.address}
+                      </p>
                     )}
                   </li>
                 ))}
@@ -484,28 +483,20 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
                 </div>
                 
                 {/* Check if user is already part of this family */}
-                {profile?.family_id === allFamilyGroups.find(
-                  (group) => group.family_last_name === familyLastNameValue
-                )?.id ? (
+                {profile?.family_id === selectedFamilyId ? (
                   <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg p-3 text-center">
                     <p className="text-green-700 dark:text-green-300 text-sm font-medium">
                       ✅ You are already part of this family group
                     </p>
                   </div>
-                ) : (
+                ) : selectedFamilyId ? (
                   <button
                     type="button"
                     onClick={async () => {
                       try {
-                        // Update the user's profile to link them to this family
                         const { error } = await supabase
                           .from("profiles")
-                          .upsert({ 
-                            id: user.id, 
-                            family_id: allFamilyGroups.find(
-                              (group) => group.family_last_name === familyLastNameValue
-                            )?.id 
-                          });
+                          .upsert({ id: user.id, family_id: selectedFamilyId });
 
                         if (error) {
                           toast.error("Error adding you to this family: " + error.message);
@@ -513,22 +504,18 @@ export const FamilyGroupForm = ({ setIsStepValid, activeStep, stepIndex }) => {
                         }
 
                         toast.success("✅ You've been added to this family group!");
-                        
-                        // Refresh the profile data
                         useProfileStore.getState().fetchAndSetUserProfile(user.id);
-                        
-                        // Update the local state to show the user is now part of this family
                         setSelectedFamilyMembers(prev => [...prev, user.email || 'You']);
                       } catch (error) {
                         console.error("Error adding user to family:", error);
                         toast.error("An unexpected error occurred while adding you to this family.");
                       }
                     }}
-                    className="bg-primaryhover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                    className="bg-primary hover:bg-brand-600 text-white px-4 py-2 rounded-lg font-medium transition-colors text-sm"
                   >
                     ➕ Add Myself to This Family
                   </button>
-                )}
+                ) : null}
               </div>
             )}
             {isCreatingNewGroupWithSameName && (

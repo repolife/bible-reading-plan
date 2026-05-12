@@ -35,7 +35,9 @@ export const FamilyAllergiesTable = () => {
   }, [allFamilyGroups, searchTerm])
 
   const hasAllergies = (allergies) => {
-    return allergies && allergies.trim() !== '' && allergies.toLowerCase() !== 'none'
+    if (!allergies || allergies.trim() === '') return false
+    const normalized = allergies.trim().toLowerCase()
+    return !['none', 'no', 'na', 'n/a'].includes(normalized)
   }
 
   const getSeverityColor = (allergies) => {

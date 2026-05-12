@@ -30,6 +30,7 @@ export const Directory = () => {
   const { profiles, fetchAllUserProfiles, loading, updateMemberServantRoles, updateMemberDirectoryVisibility } = useProfileStore()
   const { user } = useAuthStore()
   const [search, setSearch] = useState('')
+  const [selectedRoles, setSelectedRoles] = useState([])
   const [editingMember, setEditingMember] = useState(null)
   const [editRoles, setEditRoles] = useState([])
   const [saving, setSaving] = useState(false)
@@ -41,8 +42,21 @@ export const Directory = () => {
   const currentProfile = (profiles || []).find((p) => p.id === user?.id)
   const isAdmin = currentProfile?.is_admin === true
 
+  const toggleRole = (role) =>
+    setSelectedRoles((prev) =>
+      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+    )
+
+  // Only show roles that exist on at least one visible member
+  const availableRoles = SERVANT_ROLES.filter((role) =>
+    (profiles || []).some(
+      (p) => (!p.hidden_from_directory || isAdmin) && p.servant_roles?.includes(role)
+    )
+  )
+
   const filtered = (profiles || []).filter((p) => {
     if (!isAdmin && p.hidden_from_directory) return false
+    if (selectedRoles.length > 0 && !selectedRoles.some((r) => p.servant_roles?.includes(r))) return false
     if (!search) return true
     const term = search.toLowerCase()
     return (
@@ -94,8 +108,34 @@ export const Directory = () => {
         placeholder="Search by name or role…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className="w-full mb-5 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#0e9496] focus:border-transparent dark:bg-neutral-800 dark:text-white text-sm"
+        className="w-full mb-3 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#0e9496] focus:border-transparent dark:bg-neutral-800 dark:text-white text-sm"
       />
+
+      {availableRoles.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-5">
+          {availableRoles.map((role) => (
+            <button
+              key={role}
+              onClick={() => toggleRole(role)}
+              className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
+                selectedRoles.includes(role)
+                  ? 'bg-[#0e9496] text-white border-[#0e9496]'
+                  : 'bg-white dark:bg-neutral-800 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-neutral-600 hover:border-[#0e9496] hover:text-[#0e9496]'
+              }`}
+            >
+              {role}
+            </button>
+          ))}
+          {selectedRoles.length > 0 && (
+            <button
+              onClick={() => setSelectedRoles([])}
+              className="text-xs px-2.5 py-1 rounded-full border border-dashed border-gray-300 dark:border-neutral-600 text-gray-400 hover:text-red-500 hover:border-red-300 transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-12">

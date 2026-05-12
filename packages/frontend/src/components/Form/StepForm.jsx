@@ -24,7 +24,7 @@ export const StepForm = () => {
 // }, [profile, user?.id]);
 
   const steps = [
-    <ConfirmPasswordForm
+    <FamilyGroupForm
       activeStep={activeStep}
       stepIndex={0}
       setIsStepValid={setIsStepValid}
@@ -34,16 +34,16 @@ export const StepForm = () => {
       stepIndex={1}
       setIsStepValid={setIsStepValid}
     />,
-    <FamilyGroupForm
+    <ConfirmPasswordForm
       activeStep={activeStep}
       stepIndex={2}
       setIsStepValid={setIsStepValid}
     />,
     <NotificationPreferences
-    activeStep={activeStep}
-    stepIndex={3}
-    setIsStepValid={setIsStepValid}
-  />,
+      activeStep={activeStep}
+      stepIndex={3}
+      setIsStepValid={setIsStepValid}
+    />,
   ];
 
   const CurrentStep = steps[activeStep];

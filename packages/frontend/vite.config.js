@@ -48,6 +48,7 @@ export default defineConfig({
       "@store": path.resolve(__dirname, "src/store"),
       "@hooks": path.resolve(__dirname, "src/hooks"),
       "@": path.resolve(__dirname, "src"),
+      "react/compiler-runtime": path.resolve(__dirname, "src/compiler-runtime-shim.js"),
     },
   },
 

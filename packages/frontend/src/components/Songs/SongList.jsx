@@ -1,16 +1,15 @@
 import { useState, useEffect, useMemo } from "react";
-import { createClient } from "contentful";
+import { createClient } from "@sanity/client";
 import { Link } from "react-router-dom";
 import { ScrollToTop } from "@components/Shared/ScrollToTop";
 import { Spinner } from "@components/Shared/Spinner/Spinner";
 
-const env = import.meta.env;
-const accessToken = env.VITE_CONTENT_ID || env.VITE_ACCESS_TOKEN;
-
 const client = createClient({
-  space: env.VITE_SPACE_ID,
-  accessToken: accessToken || "",
-  environment: "master",
+  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+  dataset:   import.meta.env.VITE_SANITY_DATASET,
+  apiVersion: "2024-01-01",
+  token:     import.meta.env.VITE_SANITY_TOKEN,
+  useCdn:    true,
 });
 
 export const SongList = () => {
@@ -20,15 +19,13 @@ export const SongList = () => {
 
   useEffect(() => {
     client
-      .getEntries({ content_type: "song" })
-      .then((res) => {
-        setSongs(
-          res.items.map((item) => ({
-            title: item.fields.title,
-            id: item.sys.id,
-            isShabbat: item.fields.isShabbat ?? false,
-          }))
-        );
+      .fetch(`*[_type == "song"] { _id, title, isShabbat }`)
+      .then((items) => {
+        setSongs(items.map((item) => ({
+          title:     item.title,
+          id:        item._id,
+          isShabbat: item.isShabbat ?? false,
+        })));
         setIsLoading(false);
       })
       .catch(console.error);

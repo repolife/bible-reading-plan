@@ -1,49 +1,51 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { createClient } from "contentful";
-import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-import { BLOCKS } from "@contentful/rich-text-types";
+import { createClient } from "@sanity/client";
+import { PortableText } from "@portabletext/react";
 import { ScrollToTop } from "@components/Shared/ScrollToTop";
 
-const env = import.meta.env;
-
 const client = createClient({
-  space: env.VITE_SPACE_ID,
-  accessToken: env.VITE_CONTENT_ID || '',
-  environment: "master",
+  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
+  dataset:   import.meta.env.VITE_SANITY_DATASET,
+  apiVersion: "2024-01-01",
+  token:     import.meta.env.VITE_SANITY_TOKEN,
+  useCdn:    true,
 });
 
 const FONT_SIZES = ['text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl'];
-const DEFAULT_SIZE = 2; // text-xl
+const DEFAULT_SIZE = 2;
 
-const richTextOptions = (fontSize) => ({
-  renderNode: {
-    [BLOCKS.PARAGRAPH]: (node, children) => (
+const portableTextComponents = (fontSize) => ({
+  block: {
+    normal: ({ children }) => (
       <p className={`${fontSize} leading-relaxed mb-6 whitespace-pre-wrap`}>{children}</p>
     ),
+    h1: ({ children }) => <h1 className={`${fontSize} font-bold mb-4`}>{children}</h1>,
+    h2: ({ children }) => <h2 className={`${fontSize} font-semibold mb-4`}>{children}</h2>,
+    blockquote: ({ children }) => (
+      <blockquote className={`${fontSize} border-l-4 border-[#0e9496] pl-4 mb-4 italic`}>{children}</blockquote>
+    ),
   },
-  renderText: (text) =>
-    text.split("\n").reduce((acc, segment, i) => [
-      ...acc, i > 0 && <br key={i} />, segment
-    ], []),
+  marks: {
+    strong: ({ children }) => <strong>{children}</strong>,
+    em:     ({ children }) => <em>{children}</em>,
+    link:   ({ value, children }) => (
+      <a href={value?.href} target="_blank" rel="noopener noreferrer" className="text-[#0e9496] underline">{children}</a>
+    ),
+  },
 });
 
 export const Song = () => {
   const { songId } = useParams();
   const [song, setSong] = useState(null);
-  const [notes, setNotes] = useState(null);
-  const [title, setTitle] = useState("");
   const [sizeIdx, setSizeIdx] = useState(DEFAULT_SIZE);
   const [notesOpen, setNotesOpen] = useState(false);
 
   useEffect(() => {
     if (!songId) return;
-    client.getEntry(songId)
-      .then((res) => {
-        setTitle(res.fields.title || "");
-        setSong(res.fields.lyrics || null);
-        setNotes(res.fields.notes || null);
-      })
+    client
+      .fetch(`*[_type == "song" && _id == $id][0]`, { id: songId })
+      .then((doc) => setSong(doc))
       .catch((err) => console.error("Error fetching song", err));
   }, [songId]);
 
@@ -55,7 +57,7 @@ export const Song = () => {
     <div className="max-w-lg mx-auto px-4 py-6">
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6">
-        <h1 className="text-2xl font-bold text-[#0b2020] dark:text-white leading-tight">{title}</h1>
+        <h1 className="text-2xl font-bold text-[#0b2020] dark:text-white leading-tight">{song.title}</h1>
 
         {/* Font size controls */}
         <div className="flex items-center gap-1 shrink-0 mt-1">
@@ -79,12 +81,14 @@ export const Song = () => {
       </div>
 
       {/* Lyrics */}
-      <div className="text-[#0b2020] dark:text-neutral-100">
-        {documentToReactComponents(song, richTextOptions(fontSize))}
-      </div>
+      {song.lyrics?.length > 0 && (
+        <div className="text-[#0b2020] dark:text-neutral-100">
+          <PortableText value={song.lyrics} components={portableTextComponents(fontSize)} />
+        </div>
+      )}
 
       {/* Notes */}
-      {notes && (
+      {song.notes?.length > 0 && (
         <div className="mt-6 border-t border-[#c8e8e9] dark:border-neutral-700 pt-4">
           <button
             onClick={() => setNotesOpen((o) => !o)}
@@ -103,7 +107,7 @@ export const Song = () => {
 
           {notesOpen && (
             <div className="mt-3 text-[#0b2020] dark:text-neutral-200">
-              {documentToReactComponents(notes, richTextOptions('text-sm'))}
+              <PortableText value={song.notes} components={portableTextComponents('text-sm')} />
             </div>
           )}
         </div>

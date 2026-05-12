@@ -87,8 +87,11 @@ export const Directory = () => {
     setCopied(false)
   }
 
+  const firstName = reachOutMember?.name?.split(' ')[0] || 'there'
   const reachOutMessage = reachOutMember
-    ? `Hi ${reachOutMember.name?.split(' ')[0] || 'there'}! We'd love to have you serve in our community. Would you be interested in taking on a servant role? Let us know and we'll get you added to the directory!`
+    ? isAdmin
+      ? `Hi ${firstName}! We'd love to have you serve in our community. Would you be interested in taking on a servant role? Let us know and we'll get you added to the directory!`
+      : `Hi ${firstName}! I'd love to get involved and serve in our community. Could you help add me to a servant role? I'm excited to contribute!`
     : ''
 
   const copyMessage = async () => {
@@ -187,10 +190,15 @@ export const Directory = () => {
 
               {/* Info */}
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <p className="font-semibold text-gray-900 dark:text-white truncate">
                     {member.name || 'Unnamed Member'}
                   </p>
+                  {member.is_admin && (
+                    <span className="text-xs bg-[#0e9496]/10 text-[#0e9496] dark:bg-[#0e9496]/20 dark:text-[#5ecfcf] px-1.5 py-0.5 rounded font-medium">
+                      Admin
+                    </span>
+                  )}
                   {isAdmin && member.hidden_from_directory && (
                     <span className="text-xs bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-1.5 py-0.5 rounded">
                       hidden
@@ -212,6 +220,21 @@ export const Directory = () => {
                   <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">No roles assigned</p>
                 )}
               </div>
+
+              {/* Non-admin: reach out to admin to request a servant role */}
+              {!isAdmin && member.is_admin && (
+                <button
+                  onClick={() => openReachOut(member)}
+                  title="Request to serve — reach out to this admin"
+                  className="shrink-0 flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-[#0e9496]/10 text-[#0e9496] dark:bg-[#0e9496]/20 dark:text-[#5ecfcf] hover:bg-[#0e9496] hover:text-white transition-colors font-medium"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                  </svg>
+                  Reach Out
+                </button>
+              )}
 
               {/* Admin controls */}
               {isAdmin && (
@@ -314,8 +337,14 @@ export const Directory = () => {
             className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-sm p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Reach Out</h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Invite {reachOutMember.name} to serve</p>
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+              {isAdmin ? 'Invite to Serve' : 'Request to Serve'}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+              {isAdmin
+                ? `Send ${reachOutMember.name} an invitation to take on a servant role`
+                : `Send ${reachOutMember.name} a message asking to be added to a servant role`}
+            </p>
             <div className="bg-gray-50 dark:bg-neutral-800 rounded-xl p-4 mb-5 text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
               {reachOutMessage}
             </div>

@@ -93,6 +93,18 @@ export const FamilyAllergiesTable = () => {
   const familiesWithAllergies = filteredFamilies.filter(family => hasAllergies(family.food_allergies))
   const familiesWithoutAllergies = filteredFamilies.filter(family => !hasAllergies(family.food_allergies))
 
+  const getFamilyLabel = (family) => {
+    const base = family.family_last_name ? `The ${family.family_last_name} Family` : 'Unnamed Family'
+    const hasDupe = (allFamilyGroups || []).filter(g => g.family_last_name === family.family_last_name).length > 1
+    if (!hasDupe) return { name: base, detail: null }
+    if (family.address) {
+      const parts = family.address.split(',')
+      const detail = parts.slice(-2).join(',').trim()
+      return { name: base, detail }
+    }
+    return { name: base, detail: `#${family.id.slice(0, 4)}` }
+  }
+
   return (
     <Card className="w-full">
       <CardBody className="p-6">
@@ -142,16 +154,20 @@ export const FamilyAllergiesTable = () => {
               No families found matching your search criteria
             </p>
           ) : (
-            filteredFamilies.map((family) => (
+            filteredFamilies.map((family) => {
+              const { name, detail } = getFamilyLabel(family)
+              return (
               <div key={family.id} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-2">
-                <Typography className="font-semibold text-gray-900 dark:text-white">
-                  {family.family_last_name ? `The ${family.family_last_name} Family` : 'Unnamed Family'}
-                </Typography>
-                {family.family_first_name && (
-                  <Typography variant="small" className="text-gray-600 dark:text-gray-400">
-                    {family.family_first_name}
+                <div>
+                  <Typography className="font-semibold text-gray-900 dark:text-white">
+                    {name}
                   </Typography>
-                )}
+                  {detail && (
+                    <Typography variant="small" className="text-gray-500 dark:text-gray-400">
+                      📍 {detail}
+                    </Typography>
+                  )}
+                </div>
                 <div>
                   {hasAllergies(family.food_allergies) ? (
                     <Typography variant="small" className="text-gray-900 dark:text-white">
@@ -170,7 +186,7 @@ export const FamilyAllergiesTable = () => {
                     : 'Unknown'}
                 </Typography>
               </div>
-            ))
+            )})
           )}
         </div>
 
@@ -192,12 +208,19 @@ export const FamilyAllergiesTable = () => {
                   </td>
                 </tr>
               ) : (
-                filteredFamilies.map((family) => (
+                filteredFamilies.map((family) => {
+                  const { name, detail } = getFamilyLabel(family)
+                  return (
                   <tr key={family.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4">
                       <Typography className="font-semibold text-gray-900 dark:text-white">
-                        {family.family_last_name ? `The ${family.family_last_name} Family` : 'Unnamed Family'}
+                        {name}
                       </Typography>
+                      {detail && (
+                        <Typography variant="small" className="text-gray-500 dark:text-gray-400">
+                          📍 {detail}
+                        </Typography>
+                      )}
                       {family.family_first_name && (
                         <Typography variant="small" className="text-gray-600 dark:text-gray-400">
                           {family.family_first_name}
@@ -222,7 +245,7 @@ export const FamilyAllergiesTable = () => {
                       </Typography>
                     </td>
                   </tr>
-                ))
+                )})
               )}
             </tbody>
           </table>

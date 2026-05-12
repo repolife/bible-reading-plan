@@ -11,7 +11,6 @@ const pages = [
   { key: "Profile", component: <AccountProfile /> },
   { key: "Password", component: <ConfirmPasswordForm /> },
   { key: "Host", component: <FamilyGroupForm /> },
-  { key: "Notifs", label: "Alerts", component: <NotificationPreferences /> },
 ];
 
 export const Account = () => {

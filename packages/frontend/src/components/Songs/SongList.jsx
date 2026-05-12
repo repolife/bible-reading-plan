@@ -7,10 +7,9 @@ import { useAuthStore } from "@store/useAuthStore";
 import { useProfileStore } from "@store/useProfileStore";
 
 const client = createClient({
-  projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
-  dataset:   import.meta.env.VITE_SANITY_DATASET,
+  projectId: '0yfb94zm',
+  dataset:   'production',
   apiVersion: "2024-01-01",
-  token:     import.meta.env.VITE_SANITY_TOKEN,
   useCdn:    true,
 });
 

@@ -1,0 +1,1376 @@
+{
+  "version": "2.11",
+  "children": [
+    {
+      "type": "frame",
+      "id": "PlNME",
+      "x": 0,
+      "y": 0,
+      "name": "page",
+      "width": 1440,
+      "fill": "#F5F6F8",
+      "layout": "vertical",
+      "children": [
+        {
+          "type": "frame",
+          "id": "t7Sdwv",
+          "name": "nav",
+          "width": "fill_container",
+          "height": 72,
+          "fill": "#0B2A4A",
+          "padding": [
+            0,
+            60
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "zP3p4",
+              "name": "logo",
+              "gap": 12,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "zuId5",
+                  "name": "navImg",
+                  "width": 48,
+                  "height": 48,
+                  "fill": {
+                    "type": "image",
+                    "enabled": true,
+                    "url": "logo-v.png",
+                    "mode": "stretch"
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "V7xlo",
+                  "fill": "#FFFFFF",
+                  "content": "Vargas Tech Consulting",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "700"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YHGek",
+              "name": "navRight",
+              "gap": 32,
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "text",
+                  "id": "k70hT3",
+                  "fill": "#ffffffbf",
+                  "content": "Services",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "feprf",
+                  "fill": "#ffffffbf",
+                  "content": "About",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "A66chj",
+                  "fill": "#ffffffbf",
+                  "content": "Blog",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "hn3Ds",
+                  "fill": "#ffffffbf",
+                  "content": "Contact",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "Z7XY9",
+                  "name": "navCta",
+                  "fill": "#1E6BFF",
+                  "padding": [
+                    8,
+                    20
+                  ],
+                  "justifyContent": "center",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tXlmI",
+                      "fill": "#FFFFFF",
+                      "content": "Book a Call",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "600"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "text",
+              "id": "kXSDD",
+              "fill": "#000000",
+              "content": "For more information about this program, please contact me by phone number.",
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "jTPKM",
+          "name": "heroRow",
+          "width": "fill_container",
+          "fill": "#0B2A4A",
+          "padding": [
+            100,
+            0
+          ],
+          "justifyContent": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "lCiE4",
+              "name": "heroContent",
+              "width": 900,
+              "layout": "vertical",
+              "gap": 28,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "DuiJt",
+                  "name": "eyebrowWrap",
+                  "width": "fill_container",
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Ueoc8",
+                      "name": "eyebrowBadge",
+                      "fill": "#1e6bff26",
+                      "gap": 8,
+                      "padding": [
+                        6,
+                        16
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "ellipse",
+                          "id": "r71XU",
+                          "fill": "#1E6BFF",
+                          "width": 6,
+                          "height": 6
+                        },
+                        {
+                          "type": "text",
+                          "id": "oUCEg",
+                          "fill": "#1E6BFF",
+                          "content": "AI CONSULTING SERVICES",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "700",
+                          "letterSpacing": 2
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "fHTH2",
+                  "name": "headlineWrap",
+                  "width": "fill_container",
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "jow6c",
+                      "name": "headline",
+                      "layout": "vertical",
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "L2vRM",
+                          "name": "hl1",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Nq7aw",
+                              "fill": "#FFFFFF",
+                              "content": "Transform Your Business",
+                              "fontFamily": "Inter",
+                              "fontSize": 52,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Wc8a2",
+                          "name": "hl2",
+                          "gap": 12,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "J19skM",
+                              "fill": "#FFFFFF",
+                              "content": "With",
+                              "fontFamily": "Inter",
+                              "fontSize": 52,
+                              "fontWeight": "800"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "aosET",
+                              "name": "hl2box",
+                              "fill": "#1E6BFF",
+                              "padding": [
+                                4,
+                                14
+                              ],
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "qNpcw",
+                                  "fill": "#FFFFFF",
+                                  "content": "Artificial Intelligence",
+                                  "fontFamily": "Inter",
+                                  "fontSize": 52,
+                                  "fontWeight": "800"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "hnLwV",
+                  "fill": "#ffffffb8",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Expert AI strategy, development, and implementation tailored to your unique business challenges. We help organizations unlock the full potential of AI.",
+                  "lineHeight": 1.65,
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 17,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "G5xsl",
+                  "name": "ctaWrap",
+                  "width": "fill_container",
+                  "gap": 16,
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "l8APnq",
+                      "name": "primaryBtn",
+                      "fill": "#1E6BFF",
+                      "padding": [
+                        14,
+                        28
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "NLt1W",
+                          "fill": "#FFFFFF",
+                          "content": "Schedule a Free Call",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uQcYV",
+                      "name": "secondaryBtn",
+                      "stroke": {
+                        "align": "center",
+                        "thickness": 1,
+                        "fill": "#ffffff66"
+                      },
+                      "padding": [
+                        14,
+                        28
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "GquLv",
+                          "fill": "#ffffffd9",
+                          "content": "See Our Work",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ehpGn",
+          "name": "svcRow",
+          "width": "fill_container",
+          "fill": "#FFFFFF",
+          "padding": [
+            80,
+            0
+          ],
+          "justifyContent": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "HFwWQ",
+              "name": "svcContent",
+              "width": 1200,
+              "layout": "vertical",
+              "gap": 48,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "rn7LD",
+                  "name": "svcHeader",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 8,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "dKcO4",
+                      "fill": "#1E6BFF",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "OUR SERVICES",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
+                    },
+                    {
+                      "type": "text",
+                      "id": "AOOua",
+                      "fill": "#0B2A4A",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "What We Deliver",
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 40,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "Ihl6U",
+                      "fill": "#4A4A4A",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "End-to-end AI consulting and development services for forward-thinking businesses.",
+                      "lineHeight": 1.6,
+                      "textAlign": "center",
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "IsOf5",
+                  "name": "svcRow1",
+                  "width": "fill_container",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YNXqM",
+                      "name": "c1",
+                      "width": "fill_container",
+                      "fill": "#FFFFFF",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#E5E7EB"
+                      },
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 32,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "AOrCS",
+                          "fill": "#1e6bff1f",
+                          "width": 40,
+                          "height": 40
+                        },
+                        {
+                          "type": "text",
+                          "id": "fAUG9",
+                          "fill": "#0B2A4A",
+                          "content": "AI Strategy & Consulting",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "i3X7C",
+                          "fill": "#4A4A4A",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Define your AI roadmap with expert guidance. We assess your capabilities and build a strategic plan for AI adoption.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "inz58",
+                          "fill": "#1E6BFF",
+                          "content": "Learn more →",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "LsdMA",
+                      "name": "c2",
+                      "width": "fill_container",
+                      "fill": "#FFFFFF",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#E5E7EB"
+                      },
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 32,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "u9nLb",
+                          "fill": "#1e6bff1f",
+                          "width": 40,
+                          "height": 40
+                        },
+                        {
+                          "type": "text",
+                          "id": "S799If",
+                          "fill": "#0B2A4A",
+                          "content": "Custom AI Development",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ERLFu",
+                          "fill": "#4A4A4A",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Bespoke ML models and AI systems built precisely for your challenges. From prototype to production-ready.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "g8NVF5",
+                          "fill": "#1E6BFF",
+                          "content": "Learn more →",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "i1D3Yj",
+                      "name": "c3",
+                      "width": "fill_container",
+                      "fill": "#FFFFFF",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#E5E7EB"
+                      },
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 32,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "mKvRD",
+                          "fill": "#1e6bff1f",
+                          "width": 40,
+                          "height": 40
+                        },
+                        {
+                          "type": "text",
+                          "id": "vY2NQ",
+                          "fill": "#0B2A4A",
+                          "content": "AI Integration",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "nAUMr",
+                          "fill": "#4A4A4A",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Seamlessly connect AI capabilities into your existing tech stack without disrupting operations.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "s39km",
+                          "fill": "#1E6BFF",
+                          "content": "Learn more →",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Tpao1",
+                  "name": "svcRow2",
+                  "width": "fill_container",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "StV13",
+                      "name": "c4",
+                      "width": "fill_container",
+                      "fill": "#FFFFFF",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#E5E7EB"
+                      },
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 32,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "xwDe0",
+                          "fill": "#1e6bff1f",
+                          "width": 40,
+                          "height": 40
+                        },
+                        {
+                          "type": "text",
+                          "id": "XqHMl",
+                          "fill": "#0B2A4A",
+                          "content": "Data Analytics & Insights",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Zzpwz",
+                          "fill": "#4A4A4A",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Transform raw data into actionable intelligence. Custom dashboards and predictive analytics that drive smarter decisions.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "Gv1xe",
+                          "fill": "#1E6BFF",
+                          "content": "Learn more →",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "YWL7q",
+                      "name": "c5",
+                      "width": "fill_container",
+                      "fill": "#FFFFFF",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#E5E7EB"
+                      },
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 32,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "guc2P",
+                          "fill": "#1e6bff1f",
+                          "width": 40,
+                          "height": 40
+                        },
+                        {
+                          "type": "text",
+                          "id": "KXV8e",
+                          "fill": "#0B2A4A",
+                          "content": "AI Training & Workshops",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "rZoDv",
+                          "fill": "#4A4A4A",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Upskill your team with hands-on AI training programs. From executive briefings to technical deep-dives.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "uJIPC",
+                          "fill": "#1E6BFF",
+                          "content": "Learn more →",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "rUV0T",
+                      "name": "c6",
+                      "width": "fill_container",
+                      "fill": "#FFFFFF",
+                      "stroke": {
+                        "align": "inside",
+                        "thickness": 1,
+                        "fill": "#E5E7EB"
+                      },
+                      "layout": "vertical",
+                      "gap": 16,
+                      "padding": 32,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "vlif1",
+                          "fill": "#1e6bff1f",
+                          "width": 40,
+                          "height": 40
+                        },
+                        {
+                          "type": "text",
+                          "id": "ZIRRZ",
+                          "fill": "#0B2A4A",
+                          "content": "AI Chatbot Solutions",
+                          "fontFamily": "Inter",
+                          "fontSize": 18,
+                          "fontWeight": "700"
+                        },
+                        {
+                          "type": "text",
+                          "id": "aFYXV",
+                          "fill": "#4A4A4A",
+                          "textGrowth": "fixed-width",
+                          "width": "fill_container",
+                          "content": "Deploy intelligent conversational AI for customer engagement, support automation, and lead qualification 24/7.",
+                          "lineHeight": 1.6,
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "L6inyb",
+                          "fill": "#1E6BFF",
+                          "content": "Learn more →",
+                          "fontFamily": "Inter",
+                          "fontSize": 14,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "nuwve",
+          "name": "statsRow",
+          "width": "fill_container",
+          "fill": "#1E6BFF",
+          "justifyContent": "center",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "Novel",
+              "name": "statsInner",
+              "width": 1200,
+              "padding": [
+                48,
+                0
+              ],
+              "justifyContent": "space_around",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "K6gP8",
+                  "name": "stat1",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "jalHd",
+                      "fill": "#FFFFFF",
+                      "content": "50+",
+                      "fontFamily": "Inter",
+                      "fontSize": 48,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "fL6ox",
+                      "fill": "#ffffffcc",
+                      "content": "Companies Transformed",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Y9pNym",
+                  "name": "stat2",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "B80zN",
+                      "fill": "#FFFFFF",
+                      "content": "200+",
+                      "fontFamily": "Inter",
+                      "fontSize": 48,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "QeFnu",
+                      "fill": "#ffffffcc",
+                      "content": "AI Projects Delivered",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "eivAZ",
+                  "name": "stat3",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "dztM1",
+                      "fill": "#FFFFFF",
+                      "content": "5x",
+                      "fontFamily": "Inter",
+                      "fontSize": 48,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "LkQ9E",
+                      "fill": "#ffffffcc",
+                      "content": "Average ROI Increase",
+                      "fontFamily": "Inter",
+                      "fontSize": 14,
+                      "fontWeight": "normal"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "YRFvA",
+          "name": "aboutRow",
+          "width": "fill_container",
+          "fill": "#F5F6F8",
+          "padding": [
+            80,
+            0
+          ],
+          "justifyContent": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "IYTqk",
+              "name": "aboutContent",
+              "width": 1200,
+              "gap": 80,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "nuYit",
+                  "name": "aboutLeft",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 24,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "PvPbx",
+                      "fill": "#1E6BFF",
+                      "content": "WHY CHOOSE US",
+                      "fontFamily": "Inter",
+                      "fontSize": 11,
+                      "fontWeight": "700",
+                      "letterSpacing": 2
+                    },
+                    {
+                      "type": "text",
+                      "id": "q8K4U",
+                      "fill": "#0B2A4A",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "AI Expertise That Drives Real Results",
+                      "fontFamily": "Inter",
+                      "fontSize": 36,
+                      "fontWeight": "800"
+                    },
+                    {
+                      "type": "text",
+                      "id": "dvsNn",
+                      "fill": "#4A4A4A",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "We're not just consultants — we're AI practitioners who have built and deployed real-world systems. Our team brings deep technical expertise and strategic business acumen to deliver measurable outcomes.",
+                      "lineHeight": 1.7,
+                      "fontFamily": "Inter",
+                      "fontSize": 16,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hLB9b",
+                      "name": "aboutCta",
+                      "fill": "#0B2A4A",
+                      "stroke": {
+                        "align": "center",
+                        "thickness": 1,
+                        "fill": "#1E6BFF"
+                      },
+                      "padding": [
+                        14,
+                        28
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "X38Yjt",
+                          "fill": "#FFFFFF",
+                          "content": "Meet the Team",
+                          "fontFamily": "Inter",
+                          "fontSize": 15,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "aXpR3",
+                  "name": "aboutRight",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 20,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "p2psnw",
+                      "name": "diff1",
+                      "width": "fill_container",
+                      "gap": 16,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "ZTwfS",
+                          "fill": "#1E6BFF",
+                          "width": 4,
+                          "height": 48
+                        },
+                        {
+                          "type": "frame",
+                          "id": "aj38z",
+                          "name": "diffT1",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "smKN7",
+                              "fill": "#0B2A4A",
+                              "content": "Proven Methodology",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "Dg5uL",
+                              "fill": "#4A4A4A",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Structured AI adoption framework refined across 50+ client engagements.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "uwuo8",
+                      "name": "diff2",
+                      "width": "fill_container",
+                      "gap": 16,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "Fcur8",
+                          "fill": "#1E6BFF",
+                          "width": 4,
+                          "height": 48
+                        },
+                        {
+                          "type": "frame",
+                          "id": "Z0eGq",
+                          "name": "diffT2",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Pwt1D",
+                              "fill": "#0B2A4A",
+                              "content": "Deep Technical Expertise",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "PS6ov",
+                              "fill": "#4A4A4A",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "ML engineers, data scientists, and AI researchers with real production experience.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "f1Hgbs",
+                      "name": "diff3",
+                      "width": "fill_container",
+                      "gap": 16,
+                      "children": [
+                        {
+                          "type": "rectangle",
+                          "id": "jrdG5",
+                          "fill": "#1E6BFF",
+                          "width": 4,
+                          "height": 48
+                        },
+                        {
+                          "type": "frame",
+                          "id": "cJ5Yj",
+                          "name": "diffT3",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 4,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ld10c",
+                              "fill": "#0B2A4A",
+                              "content": "Business-First Approach",
+                              "fontFamily": "Inter",
+                              "fontSize": 16,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "text",
+                              "id": "vdKTb",
+                              "fill": "#4A4A4A",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Every AI initiative tied to concrete business metrics and measurable ROI before writing a line of code.",
+                              "lineHeight": 1.5,
+                              "fontFamily": "Inter",
+                              "fontSize": 14,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "HblSh",
+          "name": "chatbotRow",
+          "width": "fill_container",
+          "fill": "#0B2A4A",
+          "padding": [
+            80,
+            0
+          ],
+          "justifyContent": "center",
+          "children": [
+            {
+              "type": "frame",
+              "id": "eU2r4",
+              "name": "chatContent",
+              "width": 800,
+              "layout": "vertical",
+              "gap": 24,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "xFmKb",
+                  "fill": "#1e6bffbf",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "EXPERIENCE AI FIRSTHAND",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "700",
+                  "letterSpacing": 2
+                },
+                {
+                  "type": "text",
+                  "id": "u0W19",
+                  "fill": "#FFFFFF",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Ask Our AI Assistant Anything",
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 42,
+                  "fontWeight": "800"
+                },
+                {
+                  "type": "text",
+                  "id": "Pcmx2",
+                  "fill": "#ffffffb3",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Try our AI chatbot — powered by Claude — and see the intelligent, context-aware responses we build for our clients.",
+                  "lineHeight": 1.6,
+                  "textAlign": "center",
+                  "fontFamily": "Inter",
+                  "fontSize": 16,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "frame",
+                  "id": "eQBYB",
+                  "name": "chatCtaWrap",
+                  "width": "fill_container",
+                  "justifyContent": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "U1qHBO",
+                      "name": "chatBtn",
+                      "fill": "#1E6BFF",
+                      "padding": [
+                        16,
+                        36
+                      ],
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "iz1Kq",
+                          "fill": "#FFFFFF",
+                          "content": "Launch AI Chat →",
+                          "fontFamily": "Inter",
+                          "fontSize": 16,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "Z5gDYp",
+          "name": "footerRow",
+          "width": "fill_container",
+          "fill": "#0A1628",
+          "padding": [
+            48,
+            120
+          ],
+          "justifyContent": "space_between",
+          "children": [
+            {
+              "type": "frame",
+              "id": "LXFTu",
+              "name": "fCol1",
+              "layout": "vertical",
+              "gap": 16,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tSYlA",
+                  "name": "fLogo",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "DpNt4",
+                      "fill": "#FFFFFF",
+                      "content": "Vargas Tech Consulting",
+                      "fontFamily": "Inter",
+                      "fontSize": 15,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "text",
+                  "id": "X60Zpp",
+                  "fill": "#ffffff80",
+                  "textGrowth": "fixed-width",
+                  "width": 240,
+                  "content": "Transforming businesses through\nthe power of AI.",
+                  "lineHeight": 1.6,
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "y82lJG",
+              "name": "fCol2",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "M2oMy",
+                  "fill": "#FFFFFF",
+                  "content": "Services",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "700",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "Xd1c5",
+                  "fill": "#ffffff8c",
+                  "content": "AI Strategy",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "k9tGIV",
+                  "fill": "#ffffff8c",
+                  "content": "Custom Development",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "f9aJG",
+                  "fill": "#ffffff8c",
+                  "content": "Data Analytics",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "JQcDA",
+                  "fill": "#ffffff8c",
+                  "content": "Chatbot Solutions",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "bsJ7i",
+              "name": "fCol3",
+              "layout": "vertical",
+              "gap": 12,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "EJOPo",
+                  "fill": "#FFFFFF",
+                  "content": "Company",
+                  "fontFamily": "Inter",
+                  "fontSize": 12,
+                  "fontWeight": "700",
+                  "letterSpacing": 1
+                },
+                {
+                  "type": "text",
+                  "id": "cl1lB",
+                  "fill": "#ffffff8c",
+                  "content": "About",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "D4gYAX",
+                  "fill": "#ffffff8c",
+                  "content": "Blog",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "mGdK8",
+                  "fill": "#ffffff8c",
+                  "content": "Contact",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                },
+                {
+                  "type": "text",
+                  "id": "t2tfxt",
+                  "fill": "#1E6BFF",
+                  "content": "contact@vargastech.ai",
+                  "fontFamily": "Inter",
+                  "fontSize": 13,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

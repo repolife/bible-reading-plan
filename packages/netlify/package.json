@@ -1,0 +1,13 @@
+{
+  "name": "netlify-functions",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "netlify build",
+    "start": "doppler run -- netlify dev"
+  },
+  "dependencies": {
+    "@netlify/functions": "^5.1.2",
+    "@supabase/supabase-js": "^2.52.0"
+  }
+}

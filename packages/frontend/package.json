@@ -41,9 +41,7 @@
     "react-share": "^5.2.2",
     "react-step-builder": "^3.0.6",
     "react-toastify": "^11.0.5",
-    "sanity": "^5.24.0",
     "strongs": "^1.0.2",
-    "styled-components": "^6.4.1",
     "zustand": "^4.5.2"
   },
   "devDependencies": {

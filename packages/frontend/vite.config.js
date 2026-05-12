@@ -41,6 +41,7 @@ export default defineConfig({
   },
 
   resolve: {
+    dedupe: ['react', 'react-dom'],
     alias: {
       shared: path.resolve(__dirname, "src/components/Shared"),
       data: path.resolve(__dirname, "data"),

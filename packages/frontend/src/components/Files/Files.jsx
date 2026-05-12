@@ -26,6 +26,16 @@ const ICON = {
       <path fillRule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clipRule="evenodd" />
     </svg>
   ),
+  lock: (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
+    </svg>
+  ),
+  globe: (
+    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd" />
+    </svg>
+  ),
 }
 
 function formatSize(bytes) {
@@ -33,6 +43,235 @@ function formatSize(bytes) {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
+function PermissionsModal({ resource, resourceType, profiles, currentUserId, onClose }) {
+  const { permissions, fetchPermissions, upsertPermission, removePermission, setVisibility } = useFilesStore()
+  const key = `${resourceType}:${resource.id}`
+  const perms = permissions[key] || []
+
+  const [selectedUserId, setSelectedUserId] = useState('')
+  const [addCanView, setAddCanView] = useState(true)
+  const [addCanEdit, setAddCanEdit] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [visibilityLoading, setVisibilityLoading] = useState(false)
+
+  useEffect(() => {
+    fetchPermissions(resourceType, resource.id).catch(() => {})
+  }, [resource.id, resourceType])
+
+  const permittedUserIds = new Set(perms.map((p) => p.user_id))
+  const availableProfiles = (profiles || []).filter(
+    (p) => p.id !== currentUserId && !permittedUserIds.has(p.id)
+  )
+
+  const handleVisibilityToggle = async () => {
+    const next = resource.visibility === 'everyone' ? 'restricted' : 'everyone'
+    setVisibilityLoading(true)
+    try {
+      await setVisibility(resourceType, resource.id, next)
+      toast.success(next === 'everyone' ? 'Visible to everyone' : 'Restricted to specific users')
+    } catch (e) {
+      toast.error(e.message || 'Failed to update visibility')
+    } finally {
+      setVisibilityLoading(false)
+    }
+  }
+
+  const handleAddUser = async () => {
+    if (!selectedUserId) return
+    setSaving(true)
+    try {
+      await upsertPermission(resourceType, resource.id, selectedUserId, addCanView, addCanEdit, currentUserId)
+      setSelectedUserId('')
+      setAddCanView(true)
+      setAddCanEdit(false)
+      toast.success('Permission granted')
+    } catch (e) {
+      toast.error(e.message || 'Failed to grant permission')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleToggle = async (perm, field) => {
+    try {
+      await upsertPermission(
+        resourceType,
+        resource.id,
+        perm.user_id,
+        field === 'can_view' ? !perm.can_view : perm.can_view,
+        field === 'can_edit' ? !perm.can_edit : perm.can_edit,
+        currentUserId
+      )
+    } catch (e) {
+      toast.error(e.message || 'Failed to update permission')
+    }
+  }
+
+  const handleRemove = async (perm) => {
+    try {
+      await removePermission(perm.id, resourceType, resource.id)
+      toast.success('Permission removed')
+    } catch (e) {
+      toast.error(e.message || 'Failed to remove permission')
+    }
+  }
+
+  const displayName = (perm) =>
+    perm.profiles?.name || perm.profiles?.email || perm.user_id.slice(0, 8)
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={onClose}>
+      <div
+        className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl w-full max-w-md p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="font-semibold text-gray-900 dark:text-white">Permissions</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 truncate max-w-xs">{resource.name}</p>
+          </div>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Visibility toggle */}
+        <div className="flex items-center justify-between p-3 rounded-xl bg-gray-50 dark:bg-neutral-800 mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500 dark:text-gray-400">
+              {resource.visibility === 'everyone' ? ICON.globe : ICON.lock}
+            </span>
+            <div>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">
+                {resource.visibility === 'everyone' ? 'Everyone' : 'Restricted'}
+              </p>
+              <p className="text-xs text-gray-400">
+                {resource.visibility === 'everyone'
+                  ? 'All signed-in members can access'
+                  : 'Only users listed below can access'}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleVisibilityToggle}
+            disabled={visibilityLoading}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none disabled:opacity-50 ${
+              resource.visibility === 'restricted' ? 'bg-[#0e9496]' : 'bg-gray-200 dark:bg-neutral-600'
+            }`}
+          >
+            <span
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${
+                resource.visibility === 'restricted' ? 'translate-x-5' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
+
+        {/* Current permissions list */}
+        {perms.length > 0 && (
+          <div className="mb-4">
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+              User Access
+            </p>
+            <div className="space-y-1">
+              {perms.map((perm) => (
+                <div
+                  key={perm.id}
+                  className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 dark:bg-neutral-800"
+                >
+                  <span className="flex-1 text-sm text-gray-900 dark:text-white truncate">
+                    {displayName(perm)}
+                  </span>
+                  <label className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={perm.can_view}
+                      onChange={() => handleToggle(perm, 'can_view')}
+                      className="rounded border-gray-300 text-[#0e9496] focus:ring-[#0e9496]"
+                    />
+                    View
+                  </label>
+                  <label className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={perm.can_edit}
+                      onChange={() => handleToggle(perm, 'can_edit')}
+                      className="rounded border-gray-300 text-[#0e9496] focus:ring-[#0e9496]"
+                    />
+                    Edit
+                  </label>
+                  <button
+                    onClick={() => handleRemove(perm)}
+                    className="p-1 rounded text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  >
+                    {ICON.trash}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Add user */}
+        {availableProfiles.length > 0 && (
+          <div>
+            <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">
+              Add User
+            </p>
+            <div className="flex gap-2">
+              <select
+                value={selectedUserId}
+                onChange={(e) => setSelectedUserId(e.target.value)}
+                className="flex-1 text-sm px-3 py-1.5 border border-gray-300 dark:border-neutral-600 rounded-lg dark:bg-neutral-800 dark:text-white focus:ring-2 focus:ring-[#0e9496] focus:border-transparent"
+              >
+                <option value="">Select user…</option>
+                {availableProfiles.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name || p.email || p.id.slice(0, 8)}
+                  </option>
+                ))}
+              </select>
+              <label className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  checked={addCanView}
+                  onChange={(e) => setAddCanView(e.target.checked)}
+                  className="rounded border-gray-300 text-[#0e9496] focus:ring-[#0e9496]"
+                />
+                View
+              </label>
+              <label className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 cursor-pointer select-none whitespace-nowrap">
+                <input
+                  type="checkbox"
+                  checked={addCanEdit}
+                  onChange={(e) => setAddCanEdit(e.target.checked)}
+                  className="rounded border-gray-300 text-[#0e9496] focus:ring-[#0e9496]"
+                />
+                Edit
+              </label>
+              <button
+                onClick={handleAddUser}
+                disabled={!selectedUserId || saving}
+                className="px-3 py-1.5 text-sm rounded-lg bg-[#0e9496] text-white hover:bg-[#0c7c7e] disabled:opacity-50"
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        )}
+
+        {availableProfiles.length === 0 && perms.length === 0 && (
+          <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-2">
+            All members already have access
+          </p>
+        )}
+      </div>
+    </div>
+  )
 }
 
 export const Files = () => {
@@ -45,7 +284,8 @@ export const Files = () => {
   const [showNewFolder, setShowNewFolder] = useState(false)
   const [newFolderName, setNewFolderName] = useState('')
   const [uploading, setUploading] = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(null) // {type, item}
+  const [confirmDelete, setConfirmDelete] = useState(null)
+  const [permissionsTarget, setPermissionsTarget] = useState(null) // { resource, resourceType }
   const fileInputRef = useRef(null)
 
   const currentProfile = (profiles || []).find((p) => p.id === user?.id)
@@ -128,6 +368,13 @@ export const Files = () => {
       setConfirmDelete(null)
     }
   }
+
+  const visibilityBadge = (item) =>
+    item.visibility === 'restricted' ? (
+      <span className="shrink-0 flex items-center gap-0.5 text-xs text-amber-600 dark:text-amber-400">
+        {ICON.lock}
+      </span>
+    ) : null
 
   return (
     <div className="px-4 py-4">
@@ -220,8 +467,18 @@ export const Files = () => {
               <button className="flex items-center gap-3 flex-1 min-w-0 text-left" onClick={() => navigateInto(folder)}>
                 {ICON.folder}
                 <span className="font-medium text-gray-900 dark:text-white truncate">{folder.name}</span>
+                {visibilityBadge(folder)}
                 <span className="ml-auto text-gray-400 shrink-0">{ICON.chevron}</span>
               </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setPermissionsTarget({ resource: folder, resourceType: 'folder' })}
+                  className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-[#0e9496] hover:bg-teal-50 dark:hover:bg-teal-900/20 opacity-0 group-hover:opacity-100 transition-all"
+                  title="Manage permissions"
+                >
+                  {ICON.lock}
+                </button>
+              )}
               {canDelete(folder) && (
                 <button
                   onClick={() => setConfirmDelete({ type: 'folder', item: folder })}
@@ -244,7 +501,17 @@ export const Files = () => {
                   <p className="font-medium text-gray-900 dark:text-white truncate text-sm">{file.name}</p>
                   {file.size && <p className="text-xs text-gray-400">{formatSize(file.size)}</p>}
                 </div>
+                {visibilityBadge(file)}
               </button>
+              {isAdmin && (
+                <button
+                  onClick={() => setPermissionsTarget({ resource: file, resourceType: 'file' })}
+                  className="shrink-0 p-1.5 rounded-lg text-gray-400 hover:text-[#0e9496] hover:bg-teal-50 dark:hover:bg-teal-900/20 opacity-0 group-hover:opacity-100 transition-all"
+                  title="Manage permissions"
+                >
+                  {ICON.lock}
+                </button>
+              )}
               {canDelete(file) && (
                 <button
                   onClick={() => setConfirmDelete({ type: 'file', item: file })}
@@ -279,6 +546,17 @@ export const Files = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Permissions modal */}
+      {permissionsTarget && (
+        <PermissionsModal
+          resource={permissionsTarget.resource}
+          resourceType={permissionsTarget.resourceType}
+          profiles={profiles}
+          currentUserId={user?.id}
+          onClose={() => setPermissionsTarget(null)}
+        />
       )}
     </div>
   )

@@ -3,6 +3,7 @@ import { supabase } from '@/supabaseClient'
 export const useFilesStore = create((set, get) => ({
   folders: [],
   files: [],
+  permissions: {},
   loading: false,
   error: null,
 
@@ -89,5 +90,68 @@ export const useFilesStore = create((set, get) => ({
       .createSignedUrl(storagePath, 3600)
     if (error) throw error
     return data.signedUrl
+  },
+
+  fetchPermissions: async (resourceType, resourceId) => {
+    const { data, error } = await supabase
+      .from('file_permissions')
+      .select('*, profiles(id, name, email)')
+      .eq('resource_type', resourceType)
+      .eq('resource_id', resourceId)
+    if (error) throw error
+    const key = `${resourceType}:${resourceId}`
+    set((state) => ({ permissions: { ...state.permissions, [key]: data || [] } }))
+    return data || []
+  },
+
+  upsertPermission: async (resourceType, resourceId, userId, canView, canEdit, grantedBy) => {
+    const { data, error } = await supabase
+      .from('file_permissions')
+      .upsert(
+        { resource_type: resourceType, resource_id: resourceId, user_id: userId, can_view: canView, can_edit: canEdit, granted_by: grantedBy },
+        { onConflict: 'resource_type,resource_id,user_id' }
+      )
+      .select('*, profiles(id, name, email)')
+      .single()
+    if (error) throw error
+    const key = `${resourceType}:${resourceId}`
+    set((state) => ({
+      permissions: {
+        ...state.permissions,
+        [key]: [
+          ...(state.permissions[key] || []).filter((p) => p.user_id !== userId),
+          data,
+        ],
+      },
+    }))
+    return data
+  },
+
+  removePermission: async (permissionId, resourceType, resourceId) => {
+    const { error } = await supabase.from('file_permissions').delete().eq('id', permissionId)
+    if (error) throw error
+    const key = `${resourceType}:${resourceId}`
+    set((state) => ({
+      permissions: {
+        ...state.permissions,
+        [key]: (state.permissions[key] || []).filter((p) => p.id !== permissionId),
+      },
+    }))
+  },
+
+  setVisibility: async (resourceType, resourceId, visibility) => {
+    const table = resourceType === 'folder' ? 'file_folders' : 'file_uploads'
+    const { data, error } = await supabase
+      .from(table)
+      .update({ visibility })
+      .eq('id', resourceId)
+      .select()
+      .single()
+    if (error) throw error
+    const stateKey = resourceType === 'folder' ? 'folders' : 'files'
+    set((state) => ({
+      [stateKey]: state[stateKey].map((item) => (item.id === resourceId ? { ...item, visibility } : item)),
+    }))
+    return data
   },
 }))

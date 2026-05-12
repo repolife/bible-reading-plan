@@ -3,6 +3,8 @@ import { createClient } from "@sanity/client";
 import { Link } from "react-router-dom";
 import { ScrollToTop } from "@components/Shared/ScrollToTop";
 import { Spinner } from "@components/Shared/Spinner/Spinner";
+import { useAuthStore } from "@store/useAuthStore";
+import { useProfileStore } from "@store/useProfileStore";
 
 const client = createClient({
   projectId: import.meta.env.VITE_SANITY_PROJECT_ID,
@@ -16,6 +18,12 @@ export const SongList = () => {
   const [songs, setSongs] = useState([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuthStore();
+  const { profiles, fetchAllUserProfiles } = useProfileStore();
+
+  useEffect(() => { fetchAllUserProfiles() }, [fetchAllUserProfiles]);
+
+  const isAdmin = (profiles || []).find((p) => p.id === user?.id)?.is_admin === true;
 
   useEffect(() => {
     client
@@ -54,9 +62,24 @@ export const SongList = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-[22px] font-bold text-[#0b2020]">Songs</h1>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#0e9496" className="w-6 h-6">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.66A2.25 2.25 0 0 0 9 15.553Z" />
-        </svg>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <a
+              href="https://mo-fellowship.sanity.studio"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg bg-[#0e9496] text-white hover:bg-[#0c7c7e] transition-colors font-medium"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+              Add Song
+            </a>
+          )}
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#0e9496" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 1 1-.99-3.467l2.31-.66a2.25 2.25 0 0 0 1.632-2.163Zm0 0V2.25L9 5.25v10.303m0 0v3.75a2.25 2.25 0 0 1-1.632 2.163l-1.32.377a1.803 1.803 0 0 1-.99-3.467l2.31-.66A2.25 2.25 0 0 0 9 15.553Z" />
+          </svg>
+        </div>
       </div>
 
       {/* Search */}

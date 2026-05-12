@@ -2,84 +2,114 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { createClient } from "contentful";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
-import { BLOCKS, MARKS } from "@contentful/rich-text-types";
-
-
+import { BLOCKS } from "@contentful/rich-text-types";
 import { ScrollToTop } from "@components/Shared/ScrollToTop";
 
 const env = import.meta.env;
 
-// Use VITE_ACCESS_TOKEN if available, otherwise fall back to VITE_CONTENT_ID
-const accessToken = env.VITE_CONTENT_ID;
-
-if (!accessToken) {
-  console.error('Contentful access token is missing. Please set VITE_ACCESS_TOKEN or VITE_CONTENT_ID in your .env file');
-}
-
 const client = createClient({
   space: env.VITE_SPACE_ID,
-  accessToken: accessToken || '', // Provide empty string as fallback to prevent crash
+  accessToken: env.VITE_CONTENT_ID || '',
   environment: "master",
+});
+
+const FONT_SIZES = ['text-base', 'text-lg', 'text-xl', 'text-2xl', 'text-3xl'];
+const DEFAULT_SIZE = 2; // text-xl
+
+const richTextOptions = (fontSize) => ({
+  renderNode: {
+    [BLOCKS.PARAGRAPH]: (node, children) => (
+      <p className={`${fontSize} leading-relaxed mb-6 whitespace-pre-wrap`}>{children}</p>
+    ),
+  },
+  renderText: (text) =>
+    text.split("\n").reduce((acc, segment, i) => [
+      ...acc, i > 0 && <br key={i} />, segment
+    ], []),
 });
 
 export const Song = () => {
   const { songId } = useParams();
   const [song, setSong] = useState(null);
-  const [songtitle, setSongTitle] = useState("");
+  const [notes, setNotes] = useState(null);
+  const [title, setTitle] = useState("");
+  const [sizeIdx, setSizeIdx] = useState(DEFAULT_SIZE);
+  const [notesOpen, setNotesOpen] = useState(false);
 
   useEffect(() => {
-    if (songId === undefined) return;
-    console.log(songId);
-    const fetchReadingPlan = async () => {
-      try {
-        const response = await client.getEntry(songId);
-        const title = response.fields.title;
-        setSongTitle(title);
-        const data = response.fields.lyrics;
-        setSong(data);
-        console.log(data);
-      } catch (error) {
-        console.error("Error fetching data from Contentful", error);
-      }
-    };
-
-    fetchReadingPlan();
+    if (!songId) return;
+    client.getEntry(songId)
+      .then((res) => {
+        setTitle(res.fields.title || "");
+        setSong(res.fields.lyrics || null);
+        setNotes(res.fields.notes || null);
+      })
+      .catch((err) => console.error("Error fetching song", err));
   }, [songId]);
 
-  if (!song) {
-    return null;
-  }
-  const Text = ({ children }) => (
-    <p className="text-center  pb-10">{children}</p>
-  );
+  if (!song) return null;
 
-  const options = {
-    renderNode: {
-      [BLOCKS.PARAGRAPH]: (node, children) => <Text>{children}</Text>,
-    },
-    renderText: (text) =>
-      text.split("\n").reduce((children, textSegment, index) => {
-        return [...children, index > 0 && <br key={index} />, textSegment];
-      }, []),
-  };
+  const fontSize = FONT_SIZES[sizeIdx];
 
   return (
-    <>
-      <div className="flex flex-col justify-center content-center items-center ">
-        {songtitle !== "" ? (
-          <h4 className="text-3xl mb-4 text-default-font">{songtitle}</h4>
-        ) : null}
+    <div className="max-w-lg mx-auto px-4 py-6">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4 mb-6">
+        <h1 className="text-2xl font-bold text-[#0b2020] dark:text-white leading-tight">{title}</h1>
 
-        {/* Test input field to check visibility */}
-        <div className="mb-4 w-full max-w-md">
-
-        </div>
-
-        <div className="text-2xl text-center w-full min-h-screen p-4">
-          {documentToReactComponents(song, options)}
+        {/* Font size controls */}
+        <div className="flex items-center gap-1 shrink-0 mt-1">
+          <button
+            onClick={() => setSizeIdx((i) => Math.max(0, i - 1))}
+            disabled={sizeIdx === 0}
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#c8e8e9] dark:border-neutral-700 text-[#0e9496] disabled:opacity-30 hover:bg-[#e0f5f5] dark:hover:bg-neutral-800 transition-colors"
+            aria-label="Decrease font size"
+          >
+            <span className="text-sm font-bold">A</span>
+          </button>
+          <button
+            onClick={() => setSizeIdx((i) => Math.min(FONT_SIZES.length - 1, i + 1))}
+            disabled={sizeIdx === FONT_SIZES.length - 1}
+            className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#c8e8e9] dark:border-neutral-700 text-[#0e9496] disabled:opacity-30 hover:bg-[#e0f5f5] dark:hover:bg-neutral-800 transition-colors"
+            aria-label="Increase font size"
+          >
+            <span className="text-lg font-bold">A</span>
+          </button>
         </div>
       </div>
+
+      {/* Lyrics */}
+      <div className="text-[#0b2020] dark:text-neutral-100">
+        {documentToReactComponents(song, richTextOptions(fontSize))}
+      </div>
+
+      {/* Notes */}
+      {notes && (
+        <div className="mt-6 border-t border-[#c8e8e9] dark:border-neutral-700 pt-4">
+          <button
+            onClick={() => setNotesOpen((o) => !o)}
+            className="flex items-center justify-between w-full text-left"
+          >
+            <span className="text-sm font-semibold text-[#0e9496] uppercase tracking-wide">Notes</span>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className={`w-4 h-4 text-[#0e9496] transition-transform ${notesOpen ? 'rotate-180' : ''}`}
+            >
+              <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+            </svg>
+          </button>
+
+          {notesOpen && (
+            <div className="mt-3 text-[#0b2020] dark:text-neutral-200">
+              {documentToReactComponents(notes, richTextOptions('text-sm'))}
+            </div>
+          )}
+        </div>
+      )}
+
       <ScrollToTop />
-    </>
+    </div>
   );
 };

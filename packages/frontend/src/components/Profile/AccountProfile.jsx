@@ -220,11 +220,11 @@ export const AccountProfile = ({ setIsStepValid }) => {
           />
 
           <Typography variant="h6" color="primary" className="-mb-3">
-            Name
+            Full Name
           </Typography>
           <Input
             size="lg"
-            placeholder="Name"
+            placeholder="Full Name"
             className="!border-t-neutral-300 dark:!border-t-neutral-600 focus:!border-t-brand-primary !text-neutral-900 dark:!text-neutral-100 !bg-neutral-50 dark:!bg-neutral-800"
             labelProps={{ className: "before:content-none after:content-none" }}
             {...register("name")}

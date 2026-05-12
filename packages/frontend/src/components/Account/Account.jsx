@@ -7,11 +7,17 @@ import { useProfileStore } from "@store/useProfileStore";
 import { NotificationPreferences } from "@components/Notifications/NotificationPreferences";
 import { supabase } from "@/supabaseClient";
 
+const BellIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+    <path d="M10 2a6 6 0 00-6 6v1.268a2 2 0 00-.553 1.462c0 .828.52 1.55 1.265 1.851L5 14h10l.288-1.419A2 2 0 0016.553 10.73 2 2 0 0016 9.268V8a6 6 0 00-6-6zM8.5 17a1.5 1.5 0 003 0h-3z" />
+  </svg>
+);
+
 const pages = [
   { key: "Profile", component: <AccountProfile /> },
   { key: "Password", component: <ConfirmPasswordForm /> },
   { key: "Host", component: <FamilyGroupForm /> },
-  { key: "Notifs", component: <NotificationPreferences /> },
+  { key: "Notifs", label: <BellIcon />, component: <NotificationPreferences /> },
 ];
 
 export const Account = () => {
@@ -48,7 +54,7 @@ export const Account = () => {
                 : "text-[#3d6e70] hover:bg-[#f0fafa]"
             }`}
           >
-            {key}
+            {pages.find((p) => p.key === key)?.label ?? key}
           </button>
         ))}
       </div>

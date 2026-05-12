@@ -278,245 +278,183 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
   // If modal should be open, show the modal
   else if (shouldShowModal) {
     content = (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary">
-        <div className="w-full h-full bg-primary  overflow-y-auto">
-          {/* Header */}
-          <div className="sticky top-0 bg-neutral-200 dark:bg-neutral-800 border-b border-neutral-border p-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-                {isEdit ? 'Edit Event' : (selectedSlot ? 'Create Event at Selected Time' : 'Create New Event')}
-              </h2>
-              <button
-                onClick={handleClose}
-                className="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200 text-2xl font-bold"
-              >
-                ×
-              </button>
-            </div>
+      <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-neutral-900 overflow-hidden">
+        {/* Header */}
+        <div className="sticky top-0 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3 flex items-center justify-between shrink-0">
+          <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+            {isEdit ? 'Edit Event' : 'New Event'}
+          </h2>
+          <button
+            onClick={handleClose}
+            className="w-8 h-8 flex items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xl font-bold"
+          >
+            ×
+          </button>
+        </div>
 
-            {/* Show selected slot info if available */}
-            {selectedSlot && (
-              <div className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
-                Selected: {selectedSlot.date.toLocaleDateString()} at {selectedSlot.time}
-              </div>
-            )}
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+          {selectedSlot && (
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              {selectedSlot.date.toLocaleDateString()} at {selectedSlot.time}
+            </p>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Title *</label>
+            <input
+              type="text"
+              value={eventData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
+              placeholder="Event title"
+            />
           </div>
 
-          {/* Body */}
-          <div className="p-6 space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Description</label>
+            <textarea
+              value={eventData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              rows={3}
+              className="w-full px-3 py-2.5 text-sm text-black dark:text-white bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496] resize-none"
+              placeholder="Optional description"
+            />
+          </div>
+
+          {/* Start row */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                Event Title *
-              </label>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Start Date *</label>
               <input
-                type="text"
-                value={eventData.title}
-                onChange={(e) => handleInputChange('title', e.target.value)}
-                className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                placeholder="Enter event title"
+                type="date"
+                value={eventData.startDate}
+                onChange={(e) => handleInputChange('startDate', e.target.value)}
+                className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                Description
-              </label>
-              <textarea
-                value={eventData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                rows={4}
-                className="w-full px-4 py-3 text-black dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none shadow-sm"
-                placeholder="Enter event description"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                  Start Date *
-                </label>
-                <input
-                  type="date"
-                  value={eventData.startDate}
-                  onChange={(e) => handleInputChange('startDate', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                  Start Time
-                </label>
-                <input
-                  type="time"
-                  value={eventData.startTime}
-                  onChange={(e) => handleInputChange('startTime', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                  End Date
-                </label>
-                <input
-                  type="date"
-                  value={eventData.endDate}
-                  onChange={(e) => handleInputChange('endDate', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                  End Time
-                </label>
-                <input
-                  type="time"
-                  value={eventData.endTime}
-                  onChange={(e) => handleInputChange('endTime', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                  Location
-                </label>
-                <Autocomplete
-                  apiKey={env.VITE_ADDRESS_VALIDATION}
-                  onPlaceSelected={(place) => {
-                    const address = place.formatted_address || place.name || ''
-                    handleInputChange('location', address)
-                  }}
-                  value={eventData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                  placeholder={familyGroup?.address || "Enter event location"}
-                  options={{
-                    types: ['establishment', 'geocode'],
-                    componentRestrictions: { country: 'us' }
-                  }}
-                />
-                {familyGroup?.address && (
-                  <div className="mt-1 text-xs text-white dark:text-neutral-400">
-                    Default: {familyGroup.address}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                  Event Type
-                </label>
-                <select
-                  value={eventData.eventType}
-                  onChange={(e) => handleInputChange('eventType', e.target.value)}
-                  className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                  disabled={eventTypes.length === 0}
-                >
-                  {eventTypes.length === 0 ? (
-                    <option value="">Loading event types...</option>
-                  ) : (
-                    eventTypes.map(type => (
-                      <option key={type.id} value={type.id}>{type.label}</option>
-                    ))
-                  )}
-                </select>
-                {eventTypes.length === 0 && (
-                  <div className="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-                    No event types available. Please try refreshing.
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                Food Theme
-              </label>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Start Time</label>
               <input
-                type="text"
-                value={eventData.food_theme}
-                onChange={(e) => handleInputChange('food_theme', e.target.value)}
-                className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                placeholder="e.g., Mediterranean, BBQ, Italian, Vegetarian, or leave as 'none'"
+                type="time"
+                value={eventData.startTime}
+                onChange={(e) => handleInputChange('startTime', e.target.value)}
+                className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
               />
-              <div className="mt-1 text-xs text-white dark:text-neutral-400">
-                Optional: Specify the food theme for this event (default: none)
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-neutral-800 dark:text-neutral-200 mb-2">
-                Max Families/People
-              </label>
-              <input
-                type="text"
-                value={eventData.max_capacity}
-                onChange={(e) => handleInputChange('max_capacity', e.target.value)}
-                className="w-full px-4 py-3 text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
-                placeholder="e.g., 5 families or 10 people (leave empty for no limit)"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="allDay"
-                checked={eventData.allDay}
-                onChange={(e) => handleInputChange('allDay', e.target.checked)}
-                className="w-4 h-4 text-primary bg-white dark:bg-neutral-700 border-neutral-border rounded focus:ring-primary focus:ring-2"
-              />
-              <label htmlFor="allDay" className="ml-2 text-sm text-neutral-700 dark:text-neutral-300">
-                All Day Event
-              </label>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="sticky bottom-0  p-6">
-            <div className="flex justify-between">
-              {isEdit && (
-                <Button
-                  variant="solid"
-                  color="red"
-                  onClick={() => {
-                    if (window.confirm('Are you sure you want to delete this event?')) {
-                      // Call the delete handler from parent component
-                      if (onEventCreate && editingEvent) {
-                        // We'll use the onEventCreate prop to handle deletion
-                        // The parent component will need to check if the event has a special flag
-                        onEventCreate({ ...editingEvent, _action: 'delete' })
-                      }
-                    }
-                  }}
-                >
-                  Delete Event
-                </Button>
-              )}
-              <div className="flex space-x-3">
-                <Button
-                  variant="solid"
-                  color='secondary'
-                  onClick={handleClose}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  color='secondary'
-                  variant="solid"
-
-                  onClick={handleSubmit}
-                  disabled={!eventData.title || !eventData.startDate}
-                >
-                  {isEdit ? 'Update Event' : 'Create Event'}
-                </Button>
-              </div>
+          {/* End row */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">End Date</label>
+              <input
+                type="date"
+                value={eventData.endDate}
+                onChange={(e) => handleInputChange('endDate', e.target.value)}
+                className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">End Time</label>
+              <input
+                type="time"
+                value={eventData.endTime}
+                onChange={(e) => handleInputChange('endTime', e.target.value)}
+                className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
+              />
             </div>
           </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Location</label>
+            <Autocomplete
+              apiKey={env.VITE_ADDRESS_VALIDATION}
+              onPlaceSelected={(place) => handleInputChange('location', place.formatted_address || place.name || '')}
+              value={eventData.location}
+              onChange={(e) => handleInputChange('location', e.target.value)}
+              className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
+              placeholder={familyGroup?.address || "Location"}
+              options={{ types: ['establishment', 'geocode'], componentRestrictions: { country: 'us' } }}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Event Type</label>
+            <select
+              value={eventData.eventType}
+              onChange={(e) => handleInputChange('eventType', e.target.value)}
+              className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
+              disabled={eventTypes.length === 0}
+            >
+              {eventTypes.length === 0
+                ? <option value="">Loading…</option>
+                : eventTypes.map(t => <option key={t.id} value={t.id}>{t.label}</option>)
+              }
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Food Theme</label>
+            <input
+              type="text"
+              value={eventData.food_theme}
+              onChange={(e) => handleInputChange('food_theme', e.target.value)}
+              className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
+              placeholder="e.g. Mediterranean, BBQ (or leave as 'none')"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Max Families / People</label>
+            <input
+              type="text"
+              value={eventData.max_capacity}
+              onChange={(e) => handleInputChange('max_capacity', e.target.value)}
+              className="w-full px-3 py-2.5 text-sm text-black bg-white dark:bg-neutral-800 dark:text-white border border-neutral-300 dark:border-neutral-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0e9496]"
+              placeholder="Leave empty for no limit"
+            />
+          </div>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="allDay"
+              checked={eventData.allDay}
+              onChange={(e) => handleInputChange('allDay', e.target.checked)}
+              className="w-4 h-4 rounded border-neutral-300 text-[#0e9496] focus:ring-[#0e9496]"
+            />
+            <span className="text-sm text-neutral-700 dark:text-neutral-300">All Day Event</span>
+          </label>
+        </div>
+
+        {/* Footer */}
+        <div className="shrink-0 border-t border-neutral-200 dark:border-neutral-700 px-4 py-3 flex gap-3">
+          {isEdit && (
+            <button
+              onClick={() => {
+                if (window.confirm('Delete this event?')) {
+                  if (onEventCreate && editingEvent) onEventCreate({ ...editingEvent, _action: 'delete' })
+                }
+              }}
+              className="px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950/30 transition-colors"
+            >
+              Delete
+            </button>
+          )}
+          <button
+            onClick={handleClose}
+            className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            disabled={!eventData.title || !eventData.startDate}
+            className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-[#0e9496] text-white hover:bg-[#0c7c7e] disabled:opacity-50 transition-colors"
+          >
+            {isEdit ? 'Update' : 'Create'}
+          </button>
         </div>
       </div>
     )

@@ -16,22 +16,25 @@ import { useProfileStore } from "../../store/useProfileStore";
 import { Spinner } from "../Shared/Spinner/Spinner";
 
 const SERVANT_ROLES = [
-  'Schedule Coordination',
   'Adult Teaching',
+  'Care & Support',
+  'Discipleship',
+  'Elder',
+  'Encouragement',
+  'Evangelism',
+  'Feast Planning',
+  'Feasts',
   'Kid Ministry',
-  "Women's Events",
   "Men's Events",
   'New Member Care',
-  'Encouragement',
-  'Needs',
+  'Nursery',
+  'On-Call Support',
+  'Outreach Planning',
   'Prayer',
-  'Discipleship',
-  'Outreach',
-  'Planning / Coordination',
-  'Evangelism',
+  'Shabbat Schedule Coordination',
+  'Teen Ministry',
+  "Women's Events",
   'Worship',
-  'Feasts',
-  'Planning & Implementation',
 ]
 
 export const AccountProfile = ({ setIsStepValid }) => {

@@ -93,12 +93,13 @@ export const MonthlyEventsPreview = () => {
     if (!allEvents || allEvents.length === 0) return []
 
     const now = new Date()
-    const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000)
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    const thirtyDaysFromNow = new Date(startOfToday.getTime() + 30 * 24 * 60 * 60 * 1000)
 
     return allEvents
       .filter(event => {
         const eventDate = new Date(event.event_start)
-        return eventDate >= now && eventDate <= thirtyDaysFromNow
+        return eventDate >= startOfToday && eventDate <= thirtyDaysFromNow
       })
       .sort((a, b) => new Date(a.event_start) - new Date(b.event_start))
       .slice(0, 4)

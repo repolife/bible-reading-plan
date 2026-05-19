@@ -152,9 +152,11 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <GlobalErrorBoundary>
-        <RouterProvider router={router} />
-      </GlobalErrorBoundary>
+      <ThemeProvider>
+        <GlobalErrorBoundary>
+          <RouterProvider router={router} />
+        </GlobalErrorBoundary>
+      </ThemeProvider>
     </QueryClientProvider>
   </React.StrictMode>
 );

@@ -35,7 +35,7 @@ export const SongList = () => {
         })));
         setIsLoading(false);
       })
-      .catch(console.error);
+      .catch((err) => { console.error(err); setIsLoading(false); });
   }, []);
 
   const filteredSongs = useMemo(() => {

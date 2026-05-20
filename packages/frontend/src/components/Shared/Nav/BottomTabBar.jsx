@@ -71,11 +71,15 @@ export const BottomTabBar = () => {
   if (hiddenPaths.includes(location.pathname)) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#c8e8e9] flex h-16 shrink-0 z-50">
-      {tabs.map((tab) => {
+    <div
+      className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#c8e8e9] flex shrink-0 z-50"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      {tabs.map((tab, index) => {
         const isActive =
           tab.path === "/" ? location.pathname === "/" : location.pathname.startsWith(tab.path);
         const color = isActive ? "#0e9496" : "#3d6e70";
+        const isEdge = index === 0 || index === tabs.length - 1;
 
         const handlePress = () => {
           if (tab.auth && !isAuthenticated) {
@@ -89,11 +93,15 @@ export const BottomTabBar = () => {
           <button
             key={tab.path}
             onClick={handlePress}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5"
-            style={{ color }}
+            className="flex-1 flex flex-col items-center justify-center gap-0.5 h-16 min-w-0"
+            style={{
+              color,
+              paddingLeft: index === 0 ? "max(8px, env(safe-area-inset-left))" : undefined,
+              paddingRight: index === tabs.length - 1 ? "max(8px, env(safe-area-inset-right))" : undefined,
+            }}
           >
             {tab.icon(isActive)}
-            <span className={`text-[11px] ${isActive ? "font-semibold" : "font-medium"}`}>
+            <span className={`text-[10px] leading-tight truncate w-full text-center ${isActive ? "font-semibold" : "font-medium"}`}>
               {tab.label}
             </span>
           </button>

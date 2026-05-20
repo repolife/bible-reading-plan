@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import readingPlan from "data/bible_plan.json";
 import { ReadingItem } from "../ReadingItem/ReadingItem";
 import { ErrorBoundary } from "react-error-boundary";
@@ -9,6 +9,7 @@ export const FilteredReadingPlan = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const dateInputRef = useRef(null);
 
   const getStartOfWeek = (date) => {
     const d = new Date(date);
@@ -50,18 +51,22 @@ export const FilteredReadingPlan = () => {
       </div>
 
       {/* Date picker */}
-      <label className="flex items-center justify-between bg-white border border-[#c8e8e9] rounded-xl px-4 py-3 cursor-pointer">
+      <div
+        className="relative flex items-center justify-between bg-white border border-[#c8e8e9] rounded-xl px-4 py-3 cursor-pointer"
+        onClick={() => dateInputRef.current?.showPicker()}
+      >
         <span className="text-sm font-medium text-[#0b2020]">{dateRange}</span>
         <input
+          ref={dateInputRef}
           type="date"
-          className="opacity-0 w-0 h-0 absolute"
+          className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="#0e9496" className="w-5 h-5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
         </svg>
-      </label>
+      </div>
 
       {isShabbat && (
         <p className="text-center text-[#0e9496] font-semibold">Shabbat Shalom! 🎺</p>

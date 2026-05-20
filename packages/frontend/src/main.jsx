@@ -48,7 +48,7 @@ const RootLayout = () => {
     <Layout>
       <Nav />
       <ToastContainer position="top-center" />
-      <div className="flex-1 overflow-y-auto pb-16">
+      <div className="flex-1 overflow-y-auto pb-16 md:pb-0">
         <Outlet />
       </div>
       <BottomTabBar />

@@ -4,19 +4,9 @@ import youVersion from "data/youversion.json";
 export const ReadingItem = ({ passage }) => {
   const preparedPassage = useMemo(() => {
     const words = passage.split(" ");
-    const firstWord = words[0];
-    let parsedBook, chapter, filteredBook;
-
-    if (isNaN(Number(firstWord))) {
-      parsedBook = firstWord;
-      chapter = words.pop();
-      filteredBook = youVersion.filter((b) => b.name === parsedBook);
-    } else {
-      parsedBook = `${firstWord} ${words[1]}`;
-      chapter = words.pop();
-      filteredBook = youVersion.filter((b) => b.name === parsedBook);
-    }
-
+    const chapter = words[words.length - 1];
+    const parsedBook = words.slice(0, -1).join(" ");
+    const filteredBook = youVersion.filter((b) => b.name === parsedBook);
     return { parsedBook, filteredBook, chapter };
   }, [passage]);
 

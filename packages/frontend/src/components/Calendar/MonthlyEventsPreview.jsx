@@ -229,24 +229,21 @@ export const MonthlyEventsPreview = () => {
                   Hosted by {familyGroups[event.family_id] || 'Family Group'}
                 </Typography>
                 
-                <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 text-sm text-gray-600 dark:text-gray-400">
-                  {event.location && (
-                    <div className="flex items-center space-x-1">
-                      <MapPinIcon className="h-4 w-4" />
-                      <button
-                        onClick={() => {
-                          const encodedAddress = encodeURIComponent(event.location)
-                          const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
-                          window.open(googleMapsUrl, '_blank')
-                        }}
-                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:underline cursor-pointer truncate text-left"
-                        title="Click to open in Google Maps"
-                      >
-                        {event.location}
-                      </button>
-                    </div>
-                  )}
-                </div>
+                {event.location && (
+                  <div className="flex items-center gap-1 min-w-0 text-sm text-gray-600 dark:text-gray-400">
+                    <MapPinIcon className="h-4 w-4 shrink-0" />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`, '_blank')
+                      }}
+                      className="text-blue-600 dark:text-blue-400 hover:underline truncate text-left min-w-0"
+                      title="Click to open in Google Maps"
+                    >
+                      {event.location}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Event Type Badge */}

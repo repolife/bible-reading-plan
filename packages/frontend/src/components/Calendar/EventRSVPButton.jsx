@@ -83,7 +83,9 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
           status
         })
         if (onRSVPChange) {
-          onRSVPChange(status, status === 'yes' ? attendeeCount + 1 : attendeeCount)
+          // Get the post-update attendee count from the store
+          const newAttendeeCount = useEventAttendeesStore.getState().getEventAttendeeCount(eventId)
+          onRSVPChange(status, newAttendeeCount)
         }
       }
     } catch (err) {

@@ -180,6 +180,18 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
        message = `🗑️ *Event Deleted*\n\n*${eventTitle}*\nDate: ${eventDate}`;
     }
 
+    if (action === 'rsvp') {
+      const rsvpStatus = (data.rsvpStatus || '').toLowerCase();
+      const rsvpMeta: Record<string, { emoji: string; text: string }> = {
+        yes:   { emoji: '✅', text: 'is attending' },
+        maybe: { emoji: '🤔', text: 'might attend' },
+        no:    { emoji: '❌', text: 'is not attending' }
+      };
+      const meta = rsvpMeta[rsvpStatus] || { emoji: '📝', text: `RSVP'd: ${rsvpStatus || 'unknown'}` };
+      const rsvpFamily = familyName && familyName !== 'Unknown' ? `The ${familyName} family` : 'A family';
+      message = `${meta.emoji} *RSVP Update*\n\n*${rsvpFamily}* ${meta.text} *${eventTitle}*.\nLink: ${eventUrl}`;
+    }
+
     // Send to Telegram
     const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
       method: 'POST',

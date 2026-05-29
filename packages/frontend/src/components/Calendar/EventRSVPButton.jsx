@@ -1,34 +1,59 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Typography } from '@material-tailwind/react'
-import { CheckIcon, XMarkIcon, UserGroupIcon } from '@heroicons/react/24/outline'
+import { CheckIcon, XMarkIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { useEventAttendeesStore, useEventAttendeesSelectors } from '@/store/useEventAttendeesStore'
+import { useFamilyStore } from '@/store/useFamilyGroupStore'
 import { useProfileStore } from '@/store/useProfileStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'react-toastify'
 
+const env = import.meta.env
+
+// The three RSVP choices
+const RSVP_OPTIONS = [
+  { value: 'yes', label: 'Yes', icon: CheckIcon, active: 'bg-green-600 hover:bg-green-700 text-white border-2 border-green-500' },
+  { value: 'maybe', label: 'Maybe', icon: QuestionMarkCircleIcon, active: 'bg-amber-500 hover:bg-amber-600 text-white border-2 border-amber-400' },
+  { value: 'no', label: 'No', icon: XMarkIcon, active: 'bg-red-600 hover:bg-red-700 text-white border-2 border-red-500' }
+]
+
+const STATUS_LABEL = { yes: 'attending', maybe: 'a maybe', no: 'not attending' }
+
+// Text colors for the responses table
+const RSVP_TEXT_COLOR = {
+  yes: 'text-green-600 dark:text-green-400',
+  maybe: 'text-amber-600 dark:text-amber-400',
+  no: 'text-red-600 dark:text-red-400'
+}
+
+// Fire a Telegram alert with the family's RSVP choice (best-effort)
+const sendRSVPAlert = ({ eventId, eventTitle, familyName, status }) => {
+  if (!env.VITE_TELEGRAM_ACTION_URL) return
+  fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      action: 'rsvp',
+      rsvpStatus: status,
+      familyName: familyName || 'A family',
+      event: { id: eventId, event_title: eventTitle },
+      origin: window.location.origin
+    })
+  }).catch(err => console.error('Failed to send RSVP alert:', err))
+}
+
 export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
   const { user: authUser } = useAuthStore()
   const { profile } = useProfileStore()
-  const { 
-    addAttendee, 
-    removeAttendee, 
-    fetchEventAttendees 
-  } = useEventAttendeesStore()
-  
-  // Get current attendance status and count
-  const isAttending = useEventAttendeesSelectors.useIsFamilyAttending(eventId, profile?.family_id)
+  const { familyGroup } = useFamilyStore()
+  const { setRSVP, fetchEventAttendees } = useEventAttendeesStore()
+
+  // Current RSVP choice + count
+  const rsvpStatus = useEventAttendeesSelectors.useFamilyRSVPStatus(eventId, profile?.family_id)
   const attendeeCount = useEventAttendeesSelectors.useEventAttendeeCount(eventId)
   const attendees = useEventAttendeesSelectors.useEventAttendees(eventId)
   const loading = useEventAttendeesSelectors.useLoading()
   const error = useEventAttendeesSelectors.useError()
 
-  // Local state for immediate UI feedback
   const [isProcessing, setIsProcessing] = useState(false)
-
-  // Initialize local state when component mounts or data changes
-  useEffect(() => {
-    console.log('RSVP State Update:', { isAttending, attendeeCount, eventId })
-  }, [isAttending, attendeeCount, eventId])
 
   // Fetch attendees when component mounts
   useEffect(() => {
@@ -37,60 +62,42 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
     }
   }, [eventId, fetchEventAttendees])
 
-  // Handle RSVP toggle
-  const handleRSVPToggle = async () => {
+  const handleRSVP = async (status) => {
     if (!authUser?.id || !profile?.family_id) {
       toast.error('You must be logged in and have a family profile to RSVP')
       return
     }
-
-    if (isProcessing) {
-      return // Prevent double-clicks
+    if (isProcessing || status === rsvpStatus) {
+      return
     }
 
     setIsProcessing(true)
-
-    console.log('RSVP Toggle:', { 
-      eventId, 
-      familyId: profile.family_id, 
-      currentAttending: isAttending,
-      currentCount: attendeeCount 
-    })
-
     try {
-      if (isAttending) {
-        // Cancel RSVP
-        console.log('Cancelling RSVP...')
-        const success = await removeAttendee(eventId, profile.family_id)
-        if (success) {
-          toast.success('RSVP cancelled successfully')
-          // Notify parent component with updated count
-          if (onRSVPChange) {
-            onRSVPChange(false, attendeeCount - 1)
-          }
-        }
-      } else {
-        // Add RSVP
-        console.log('Adding RSVP...')
-        const newAttendee = await addAttendee(eventId, profile.family_id)
-        if (newAttendee) {
-          toast.success('RSVP successful! You are now attending this event.')
-          // Notify parent component with updated count
-          if (onRSVPChange) {
-            onRSVPChange(true, attendeeCount + 1)
-          }
+      const result = await setRSVP(eventId, profile.family_id, status)
+      if (result) {
+        toast.success(`RSVP saved: ${STATUS_LABEL[status]}`)
+        sendRSVPAlert({
+          eventId,
+          eventTitle,
+          familyName: familyGroup?.family_last_name || profile?.family_last_name,
+          status
+        })
+        if (onRSVPChange) {
+          // Get the post-update attendee count from the store
+          const newAttendeeCount = useEventAttendeesStore.getState().getEventAttendeeCount(eventId)
+          onRSVPChange(status, newAttendeeCount)
         }
       }
-    } catch (error) {
-      console.error('RSVP error:', error)
-      toast.error(error.message || 'Failed to update RSVP')
+    } catch (err) {
+      console.error('RSVP error:', err)
+      toast.error(err.message || 'Failed to update RSVP')
     } finally {
       setIsProcessing(false)
     }
   }
 
   // Show loading state
-  if (loading && attendeeCount === 0) {
+  if (loading && !rsvpStatus && attendeeCount === 0) {
     return (
       <div className="flex items-center gap-2">
         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
@@ -123,106 +130,110 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
 
   return (
     <div className="space-y-3">
-      {/* RSVP Button */}
-      <Button
-        onClick={handleRSVPToggle}
-        disabled={loading || isProcessing}
-        className={`w-full flex items-center justify-center gap-2 transition-all duration-200 ${
-          isAttending
-            ? 'bg-red-600 hover:bg-red-700 text-white border-2 border-red-500'
-            : 'bg-blue-600 hover:bg-blue-700 text-white'
-        }`}
-      >
-        {loading || isProcessing ? (
-          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-        ) : isAttending ? (
-          <>
-            <XMarkIcon className="h-4 w-4" />
-            Cancel RSVP
-          </>
-        ) : (
-          <>
-            <UserGroupIcon className="h-4 w-4" />
-            RSVP to Attend
-          </>
-        )}
-      </Button>
+      {/* RSVP Choice Buttons */}
+      <div className="grid grid-cols-3 gap-2">
+        {RSVP_OPTIONS.map(({ value, label, icon: Icon, active }) => {
+          const selected = rsvpStatus === value
+          return (
+            <Button
+              key={value}
+              onClick={() => handleRSVP(value)}
+              disabled={loading || isProcessing}
+              className={`flex items-center justify-center gap-1 transition-all duration-200 ${
+                selected
+                  ? active
+                  : 'bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200'
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {label}
+            </Button>
+          )
+        })}
+      </div>
 
-      {/* Attendee Count */}
+      {/* Attendee Count + current choice */}
       <div className="text-center">
         <Typography variant="small" className="text-gray-600 dark:text-gray-400">
           {attendeeCount} {attendeeCount === 1 ? 'family' : 'families'} attending
         </Typography>
-        
-        {/* RSVP Status Indicator */}
-        {isAttending && (
-          <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
-            <Typography variant="small" className="text-green-700 dark:text-green-300 font-medium">
-              ✓ You are attending this event
+
+        {rsvpStatus && (
+          <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
+            <Typography variant="small" className="text-blue-700 dark:text-blue-300 font-medium">
+              Your RSVP: {STATUS_LABEL[rsvpStatus]}
             </Typography>
           </div>
         )}
       </div>
 
-      {/* Attendees List (if any) */}
+      {/* Responses table (every family + their choice) */}
       {attendees.length > 0 && (
         <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
           <Typography variant="small" className="text-gray-700 dark:text-gray-300 font-medium mb-2">
-            Who's attending:
+            Responses:
           </Typography>
-          <div className="space-y-1">
-            {attendees.map((attendee) => (
-              <div 
-                key={attendee.id} 
-                className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-              >
-                <CheckIcon className="h-3 w-3 text-green-600" />
-                <span>
-                  {attendee.family_groups?.family_last_name || 'Unknown Family'}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Quick Actions */}
-      {isAttending && (
-        <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg">
-          <Typography variant="small" className="text-blue-700 dark:text-blue-300 font-medium mb-1">
-            Want to cancel?
-          </Typography>
-          <Typography variant="small" className="text-blue-600 dark:text-blue-400">
-            Click the red "Cancel RSVP" button above to remove your attendance
-          </Typography>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-500 dark:text-gray-400">
+                <th className="font-medium pb-1">Family</th>
+                <th className="font-medium pb-1 text-right">Response</th>
+              </tr>
+            </thead>
+            <tbody>
+              {attendees.map((attendee) => {
+                const status = attendee.rsvp_status ?? 'yes'
+                const meta = RSVP_OPTIONS.find(o => o.value === status)
+                const Icon = meta?.icon ?? CheckIcon
+                return (
+                  <tr key={attendee.id} className="text-gray-600 dark:text-gray-400">
+                    <td className="py-0.5">
+                      {attendee.family_groups?.family_last_name || 'Unknown Family'}
+                    </td>
+                    <td className="py-0.5">
+                      <span className={`flex items-center justify-end gap-1 font-medium ${RSVP_TEXT_COLOR[status]}`}>
+                        <Icon className="h-3 w-3" />
+                        {meta?.label ?? status}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
   )
 }
 
-// Alternative: Simple RSVP Button (minimal version)
+// Alternative: Simple RSVP Button (minimal yes/maybe/no version)
 export const SimpleRSVPButton = ({ eventId, eventTitle, className = "" }) => {
   const { user: authUser } = useAuthStore()
   const { profile } = useProfileStore()
-  const { addAttendee, removeAttendee } = useEventAttendeesStore()
-  
-  const isAttending = useEventAttendeesSelectors.useIsFamilyAttending(eventId, profile?.family_id)
+  const { familyGroup } = useFamilyStore()
+  const { setRSVP } = useEventAttendeesStore()
+
+  const rsvpStatus = useEventAttendeesSelectors.useFamilyRSVPStatus(eventId, profile?.family_id)
   const loading = useEventAttendeesSelectors.useLoading()
 
-  const handleClick = async () => {
+  const handleClick = async (status) => {
     if (!authUser?.id || !profile?.family_id) {
       toast.error('You must be logged in to RSVP')
       return
     }
+    if (status === rsvpStatus) return
 
     try {
-      if (isAttending) {
-        await removeAttendee(eventId, profile.family_id)
-        toast.success('RSVP cancelled')
-      } else {
-        await addAttendee(eventId, profile.family_id)
-        toast.success('RSVP successful!')
+      const result = await setRSVP(eventId, profile.family_id, status)
+      if (result) {
+        toast.success(`RSVP saved: ${STATUS_LABEL[status]}`)
+        sendRSVPAlert({
+          eventId,
+          eventTitle,
+          familyName: familyGroup?.family_last_name || profile?.family_last_name,
+          status
+        })
       }
     } catch (error) {
       toast.error(error.message || 'Failed to update RSVP')
@@ -230,33 +241,28 @@ export const SimpleRSVPButton = ({ eventId, eventTitle, className = "" }) => {
   }
 
   if (!authUser?.id || !profile?.family_id) {
-    return null // Don't show button if user can't RSVP
+    return null
   }
 
   return (
-    <Button
-      onClick={handleClick}
-      disabled={loading}
-      size="sm"
-      className={`flex items-center gap-2 ${
-        isAttending 
-          ? 'bg-green-600 hover:bg-green-700' 
-          : 'bg-blue-600 hover:bg-blue-700'
-      } ${className}`}
-    >
-      {loading ? (
-        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
-      ) : isAttending ? (
-        <>
-          <CheckIcon className="h-3 w-3" />
-          Attending
-        </>
-      ) : (
-        <>
-          <UserGroupIcon className="h-3 w-3" />
-          RSVP
-        </>
-      )}
-    </Button>
+    <div className={`flex gap-1 ${className}`}>
+      {RSVP_OPTIONS.map(({ value, label, icon: Icon, active }) => {
+        const selected = rsvpStatus === value
+        return (
+          <Button
+            key={value}
+            onClick={() => handleClick(value)}
+            disabled={loading}
+            size="sm"
+            className={`flex items-center gap-1 ${
+              selected ? active : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+            }`}
+          >
+            <Icon className="h-3 w-3" />
+            {label}
+          </Button>
+        )
+      })}
+    </div>
   )
-} 
+}

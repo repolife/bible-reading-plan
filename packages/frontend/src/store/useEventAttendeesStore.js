@@ -116,6 +116,51 @@ export const useEventAttendeesStore = create((set, get) => ({
     }
   },
 
+  // Set / update a family's RSVP choice (yes | no | maybe)
+  setRSVP: async (eventId, familyId, status) => {
+    try {
+      if (!['yes', 'no', 'maybe'].includes(status)) {
+        throw new Error('Invalid RSVP status')
+      }
+      set({ loading: true, error: null })
+
+      const { data, error } = await supabase
+        .from('event_attendees')
+        .upsert(
+          {
+            event_id: eventId,
+            family_id: familyId,
+            rsvp_status: status
+          },
+          { onConflict: 'event_id,family_id' }
+        )
+        .select(`
+          *,
+          family_groups!inner(
+            family_last_name,
+            address
+          )
+        `)
+        .single()
+
+      if (error) throw error
+
+      // Replace existing row for this family/event, or add it
+      set(state => {
+        const rest = state.attendees.filter(
+          a => !(a.event_id === eventId && a.family_id === familyId)
+        )
+        return { attendees: [data, ...rest], loading: false }
+      })
+
+      return data
+    } catch (error) {
+      console.error('Error setting RSVP:', error)
+      set({ error: error.message, loading: false })
+      return null
+    }
+  },
+
   // Remove a family from an event (cancel RSVP)
   removeAttendee: async (eventId, familyId) => {
     try {
@@ -153,10 +198,21 @@ export const useEventAttendeesStore = create((set, get) => ({
     )
   },
 
-  // Get attendee count for a specific event
+  // Get attendee count for a specific event (only families that said "yes")
   getEventAttendeeCount: (eventId) => {
     const state = get()
-    return state.attendees.filter(attendee => attendee.event_id === eventId).length
+    return state.attendees.filter(
+      attendee => attendee.event_id === eventId && (attendee.rsvp_status ?? 'yes') === 'yes'
+    ).length
+  },
+
+  // Get a family's RSVP choice for an event (yes | no | maybe | null)
+  getFamilyRSVPStatus: (eventId, familyId) => {
+    const state = get()
+    const row = state.attendees.find(
+      a => a.event_id === eventId && a.family_id === familyId
+    )
+    return row ? (row.rsvp_status ?? 'yes') : null
   },
 
   // Get all families attending a specific event
@@ -206,10 +262,20 @@ export const useEventAttendeesSelectors = {
     )
   ),
 
-  // Get attendee count for an event
-  useEventAttendeeCount: (eventId) => useEventAttendeesStore(state => 
-    state.attendees.filter(attendee => attendee.event_id === eventId).length
+  // Get attendee count for an event (only families that said "yes")
+  useEventAttendeeCount: (eventId) => useEventAttendeesStore(state =>
+    state.attendees.filter(
+      attendee => attendee.event_id === eventId && (attendee.rsvp_status ?? 'yes') === 'yes'
+    ).length
   ),
+
+  // Get a family's RSVP choice for an event (yes | no | maybe | null)
+  useFamilyRSVPStatus: (eventId, familyId) => useEventAttendeesStore(state => {
+    const row = state.attendees.find(
+      a => a.event_id === eventId && a.family_id === familyId
+    )
+    return row ? (row.rsvp_status ?? 'yes') : null
+  }),
 
   // Get reset loading function
   useResetLoading: () => useEventAttendeesStore(state => state.resetLoading)

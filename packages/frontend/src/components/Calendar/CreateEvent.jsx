@@ -278,7 +278,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
   // If modal should be open, show the modal
   else if (shouldShowModal) {
     content = (
-      <div className="fixed inset-0 z-50 flex flex-col bg-white dark:bg-neutral-900 overflow-hidden">
+      <div className="fixed inset-0 z-[60] h-[100dvh] flex flex-col bg-white dark:bg-neutral-900 overflow-hidden">
         {/* Header */}
         <div className="sticky top-0 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3 flex items-center justify-between shrink-0">
           <h2 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
@@ -429,7 +429,7 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
         </div>
 
         {/* Footer */}
-        <div className="shrink-0 border-t border-neutral-200 dark:border-neutral-700 px-4 py-3 flex gap-3">
+        <div className="shrink-0 border-t border-neutral-200 dark:border-neutral-700 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] flex gap-3">
           {isEdit && (
             <button
               onClick={() => {

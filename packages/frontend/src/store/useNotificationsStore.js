@@ -27,6 +27,10 @@ export const useNotificationsStore = create((set, get) => ({
       .order('created_at', { ascending: false })
       .limit(50)
 
+    // teardown() (e.g. logout) may have run during the await; if the active
+    // family changed, bail without mutating state or leaking a subscription.
+    if (get().familyId !== familyId) return
+
     if (error) {
       console.error('Error fetching notifications:', error)
       set({ error: error.message, loading: false })

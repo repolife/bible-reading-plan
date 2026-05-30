@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@store/useAuthStore";
+import { NotificationBell } from "@components/Notifications/NotificationBell";
 
 const navLinks = [
   { label: "Readings", path: "/" },
@@ -29,8 +30,11 @@ export const Nav = () => {
     <div className="bg-[#0e9496] px-5 h-14 flex items-center justify-between shrink-0">
       <span className="text-white font-bold text-lg">Fellowship 🕎</span>
 
-      {/* Desktop nav links */}
-      <nav className="hidden md:flex items-center gap-1">
+      <div className="flex items-center gap-1">
+        <NotificationBell />
+
+        {/* Desktop nav links */}
+        <nav className="hidden md:flex items-center gap-1">
         {navLinks.map((link) => {
           const isActive =
             link.path === "/"
@@ -63,7 +67,8 @@ export const Nav = () => {
         >
           {isAuthenticated ? "Account" : "Sign In"}
         </button>
-      </nav>
+        </nav>
+      </div>
     </div>
   );
 };

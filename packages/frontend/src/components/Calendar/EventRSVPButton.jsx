@@ -2,12 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { Button, Typography } from '@material-tailwind/react'
 import { CheckIcon, XMarkIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { useEventAttendeesStore, useEventAttendeesSelectors } from '@/store/useEventAttendeesStore'
-import { useFamilyStore } from '@/store/useFamilyGroupStore'
 import { useProfileStore } from '@/store/useProfileStore'
 import { useAuthStore } from '@/store/useAuthStore'
 import { toast } from 'react-toastify'
-
-const env = import.meta.env
 
 // The three RSVP choices
 const RSVP_OPTIONS = [
@@ -25,25 +22,9 @@ const RSVP_TEXT_COLOR = {
   no: 'text-red-600 dark:text-red-400'
 }
 
-// Fire a Telegram alert with the family's RSVP choice (best-effort)
-const sendRSVPAlert = ({ eventId, eventTitle, familyName, status }) => {
-  if (!env.VITE_TELEGRAM_ACTION_URL) return
-  fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
-    method: 'POST',
-    body: JSON.stringify({
-      action: 'rsvp',
-      rsvpStatus: status,
-      familyName: familyName || 'A family',
-      event: { id: eventId, event_title: eventTitle },
-      origin: window.location.origin
-    })
-  }).catch(err => console.error('Failed to send RSVP alert:', err))
-}
-
-export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
+export const EventRSVPButton = ({ eventId, onRSVPChange }) => {
   const { user: authUser } = useAuthStore()
   const { profile } = useProfileStore()
-  const { familyGroup } = useFamilyStore()
   const { setRSVP, fetchEventAttendees } = useEventAttendeesStore()
 
   // Current RSVP choice + count
@@ -76,12 +57,6 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
       const result = await setRSVP(eventId, profile.family_id, status)
       if (result) {
         toast.success(`RSVP saved: ${STATUS_LABEL[status]}`)
-        sendRSVPAlert({
-          eventId,
-          eventTitle,
-          familyName: familyGroup?.family_last_name || profile?.family_last_name,
-          status
-        })
         if (onRSVPChange) {
           // Get the post-update attendee count from the store
           const newAttendeeCount = useEventAttendeesStore.getState().getEventAttendeeCount(eventId)
@@ -208,10 +183,9 @@ export const EventRSVPButton = ({ eventId, eventTitle, onRSVPChange }) => {
 }
 
 // Alternative: Simple RSVP Button (minimal yes/maybe/no version)
-export const SimpleRSVPButton = ({ eventId, eventTitle, className = "" }) => {
+export const SimpleRSVPButton = ({ eventId, className = "" }) => {
   const { user: authUser } = useAuthStore()
   const { profile } = useProfileStore()
-  const { familyGroup } = useFamilyStore()
   const { setRSVP } = useEventAttendeesStore()
 
   const rsvpStatus = useEventAttendeesSelectors.useFamilyRSVPStatus(eventId, profile?.family_id)
@@ -228,12 +202,6 @@ export const SimpleRSVPButton = ({ eventId, eventTitle, className = "" }) => {
       const result = await setRSVP(eventId, profile.family_id, status)
       if (result) {
         toast.success(`RSVP saved: ${STATUS_LABEL[status]}`)
-        sendRSVPAlert({
-          eventId,
-          eventTitle,
-          familyName: familyGroup?.family_last_name || profile?.family_last_name,
-          status
-        })
       }
     } catch (error) {
       toast.error(error.message || 'Failed to update RSVP')

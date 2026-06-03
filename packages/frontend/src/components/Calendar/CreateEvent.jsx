@@ -4,14 +4,10 @@ import { useFamilyStore } from '../../store/useFamilyGroupStore'
 import { useProfileStore } from '../../store/useProfileStore'
 import { Button } from '@material-tailwind/react'
 import Autocomplete from "react-google-autocomplete"
+import { toDateInputValue, toLocalDateString } from '../../utils/dateTime'
 
 
 const env = import.meta.env;
-
-const toLocalDateString = (d) => {
-  const pad = (n) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
-}
 
 export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editingEvent, isEdit = false }) => {
   const { profile } = useProfileStore()
@@ -65,9 +61,9 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
       setEventData({
         title: editingEvent.event_title,
         description: editingEvent.event_description || '',
-        startDate: toLocalDateString(startDate),
+        startDate: toDateInputValue(editingEvent.event_start, { preferStoredDate: editingEvent.all_day }),
         startTime: startDate.toTimeString().slice(0, 5),
-        endDate: toLocalDateString(endDate),
+        endDate: toDateInputValue(editingEvent.event_end || editingEvent.event_start, { preferStoredDate: editingEvent.all_day }),
         endTime: endDate.toTimeString().slice(0, 5),
         allDay: editingEvent.all_day || false,
         location: editingEvent.location || '',

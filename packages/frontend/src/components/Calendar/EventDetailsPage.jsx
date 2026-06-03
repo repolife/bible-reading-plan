@@ -19,6 +19,7 @@ import { EventRSVPButton } from './EventRSVPButton'
 import { DateTimePicker } from '../Shared/DateTimePicker'
 import { toast } from 'react-toastify'
 import { useEventType } from '../../hooks/useEventType'
+import { toDateInputValue, toLocalDateString } from '../../utils/dateTime'
 
 const env = import.meta.env;
 
@@ -101,9 +102,9 @@ export const EventDetailsPage = () => {
             setEditForm({
               title: transformedEvent.title,
               description: transformedEvent.desc || '',
-              startDate: transformedEvent.start.toISOString().split('T')[0],
+              startDate: toDateInputValue(foundEvent.event_start, { preferStoredDate: foundEvent.all_day }),
               startTime: transformedEvent.start.toTimeString().slice(0, 5),
-              endDate: transformedEvent.end ? transformedEvent.end.toISOString().split('T')[0] : transformedEvent.start.toISOString().split('T')[0],
+              endDate: toDateInputValue(foundEvent.event_end || foundEvent.event_start, { preferStoredDate: foundEvent.all_day }),
               endTime: transformedEvent.end ? transformedEvent.end.toTimeString().slice(0, 5) : transformedEvent.start.toTimeString().slice(0, 5),
               allDay: transformedEvent.allDay,
               location: transformedEvent.location || '',
@@ -168,9 +169,9 @@ export const EventDetailsPage = () => {
       setEditForm({
         title: event.title,
         description: event.event_description || '',
-        startDate: event.start.toISOString().split('T')[0],
+        startDate: toLocalDateString(event.start),
         startTime: event.start.toTimeString().slice(0, 5),
-        endDate: event.end ? event.end.toISOString().split('T')[0] : event.start.toISOString().split('T')[0],
+        endDate: event.end ? toLocalDateString(event.end) : toLocalDateString(event.start),
         endTime: event.end ? event.end.toTimeString().slice(0, 5) : event.start.toTimeString().slice(0, 5),
         allDay: event.allDay,
         location: event.location || '',
@@ -520,7 +521,7 @@ export const EventDetailsPage = () => {
                           date={editForm.startDate.toString()}
                           time={editForm.startTime.toString()}
                           onDateTimeChange={(date, time) => {
-                            if (date) handleInputChange('startDate', date.toISOString().split('T')[0])
+                            if (date) handleInputChange('startDate', toLocalDateString(date))
                             if (time) handleInputChange('startTime', time)
                           }}
                         />
@@ -532,7 +533,7 @@ export const EventDetailsPage = () => {
                           date={editForm.endDate}
                           time={editForm.endTime}
                           onDateTimeChange={(date, time) => {
-                            if (date) handleInputChange('endDate', date.toISOString().split('T')[0])
+                            if (date) handleInputChange('endDate', toLocalDateString(date))
                             if (time) handleInputChange('endTime', time)
                           }}
                         /> 

@@ -7,6 +7,7 @@ import {
 import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import { ChevronRightIcon, ChevronLeftIcon } from "@heroicons/react/24/outline";
+import { parseDateInputValue } from "../../utils/dateTime";
 
 export const DateTimePicker = ({ 
   date, 
@@ -15,11 +16,11 @@ export const DateTimePicker = ({
   label = "Select Date",
   disabled = false
 }) => {
-  const [dateDate, setDateDate] = React.useState(date);
+  const [dateDate, setDateDate] = React.useState(() => parseDateInputValue(date));
 
   React.useEffect(() => {
     if (date) {
-      setDateDate(new Date(date));
+      setDateDate(parseDateInputValue(date));
     }
   }, [date]);
 

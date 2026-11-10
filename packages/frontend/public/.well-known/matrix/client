@@ -1,0 +1,5 @@
+{
+  "m.homeserver": {
+    "base_url": "https://172-238-169-102.sslip.io"
+  }
+}

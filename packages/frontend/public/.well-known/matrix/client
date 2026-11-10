@@ -1,5 +1,11 @@
 {
   "m.homeserver": {
     "base_url": "https://172-238-169-102.sslip.io"
-  }
+  },
+  "org.matrix.msc4143.rtc_foci": [
+    {
+      "type": "livekit",
+      "livekit_service_url": "https://172-238-169-102.sslip.io/livekit/jwt"
+    }
+  ]
 }

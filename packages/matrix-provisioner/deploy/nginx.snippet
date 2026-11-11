@@ -1,0 +1,7 @@
+# Inside the existing server block for 172-238-169-102.sslip.io.
+# The trailing slash on proxy_pass strips the /provision/ prefix.
+location /provision/ {
+    client_max_body_size 16k;
+    proxy_pass http://127.0.0.1:8787/;
+    proxy_set_header Host $host;
+}

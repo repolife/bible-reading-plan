@@ -1,0 +1,14 @@
+{
+  "name": "matrix-provisioner",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Narrow, HMAC-authenticated account provisioning service that runs next to Synapse",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.mjs",
+    "test": "node --test test/*.test.mjs"
+  }
+}

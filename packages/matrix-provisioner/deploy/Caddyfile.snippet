@@ -1,0 +1,8 @@
+# Inside the existing 172-238-169-102.sslip.io site block, BEFORE any
+# catch-all reverse_proxy to Synapse. handle_path strips the /provision prefix.
+handle_path /provision/* {
+	request_body {
+		max_size 16KB
+	}
+	reverse_proxy 127.0.0.1:8787
+}

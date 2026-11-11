@@ -1,0 +1,34 @@
+[Unit]
+Description=Matrix account provisioner (loopback only)
+After=network-online.target matrix-synapse.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=matrix-provisioner
+Group=matrix-provisioner
+WorkingDirectory=/opt/matrix-provisioner
+EnvironmentFile=/etc/matrix-provisioner/env
+ExecStart=/usr/bin/node /opt/matrix-provisioner/src/index.mjs
+Restart=on-failure
+RestartSec=5
+
+# Hardening: no privileges, read-only system, writable state dir only.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=false
+StateDirectory=matrix-provisioner
+StateDirectoryMode=0700
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

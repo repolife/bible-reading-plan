@@ -14,14 +14,15 @@ const SERVER = 'ozark-fellowship.netlify.app';
 const HMAC_SECRET = 'h'.repeat(40);
 const SHARED_SECRET = 'registration-shared-secret';
 const ADMIN_TOKEN = 'bot-admin-token';
+const ANNOUNCEMENTS_ROOM = `!alerts:${SERVER}`;
 
 let fake, dir, stateFile, server, baseUrl, logs;
 
-async function startService() {
+async function startService(config = {}) {
   const store = await openStore(stateFile);
   const synapse = createSynapseClient({ baseUrl: fake.url, registrationSharedSecret: SHARED_SECRET, adminToken: ADMIN_TOKEN });
   server = createProvisioner({
-    config: { serverName: SERVER, hmacSecret: HMAC_SECRET },
+    config: { serverName: SERVER, hmacSecret: HMAC_SECRET, announcementsRoomId: ANNOUNCEMENTS_ROOM, ...config },
     store,
     synapse,
     log: (line) => logs.push(line),
@@ -313,5 +314,62 @@ describe('POST /v1/link-codes', () => {
     fake.seed('jared.deuel');
     const res = await post('/v1/link-codes', { user_id: `@jared.deuel:${SERVER}`, code: 'hi' });
     assert.equal(res.status, 400);
+  });
+});
+
+describe('POST /v1/announcements', () => {
+  const announce = (body) => post('/v1/announcements', { text: 'Shabbat moved to 6:00 PM', idempotency_key: randomUUID(), ...body });
+  const alertsRoom = () => fake.rooms.get(ANNOUNCEMENTS_ROOM);
+
+  beforeEach(() => {
+    fake.rooms.set(ANNOUNCEMENTS_ROOM, { messages: [], forbidden: false });
+  });
+
+  it('posts the text to the configured room as a notifying message, without logging it', async () => {
+    const res = await announce({});
+    assert.equal(res.status, 202);
+    assert.deepEqual(alertsRoom().messages.map(({ msgtype, body }) => ({ msgtype, body })), [
+      { msgtype: 'm.text', body: 'Shabbat moved to 6:00 PM' },
+    ]);
+    assert.ok(!logs.join('\n').includes('Shabbat'));
+  });
+
+  it('only ever posts to the configured room', async () => {
+    fake.rooms.set(`!other:${SERVER}`, { messages: [], forbidden: false });
+    const res = await announce({ room_id: `!other:${SERVER}` });
+    assert.equal(res.status, 202);
+    assert.equal(fake.rooms.get(`!other:${SERVER}`).messages.length, 0);
+    assert.equal(alertsRoom().messages.length, 1);
+  });
+
+  it('posts once when a request is retried with the same idempotency key', async () => {
+    const idempotencyKey = randomUUID();
+    assert.equal((await announce({ idempotency_key: idempotencyKey })).status, 202);
+    assert.equal((await announce({ idempotency_key: idempotencyKey })).status, 202);
+    assert.equal(alertsRoom().messages.length, 1);
+  });
+
+  it('validates the text and idempotency key', async () => {
+    for (const body of [{ text: '' }, { text: 42 }, { text: 'x'.repeat(2001) }, { text: 'bad\u0000text' }, { idempotency_key: 'nope' }]) {
+      const res = await announce(body);
+      assert.equal(res.status, 400, JSON.stringify(body));
+      assert.equal(res.body.error, 'invalid_request');
+    }
+    assert.equal(alertsRoom().messages.length, 0);
+  });
+
+  it('returns 503 when no announcements room is configured', async () => {
+    await stopService();
+    await startService({ announcementsRoomId: undefined });
+    const res = await announce({});
+    assert.equal(res.status, 503);
+    assert.equal(res.body.error, 'announcements_not_configured');
+  });
+
+  it('returns 502 when the bot can no longer post in the room', async () => {
+    alertsRoom().forbidden = true;
+    const res = await announce({});
+    assert.equal(res.status, 502);
+    assert.equal(res.body.error, 'announcements_room_unavailable');
   });
 });

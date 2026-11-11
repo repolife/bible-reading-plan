@@ -13,7 +13,7 @@ export class SynapseError extends Error {
  * Minimal client for the local Synapse, reached only over loopback. Uses:
  *   - shared-secret registration (always admin: false)
  *   - admin user lookup and password reset (provisioner bot token)
- *   - client API to send a DM notice (provisioner bot token)
+ *   - client API to send a DM notice or a room message (provisioner bot token)
  * Request and response bodies are never logged.
  */
 export function createSynapseClient({ baseUrl, registrationSharedSecret, adminToken, fetchImpl = fetch }) {
@@ -41,6 +41,18 @@ export function createSynapseClient({ baseUrl, registrationSharedSecret, adminTo
       // Empty or non-JSON body; status code is what matters.
     }
     return { status: response.status, body: parsed ?? {} };
+  }
+
+  // A repeated txnId returns the original event, so retries do not double-post.
+  async function sendMessage(roomId, msgtype, body, txnId) {
+    const res = await call(
+      'PUT',
+      `/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/send/m.room.message/${encodeURIComponent(txnId)}`,
+      { token: adminToken, body: { msgtype, body } },
+    );
+    if (res.status === 200) return true;
+    if (res.status === 403 || res.status === 404) return false;
+    throw new SynapseError(res.status >= 500 ? 'synapse_unavailable' : 'synapse_rejected', res.status);
   }
 
   return {
@@ -109,15 +121,16 @@ export function createSynapseClient({ baseUrl, registrationSharedSecret, adminTo
     },
 
     /** Sends an m.notice. Returns false if the bot can no longer post there. */
-    async sendNotice(roomId, body, txnId) {
-      const res = await call(
-        'PUT',
-        `/_matrix/client/v3/rooms/${encodeURIComponent(roomId)}/send/m.room.message/${encodeURIComponent(txnId)}`,
-        { token: adminToken, body: { msgtype: 'm.notice', body } },
-      );
-      if (res.status === 200) return true;
-      if (res.status === 403 || res.status === 404) return false;
-      throw new SynapseError(res.status >= 500 ? 'synapse_unavailable' : 'synapse_rejected', res.status);
+    sendNotice(roomId, body, txnId) {
+      return sendMessage(roomId, 'm.notice', body, txnId);
+    },
+
+    /**
+     * Sends an m.text, which notifies members (clients mute notices by
+     * default). Returns false if the bot can no longer post there.
+     */
+    sendText(roomId, body, txnId) {
+      return sendMessage(roomId, 'm.text', body, txnId);
     },
   };
 }

@@ -9,6 +9,9 @@ const MAX_BODY_BYTES = 16 * 1024;
 // one this service started creating (clock rounding between us and Synapse).
 const RECOVERY_SLACK_MS = 60_000;
 const PASSWORD_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+const MAX_ANNOUNCEMENT_LENGTH = 2000;
+// Control characters other than newline.
+const CONTROL_CHARS = /[\u0000-\u0009\u000b-\u001f\u007f]/;
 
 class ApiError extends Error {
   constructor(status, code, extra = {}) {
@@ -153,10 +156,33 @@ export function createProvisioner({ config, store, synapse, now = () => Date.now
     return { status: 202, body: { ok: true } };
   }
 
+  // Posts to the one room named in the service's own config; callers cannot
+  // choose a room, so this endpoint can only ever reach that room.
+  async function announce(body) {
+    const { text, idempotency_key: idempotencyKey } = body;
+    if (
+      !isUuid(idempotencyKey) ||
+      typeof text !== 'string' ||
+      !text.trim() ||
+      text.length > MAX_ANNOUNCEMENT_LENGTH ||
+      CONTROL_CHARS.test(text)
+    ) {
+      throw new ApiError(400, 'invalid_request');
+    }
+    if (!config.announcementsRoomId) throw new ApiError(503, 'announcements_not_configured');
+
+    const sent = await synapse.sendText(config.announcementsRoomId, text, idempotencyKey).catch((error) => {
+      throw synapseFailure(error);
+    });
+    if (!sent) throw new ApiError(502, 'announcements_room_unavailable');
+    return { status: 202, body: { ok: true } };
+  }
+
   const routes = {
     'POST /v1/accounts': createAccount,
     'POST /v1/accounts/password': issuePassword,
     'POST /v1/link-codes': sendLinkCode,
+    'POST /v1/announcements': announce,
   };
 
   async function handle(req) {

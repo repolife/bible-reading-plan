@@ -96,11 +96,13 @@ export async function startFakeSynapse({ sharedSecret, adminToken, serverName })
         fake.rooms.set(roomId, { invite: body.invite, isDirect: body.is_direct, messages: [], forbidden: false });
         return send(res, 200, { room_id: roomId });
       }
-      if ((match = /^\/_matrix\/client\/v3\/rooms\/([^/]+)\/send\/m\.room\.message\/[^/]+$/.exec(path))) {
+      if ((match = /^\/_matrix\/client\/v3\/rooms\/([^/]+)\/send\/m\.room\.message\/([^/]+)$/.exec(path))) {
         const room = fake.rooms.get(decodeURIComponent(match[1]));
         if (!room || room.forbidden) return send(res, 403, { errcode: 'M_FORBIDDEN' });
-        room.messages.push(body);
-        return send(res, 200, { event_id: '$e' });
+        // Like Synapse, a repeated transaction ID returns the original event.
+        const txnId = decodeURIComponent(match[2]);
+        if (!room.messages.some((m) => m.txnId === txnId)) room.messages.push({ ...body, txnId });
+        return send(res, 200, { event_id: `$${txnId}` });
       }
       return send(res, 404, { errcode: 'M_UNRECOGNIZED' });
     });

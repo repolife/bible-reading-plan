@@ -3,28 +3,8 @@ import { useProfileStore } from '@store/useProfileStore'
 import { useAuthStore } from '@store/useAuthStore'
 import { Typography } from '@material-tailwind/react'
 import { toast } from 'react-toastify'
+import { SERVANT_ROLES } from '@/utils/servantRoles'
 
-const SERVANT_ROLES = [
-  'Adult Teaching',
-  'Care & Support',
-  'Discipleship',
-  'Elder',
-  'Encouragement',
-  'Evangelism',
-  'Feast Planning',
-  'Feasts',
-  'Kid Ministry',
-  "Men's Events",
-  'New Member Care',
-  'Nursery',
-  'On-Call Support',
-  'Outreach Planning',
-  'Prayer',
-  'Shabbat Schedule Coordination',
-  'Teen Ministry',
-  "Women's Events",
-  'Worship',
-]
 
 export const Directory = () => {
   const { profiles, fetchAllUserProfiles, loading, updateMemberServantRoles, updateMemberDirectoryVisibility } = useProfileStore()

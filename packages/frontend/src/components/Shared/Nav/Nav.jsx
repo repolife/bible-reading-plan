@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@store/useAuthStore";
 import { NotificationBell } from "@components/Notifications/NotificationBell";
+import { useProfileStore } from "@store/useProfileStore";
 
 const navLinks = [
   { label: "Readings", path: "/" },
@@ -8,12 +9,14 @@ const navLinks = [
   { label: "Calendar", path: "/calendar", auth: true },
   { label: "Directory", path: "/directory", auth: true },
   { label: "Files", path: "/files", auth: true },
+  { label: "Members", path: "/admin/members", auth: true, admin: true },
 ];
 
 export const Nav = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
+  const isAdmin = useProfileStore((s) => s.profile?.is_admin === true);
 
   const hiddenPaths = ["/login", "/signup", "/profile"];
   if (hiddenPaths.includes(location.pathname)) return null;
@@ -35,7 +38,7 @@ export const Nav = () => {
 
         {/* Desktop nav links */}
         <nav className="hidden md:flex items-center gap-1">
-        {navLinks.map((link) => {
+        {navLinks.filter((link) => !link.admin || isAdmin).map((link) => {
           const isActive =
             link.path === "/"
               ? location.pathname === "/"

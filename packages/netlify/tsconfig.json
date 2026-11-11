@@ -6,7 +6,11 @@
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "types": ["node"]
   },
-  "include": ["functions/**/*"]
+  "include": ["functions/**/*", "lib/**/*", "tests/**/*", "vitest.config.ts"]
 }

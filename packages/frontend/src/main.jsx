@@ -14,6 +14,7 @@ import { Calendar } from "@components/Calendar/Calendar";
 import { EventDetailsPage } from "@components/Calendar/EventDetailsPage";
 import { Directory } from "@components/Directory/Directory";
 import { Files } from "@components/Files/Files";
+import { MembersChat } from "@components/Admin/MembersChat";
 import { ProtectedRoute } from "@components/ProtectedRoute/ProtectedRoute";
 import { Nav } from "@components/Shared/Nav/Nav";
 import { BottomTabBar } from "@components/Shared/Nav/BottomTabBar";
@@ -118,6 +119,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <Files />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "admin/members",
+        element: (
+          <ProtectedRoute>
+            <MembersChat />
           </ProtectedRoute>
         ),
       },

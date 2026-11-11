@@ -21,8 +21,11 @@ export default defineConfig({
     ] : []),
   ],
 
+  // Expose only NODE_ENV. Passing the whole process.env would let any
+  // reference inline server-only secrets (e.g. SUPABASE_SERVICE_ROLE_KEY)
+  // from the Netlify build environment into the public bundle.
   define: {
-    "process.env": process.env,
+    "process.env": JSON.stringify({ NODE_ENV: process.env.NODE_ENV }),
   },
 
   server: {

@@ -103,12 +103,16 @@ const alarmLines = (trigger, summary) => [
 function eventLines(event, now) {
   const range = eventRange(event)
   const dateProp = (name, value) => (range.allDay ? `${name};VALUE=DATE:${value}` : `${name}:${value}`)
-  const summary = escapeText(event.title || 'Fellowship event')
-  const reminders = range.allDay ? ALL_DAY_REMINDERS : TIMED_REMINDERS
+  const title = event.title || 'Fellowship event'
+  // Some apps ignore STATUS, so cancelled events also say so in the title.
+  const summary = escapeText(event.cancelled ? `Cancelled: ${title}` : title)
+  const reminders = event.cancelled ? [] : range.allDay ? ALL_DAY_REMINDERS : TIMED_REMINDERS
   return [
     'BEGIN:VEVENT',
     `UID:${event.id}@${UID_DOMAIN}`,
     `DTSTAMP:${formatUtc(now)}`,
+    `SEQUENCE:${event.sequence ?? 0}`,
+    `STATUS:${event.cancelled ? 'CANCELLED' : 'CONFIRMED'}`,
     dateProp('DTSTART', range.start),
     dateProp('DTEND', range.end),
     `SUMMARY:${summary}`,

@@ -366,6 +366,19 @@ describe('POST /v1/announcements', () => {
     assert.equal(res.body.error, 'announcements_not_configured');
   });
 
+  it('does not hold up account operations while a send is slow', async () => {
+    fake.sendDelayMs = 1000;
+    let announced = false;
+    const pending = announce({}).then((res) => {
+      announced = true;
+      return res;
+    });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.equal((await createAccount('while.sending')).status, 201);
+    assert.equal(announced, false, 'account creation waited for the announcement');
+    assert.equal((await pending).status, 202);
+  });
+
   it('returns 502 when the bot can no longer post in the room', async () => {
     alertsRoom().forbidden = true;
     const res = await announce({});

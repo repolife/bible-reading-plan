@@ -63,6 +63,14 @@ describe('describeEventChange', () => {
     expect(text).toContain('Now: Sun, Nov 15 (all day)\nWas: Sat, Nov 14 (all day)');
   });
 
+  it('normalizes and bounds the family name so the provisioner never rejects the message', () => {
+    const text = describeEventChange(before, { ...event, family_groups: { family_last_name: 'Var\tgas\r' + 'x'.repeat(5000) }, cancelled_at: 'x' }, url)!;
+    expect(text).not.toMatch(/[\u0000-\u0009\u000b-\u001f\u007f]/);
+    expect(text.length).toBeLessThanOrEqual(2000);
+    expect(text.startsWith('🚫 Cancelled: Shabbat dinner (Var gas ')).toBe(true);
+    expect(text.endsWith(`Details: ${url}`)).toBe(true);
+  });
+
   it('handles a missing host family and strips control characters from the title', () => {
     const text = describeEventChange(before, { ...event, event_title: 'Pot\u0007luck', family_groups: null, cancelled_at: 'x' }, url);
     expect(text).toBe(`🚫 Cancelled: Pot luck, Fri, Nov 13, 5:00 PM – 8:00 PM\nDetails: ${url}`);
@@ -170,6 +178,30 @@ describe('sendEventChangeAlerts', () => {
     const latest = (await queued()).find((r) => !r.sent_at)!;
     await db.from('event_change_alerts').update({ attempts: 5 }).eq('id', latest.id);
     expect(await sendEventChangeAlerts(deps)).toEqual({ sent: 0, unchanged: 0, failed: 0 });
+  });
+
+  it('retries a failed batch unchanged and sends later changes separately', async () => {
+    await update({ location: 'First move' });
+    provisioner.failNextAnnounce = 'provisioner_unavailable';
+    await sendEventChangeAlerts(deps);
+    const [first] = await queued();
+
+    await update({ event_start: new Date(start().getTime() + 36e5).toISOString() });
+    expect(await sendEventChangeAlerts(deps)).toEqual({ sent: 1, unchanged: 0, failed: 0 });
+    expect(provisioner.announcements).toHaveLength(1);
+    expect(provisioner.announcements[0]).toMatchObject({ idempotencyKey: first.id });
+    expect(provisioner.announcements[0].text).not.toContain('Now:');
+
+    expect(await sendEventChangeAlerts(deps)).toEqual({ sent: 1, unchanged: 0, failed: 0 });
+    expect(provisioner.announcements[1].text).toContain('Now:');
+    expect(provisioner.announcements[1].text).not.toContain('Location changed');
+  });
+
+  it('stops starting new sends once its time budget is used, leaving the rest queued', async () => {
+    await update({ location: 'Moved' });
+    expect(await sendEventChangeAlerts(deps, { budgetMs: 0 })).toEqual({ sent: 0, unchanged: 0, failed: 0 });
+    expect((await queued()).every((row) => !row.sent_at && row.attempts === 0)).toBe(true);
+    expect((await sendEventChangeAlerts(deps)).sent).toBe(1);
   });
 
   it('drops alerts older than 6 hours', async () => {

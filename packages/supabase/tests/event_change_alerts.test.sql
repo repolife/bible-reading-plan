@@ -1,5 +1,5 @@
 BEGIN;
-SELECT plan(10);
+SELECT plan(11);
 
 -- Never let the legacy webhook post test rows to production (rolled back below).
 ALTER TABLE public.family_calendar DISABLE TRIGGER "FMC Alert";
@@ -51,11 +51,13 @@ UPDATE public.family_calendar SET cancelled_at = now() WHERE id = '00000000-0000
 SELECT throws_ok($$ SELECT 1 FROM public.event_change_alerts $$, '42501', NULL,
   'members cannot read the alert queue');
 SELECT throws_ok(
-  $$ INSERT INTO public.event_change_alerts (event_id, before) VALUES ('00000000-0000-0000-0000-00000000a001', '{}') $$,
+  $$ INSERT INTO public.event_change_alerts (event_id, sequence, before) VALUES ('00000000-0000-0000-0000-00000000a001', 1, '{}') $$,
   '42501', NULL, 'members cannot write to the alert queue');
 RESET ROLE;
 SELECT is((SELECT count(*)::int FROM public.event_change_alerts WHERE event_id = '00000000-0000-0000-0000-00000000a001'), 2,
   'a member cancelling an event queues an alert');
+SELECT is((SELECT array_agg(sequence ORDER BY sequence) FROM public.event_change_alerts WHERE event_id = '00000000-0000-0000-0000-00000000a001'),
+  ARRAY[1, 2], 'alerts record the event sequence, ordering changes made in one transaction');
 
 DELETE FROM public.family_calendar WHERE id = '00000000-0000-0000-0000-00000000a001';
 SELECT is((SELECT count(*)::int FROM public.event_change_alerts WHERE event_id = '00000000-0000-0000-0000-00000000a001'), 0,

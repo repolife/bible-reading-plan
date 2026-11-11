@@ -184,6 +184,9 @@ export function createProvisioner({ config, store, synapse, now = () => Date.now
     'POST /v1/link-codes': sendLinkCode,
     'POST /v1/announcements': announce,
   };
+  // Routes that never read or write state run outside the lock, so a slow
+  // Synapse send cannot hold up account operations.
+  const statelessRoutes = new Set([announce]);
 
   async function handle(req) {
     const path = new URL(req.url, 'http://localhost').pathname;
@@ -210,6 +213,10 @@ export function createProvisioner({ config, store, synapse, now = () => Date.now
       throw new ApiError(400, 'invalid_json');
     }
     if (!body || typeof body !== 'object' || Array.isArray(body)) throw new ApiError(400, 'invalid_json');
+    if (statelessRoutes.has(route)) {
+      await store.withLock(() => store.persist()); // records the nonce
+      return route(body);
+    }
     // Serialize everything that reads or writes state.
     return store.withLock(async () => {
       await store.persist(); // records the nonce

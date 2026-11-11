@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS public.event_change_alerts (
   id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   event_id    uuid        NOT NULL REFERENCES public.family_calendar(id) ON DELETE CASCADE,
   created_at  timestamptz NOT NULL DEFAULT now(),
+  -- The event's sequence after the change. Orders an event's changes even
+  -- within one transaction, where now() is the same for every row.
+  sequence    integer     NOT NULL,
   -- The event's start, end, all_day, location and cancelled_at before the change.
   before      jsonb       NOT NULL,
   sent_at     timestamptz,
@@ -42,8 +45,8 @@ AS $$
 BEGIN
   IF (OLD.event_start > now() AND OLD.event_start <= now() + interval '48 hours')
      OR (NEW.event_start > now() AND NEW.event_start <= now() + interval '48 hours') THEN
-    INSERT INTO public.event_change_alerts (event_id, before)
-    VALUES (OLD.id, jsonb_build_object(
+    INSERT INTO public.event_change_alerts (event_id, sequence, before)
+    VALUES (OLD.id, NEW.sequence, jsonb_build_object(
       'event_start', OLD.event_start,
       'event_end', OLD.event_end,
       'all_day', OLD.all_day,

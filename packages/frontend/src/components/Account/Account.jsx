@@ -5,18 +5,22 @@ import { FamilyGroupForm } from "../Form/FamilyGroupForm";
 import { useAuthStore } from "@store/useAuthStore";
 import { useProfileStore } from "@store/useProfileStore";
 import { NotificationPreferences } from "@components/Notifications/NotificationPreferences";
+import { ChatAccount } from "./ChatAccount";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/supabaseClient";
 
 const pages = [
   { key: "Profile", component: <AccountProfile /> },
   { key: "Password", component: <ConfirmPasswordForm /> },
   { key: "Host", component: <FamilyGroupForm /> },
+  { key: "Chat", component: <ChatAccount /> },
 ];
 
 export const Account = () => {
   const [activeTab, setActiveTab] = useState("Profile");
   const { profile, fetchAndSetUserProfile } = useProfileStore();
   const user = useAuthStore.getState().user;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user?.id) fetchAndSetUserProfile(user.id);
@@ -56,6 +60,16 @@ export const Account = () => {
       <div className="bg-white border border-[#c8e8e9] rounded-2xl p-5">
         {currentComponent}
       </div>
+
+      {profile?.is_admin === true && (
+        <button
+          onClick={() => navigate("/admin/members")}
+          className="w-full flex items-center justify-between bg-white border border-[#c8e8e9] rounded-xl px-4 py-3.5 text-[#0e9496] font-medium text-sm"
+        >
+          Members &amp; Chat (admin)
+          <span aria-hidden="true">→</span>
+        </button>
+      )}
 
       {/* Sign out */}
       <button

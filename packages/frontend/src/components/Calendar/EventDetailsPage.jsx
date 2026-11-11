@@ -8,7 +8,7 @@ import {
   Input,
   Textarea
 } from '@material-tailwind/react'
-import { XMarkIcon, PencilIcon, TrashIcon, MapPinIcon, CalendarIcon, ClockIcon, ArrowLeftIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, PencilIcon, NoSymbolIcon, ArrowUturnLeftIcon, MapPinIcon, CalendarIcon, ClockIcon, ArrowLeftIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { useFamilyStore, } from '@store/useFamilyGroupStore'
 import { useProfileStore } from '@store/useProfileStore'
 import { useAuthStore } from '@store/useAuthStore'
@@ -51,7 +51,7 @@ export const EventDetailsPage = () => {
   const { fetchFamilyGroup } = useFamilyStore()
   const { profile, fetchAndSetUserProfile } = useProfileStore()
   const { user: authUser } = useAuthStore()
-  const { fetchAllEvents, updateEvent, deleteEvent, loading: storeLoading } = useFamilyCalendarStore()
+  const { fetchAllEvents, updateEvent, setEventCancelled, loading: storeLoading } = useFamilyCalendarStore()
   const   eventTypes = useFamilyCalendarSelectors.useEventTypes()
 
   const { eventTypeLabel } = useEventType(eventId)
@@ -94,7 +94,8 @@ export const EventDetailsPage = () => {
               family_id: foundEvent.family_id,
               createdBy: foundEvent.created_by,
               food_theme: foundEvent.food_theme,
-              max_capacity: foundEvent.max_capacity
+              max_capacity: foundEvent.max_capacity,
+              cancelled: Boolean(foundEvent.cancelled_at)
             }
 
             setEvent(transformedEvent)
@@ -291,50 +292,43 @@ export const EventDetailsPage = () => {
     }))
   }
 
-  const handleDelete = async () => {
+  const handleToggleCancelled = async () => {
     if (!event) return
+    const cancelling = !event.cancelled
 
-    const confirmMessage = 'Are you sure you want to delete this event? This action cannot be undone.'
+    const confirmMessage = cancelling
+      ? 'Cancel this event? It stays on the calendar marked as cancelled, and members are notified.'
+      : 'Restore this event? Members are notified that it is back on.'
     if (!window.confirm(confirmMessage)) {
       return
     }
 
-    try {
-      console.log('Deleting event from EventDetailsPage:', event.id)
-      const success = await deleteEvent(event.id)
-
-      if (success) {
-        // Send Telegram Alert
-        const alertPayload = { 
-          action: 'delete', 
-          event: { 
-            ...event, 
-            id: event.id,
-            event_type: event.eventTypeLabel || event.eventType
-          },
-          familyName: familyGroup?.family_last_name || 'Family',
-          origin: window.location.origin
-        }
-        console.log('Sending Delete Alert from EventDetailsPage:', alertPayload)
-
-        fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
-          method: 'POST',
-          body: JSON.stringify(alertPayload)
-        }).catch(err => console.error('Failed to send delete alert:', err))
-
-        toast.success('Event deleted successfully!')
-        console.log('Event deleted, navigating to calendar')
-        navigate('/calendar')
-      } else {
-        console.error('Delete operation returned false')
-        const errorMessage = useFamilyCalendarStore.getState().error || 'Failed to delete event'
-        toast.error(`Error: ${errorMessage}`)
-      }
-    } catch (error) {
-      console.error('Error deleting event:', error)
-      toast.error(`Failed to delete event: ${error.message}`)
+    const updated = await setEventCancelled(event.id, cancelling)
+    if (!updated) {
+      const errorMessage = useFamilyCalendarStore.getState().error || 'Please try again'
+      toast.error(`Could not ${cancelling ? 'cancel' : 'restore'} the event: ${errorMessage}`)
+      return
     }
+
+    setEvent(prev => ({ ...prev, cancelled: cancelling }))
+    toast.success(cancelling ? 'Event cancelled' : 'Event restored')
+
+    fetch(`${env.VITE_TELEGRAM_ACTION_URL}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        action: cancelling ? 'cancel' : 'restore',
+        event: {
+          ...event,
+          id: event.id,
+          event_type: event.eventTypeLabel || event.eventType
+        },
+        familyName: familyGroup?.family_last_name || 'Family',
+        origin: window.location.origin
+      })
+    }).catch(err => console.error('Failed to send cancellation alert:', err))
   }
+
+  const cancelToggleLabel = storeLoading ? 'Saving...' : event?.cancelled ? 'Restore Event' : 'Cancel Event'
 
   if (loading) {
     return (
@@ -410,12 +404,12 @@ export const EventDetailsPage = () => {
                   </Button>
 
                   <Button
-                    className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white"
-                    onClick={handleDelete}
+                    className={`flex items-center gap-2 text-white ${event.cancelled ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                    onClick={handleToggleCancelled}
                     disabled={storeLoading}
                   >
-                    <TrashIcon className="h-4 w-4" />
-                    {storeLoading ? 'Deleting...' : 'Delete Event'}
+                    {event.cancelled ? <ArrowUturnLeftIcon className="h-4 w-4" /> : <NoSymbolIcon className="h-4 w-4" />}
+                    {cancelToggleLabel}
                   </Button>
                 </>
               )}
@@ -462,9 +456,16 @@ export const EventDetailsPage = () => {
                     className="text-2xl font-bold"
                   />
                 ) : (
-                  <Typography variant="h2" className="text-gray-900 dark:text-white font-bold mb-3">
-                    {event.title}
-                  </Typography>
+                  <>
+                    {event.cancelled && (
+                      <div role="status" className="mb-3 rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 dark:border-red-800 dark:bg-red-950/30 dark:text-red-300">
+                        This event has been cancelled.
+                      </div>
+                    )}
+                    <Typography variant="h2" className={`text-gray-900 dark:text-white font-bold mb-3 ${event.cancelled ? 'line-through opacity-60' : ''}`}>
+                      {event.title}
+                    </Typography>
+                  </>
                 )}
                 <div className="flex items-center gap-2">
                   {event.eventTypeLabel && (
@@ -733,6 +734,7 @@ export const EventDetailsPage = () => {
               </Card>
             </div>
             {/* RSVP Section */}
+            {!event.cancelled && (
             <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
               <CardBody className="p-6">
                 <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
@@ -747,9 +749,10 @@ export const EventDetailsPage = () => {
                 />
               </CardBody>
             </Card>
+            )}
 
             {/* Add to personal calendar */}
-            {!isEditing && (
+            {!isEditing && !event.cancelled && (
               <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
                 <CardBody className="p-6">
                   <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
@@ -798,12 +801,12 @@ export const EventDetailsPage = () => {
                         </Button>
 
                         <Button
-                          className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white"
-                          onClick={handleDelete}
+                          className={`w-full flex items-center justify-center gap-2 text-white ${event.cancelled ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                          onClick={handleToggleCancelled}
                           disabled={storeLoading}
                         >
-                          <TrashIcon className="h-4 w-4" />
-                          {storeLoading ? 'Deleting...' : 'Delete Event'}
+                          {event.cancelled ? <ArrowUturnLeftIcon className="h-4 w-4" /> : <NoSymbolIcon className="h-4 w-4" />}
+                          {cancelToggleLabel}
                         </Button>
                       </>
                     ) : (

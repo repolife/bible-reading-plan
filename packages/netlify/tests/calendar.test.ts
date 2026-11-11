@@ -116,6 +116,36 @@ describe('calendar feed', () => {
     expect(data!.last_used_at).not.toBeNull();
   });
 
+  it('keeps cancelled events, marked cancelled, with a bumped sequence', async () => {
+    const { data, error } = await db
+      .from('family_calendar')
+      .insert({
+        event_title: 'Feed test cancelled potluck',
+        event_description: '',
+        event_start: new Date(Date.now() + 5 * 864e5).toISOString(),
+        all_day: false,
+        family_id: familyId,
+      })
+      .select('id')
+      .single();
+    if (error) throw error;
+    eventIds.push(data.id);
+    const { error: cancelError } = await db
+      .from('family_calendar')
+      .update({ cancelled_at: new Date().toISOString() })
+      .eq('id', data.id);
+    if (cancelError) throw cancelError;
+
+    const created = await call(manageCalendarSubscription, deps, { token: member.token, body: { action: 'create' } });
+    const res = await fetchFeed(tokenFrom(created.body.feedUrl));
+    const unfolded = res.body.replace(/\r\n /g, '');
+    const vevent = unfolded.split('BEGIN:VEVENT').find((block) => block.includes(`UID:${data.id}@`))!;
+    expect(vevent).toContain('STATUS:CANCELLED');
+    expect(vevent).toContain('SEQUENCE:1');
+    expect(vevent).toContain('SUMMARY:Cancelled: Feed test cancelled potluck');
+    expect(vevent).not.toContain('BEGIN:VALARM');
+  });
+
   it('includes every event beyond the 1,000-row API page limit', async () => {
     const extra = Array.from({ length: FEED_PAGE_SIZE + 50 }, (_, i) => ({
       event_title: `Feed paging ${i}`,

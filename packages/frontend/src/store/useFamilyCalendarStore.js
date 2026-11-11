@@ -230,67 +230,10 @@ export const useFamilyCalendarStore = create((set, get) => ({
     }
   },
 
-  // Delete an event
-  deleteEvent: async (eventId) => {
-    try {
-      set({ loading: true, error: null })
-      
-      console.log('Attempting to delete event with ID:', eventId)
-      
-      // First, check if the event exists
-      const existingEvent = get().events.find(event => event.id === eventId)
-      if (!existingEvent) {
-        throw new Error('Event not found')
-      }
-      
-      console.log('Event found, attempting database delete:', existingEvent)
-      
-      // Test Supabase connection first
-      console.log('Testing Supabase connection...')
-      const testQuery = await supabase.from('family_calendar').select('count', { count: 'exact', head: true })
-      console.log('Supabase connection test result:', testQuery)
-      
-      console.log('Executing DELETE query...')
-      const { data, error } = await supabase
-        .from('family_calendar')
-        .delete()
-        .eq('id', eventId)
-        .select() // This will return the deleted row(s) for confirmation
-      
-      console.log('DELETE query response - data:', data, 'error:', error)
-
-      if (error) {
-        console.error('Supabase delete error:', error)
-        throw error
-      }
-
-      console.log('Delete operation completed. Deleted data:', data)
-
-      // Remove from local state
-      set(state => ({
-        events: state.events.filter(event => event.id !== eventId)
-      }))
-
-      console.log('Event successfully removed from local state')
-      return true
-    } catch (error) {
-      console.error('Error deleting event:', error)
-      set({ error: error.message })
-      
-      // Provide more specific error messages
-      if (error.message.includes('permission')) {
-        set({ error: 'You do not have permission to delete this event' })
-      } else if (error.message.includes('not found')) {
-        set({ error: 'Event not found or already deleted' })
-      } else {
-        set({ error: `Failed to delete event: ${error.message}` })
-      }
-      
-      return false
-    } finally {
-      set({ loading: false })
-    }
-  },
+  // Cancel or restore an event. Events are never deleted, so subscribed
+  // calendars can show them as cancelled instead of silently dropping them.
+  setEventCancelled: async (eventId, cancelled) =>
+    get().updateEvent(eventId, { cancelled_at: cancelled ? new Date().toISOString() : null }),
 
   // Get event by ID
   getEventById: (eventId) => {
@@ -315,7 +258,7 @@ export const useFamilyCalendarStore = create((set, get) => ({
     const now = new Date()
     
     let filteredEvents = state.events.filter(event => 
-      new Date(event.event_start) >= now
+      !event.cancelled_at && new Date(event.event_start) >= now
     )
     
     // If familyId is provided, filter by it

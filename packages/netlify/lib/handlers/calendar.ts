@@ -55,7 +55,7 @@ export async function calendarFeed(event: HandlerEvent, deps: Deps): Promise<Han
   for (let from = 0; ; from += FEED_PAGE_SIZE) {
     const { data: page, error: eventsError } = await deps.db
       .from('family_calendar')
-      .select('id, event_title, event_description, event_start, event_end, all_day, location, food_theme, family_groups(family_last_name)')
+      .select('id, event_title, event_description, event_start, event_end, all_day, location, food_theme, cancelled_at, sequence, family_groups(family_last_name)')
       .gte('event_start', since)
       .order('event_start', { ascending: true })
       .order('id', { ascending: true })
@@ -76,6 +76,8 @@ export async function calendarFeed(event: HandlerEvent, deps: Deps): Promise<Han
     foodTheme: row.food_theme,
     hostFamily: row.family_groups?.family_last_name ?? null,
     url: `${deps.siteUrl}/events/${row.id}`,
+    cancelled: row.cancelled_at !== null,
+    sequence: row.sequence,
   }));
 
   const lastUsed = subscription.last_used_at ? new Date(subscription.last_used_at).getTime() : 0;

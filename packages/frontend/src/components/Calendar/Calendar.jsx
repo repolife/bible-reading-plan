@@ -84,6 +84,7 @@ export const Calendar = () => {
         createdBy: event.created_by,
         food_theme: event.food_theme, // Add food theme property
         max_capacity: event.max_capacity, // Add max capacity property
+        cancelled: Boolean(event.cancelled_at),
         familyGroupName: 'Family Group', // Will be updated when we have family group data
         familyGroupAddress: null
       }
@@ -166,24 +167,22 @@ export const Calendar = () => {
     [navigate]
   )
 
-  const handleDeleteEvent = useCallback(
+  const handleCancelEvent = useCallback(
     async (eventId) => {
       if (!eventId) {
-        console.error('No event ID provided for deletion')
+        console.error('No event ID provided for cancellation')
         return
       }
 
-      const confirmMessage = 'Are you sure you want to delete this event? This action cannot be undone.'
+      const confirmMessage = 'Cancel this event? It stays on the calendar marked as cancelled, and members are notified.'
       if (!window.confirm(confirmMessage)) {
         return
       }
 
       try {
-        console.log('Deleting event with ID:', eventId)
-        const success = await useFamilyCalendarStore.getState().deleteEvent(eventId)
+        const success = await useFamilyCalendarStore.getState().setEventCancelled(eventId, true)
         
         if (success) {
-          console.log('Event deleted successfully')
           // Close any open modals
           setShowEditModal(false)
           setEditingEvent(null)
@@ -193,17 +192,14 @@ export const Calendar = () => {
           // Refresh all events to ensure UI is in sync
           await fetchAllEvents()
           
-          // Show success message
-          toast.success('Event deleted successfully!')
-          console.log('Event deleted and calendar refreshed')
+          toast.success('Event cancelled')
         } else {
-          console.error('Delete operation returned false')
-          const errorMessage = useFamilyCalendarStore.getState().error || 'Failed to delete event'
+          const errorMessage = useFamilyCalendarStore.getState().error || 'Failed to cancel event'
           toast.error(`Error: ${errorMessage}`)
         }
       } catch (error) {
-        console.error('Error deleting event:', error)
-        toast.error(`Failed to delete event: ${error.message}`)
+        console.error('Error cancelling event:', error)
+        toast.error(`Failed to cancel event: ${error.message}`)
       }
     },
     [fetchAllEvents]
@@ -211,9 +207,8 @@ export const Calendar = () => {
 
   const handleEditEvent = useCallback(
     async (updatedEvent) => {
-      // Check if this is a delete action
-      if (updatedEvent._action === 'delete') {
-        await handleDeleteEvent(updatedEvent.id)
+      if (updatedEvent._action === 'cancel') {
+        await handleCancelEvent(updatedEvent.id)
         return
       }
 
@@ -229,7 +224,7 @@ export const Calendar = () => {
         console.error('Error updating event:', error)
       }
     },
-    [fetchAllEvents, handleDeleteEvent]
+    [fetchAllEvents, handleCancelEvent]
   )
 
   const handleSelectSlot = useCallback(
@@ -275,19 +270,13 @@ export const Calendar = () => {
     }
   }, [selectedEvent])
 
-  const handleDeleteFromDetails = useCallback(() => {
-    console.log('handleDeleteFromDetails called')
-    console.log('selectedEvent:', selectedEvent)
-    
+  const handleCancelFromDetails = useCallback(() => {
     if (selectedEvent) {
-      console.log('Calling handleDeleteEvent with ID:', selectedEvent.id)
-      handleDeleteEvent(selectedEvent.id)
+      handleCancelEvent(selectedEvent.id)
       setShowEventDetailsModal(false)
       setSelectedEvent(null)
-    } else {
-      console.error('No selectedEvent available for deletion')
     }
-  }, [selectedEvent, handleDeleteEvent])
+  }, [selectedEvent, handleCancelEvent])
 
   const { defaultDate, scrollToTime } = useMemo(
     () => ({
@@ -370,7 +359,8 @@ export const Calendar = () => {
             
             return {
               style: {
-                backgroundColor,
+                backgroundColor: event.cancelled ? '#9ca3af' : backgroundColor,
+                textDecoration: event.cancelled ? 'line-through' : undefined,
                 color: 'white',
                 borderRadius: '4px',
                 border: 'none',
@@ -430,7 +420,7 @@ export const Calendar = () => {
           isOpen={showEventDetailsModal}
           onClose={() => setShowEventDetailsModal(false)}
           onEdit={handleEditFromDetails}
-          onDelete={handleDeleteFromDetails}
+          onCancelEvent={handleCancelFromDetails}
         />
       )}
     </div>

@@ -91,6 +91,47 @@ describe('buildCalendar', () => {
     expect(l).toContain('DTSTART;VALUE=DATE:20261121');
     expect(l).toContain('DTEND;VALUE=DATE:20261122');
   });
+
+  const alarms = (l: string[]) => {
+    const found: string[][] = [];
+    l.forEach((line, i) => {
+      if (line === 'BEGIN:VALARM') found.push(l.slice(i, l.indexOf('END:VALARM', i) + 1));
+    });
+    return found;
+  };
+
+  it('reminds a day and two hours before timed events', () => {
+    const found = alarms(lines(buildCalendar([event], { now: NOW })));
+    expect(found.map((a) => a.find((x) => x.startsWith('TRIGGER:')))).toEqual(['TRIGGER:-P1D', 'TRIGGER:-PT2H']);
+    for (const alarm of found) {
+      expect(alarm).toContain('ACTION:DISPLAY');
+      expect(alarm).toContain('DESCRIPTION:Shabbat\\; potluck\\, all welcome');
+    }
+  });
+
+  it('reminds at 9 AM the day before all-day events', () => {
+    const allDay = { ...event, allDay: true, start: '2026-11-21T06:00:00Z', end: '2026-11-22T05:59:00Z' };
+    const found = alarms(lines(buildCalendar([allDay], { now: NOW })));
+    expect(found.map((a) => a.find((x) => x.startsWith('TRIGGER:')))).toEqual(['TRIGGER:-PT15H']);
+  });
+
+  it('marks live events confirmed with their sequence, defaulting to 0', () => {
+    expect(lines(buildCalendar([event], { now: NOW }))).toEqual(expect.arrayContaining(['STATUS:CONFIRMED', 'SEQUENCE:0']));
+    expect(lines(buildCalendar([{ ...event, sequence: 3 }], { now: NOW }))).toContain('SEQUENCE:3');
+  });
+
+  it('keeps cancelled events, marked cancelled, without reminders', () => {
+    const l = lines(buildCalendar([{ ...event, cancelled: true, sequence: 2 }], { now: NOW }));
+    expect(l).toEqual(expect.arrayContaining(['STATUS:CANCELLED', 'SEQUENCE:2']));
+    expect(l).toContain('SUMMARY:Cancelled: Shabbat\\; potluck\\, all welcome');
+    expect(alarms(l)).toEqual([]);
+  });
+
+  it('nests reminders inside their event', () => {
+    const l = lines(buildCalendar([event], { now: NOW }));
+    expect(l.indexOf('BEGIN:VALARM')).toBeGreaterThan(l.indexOf('BEGIN:VEVENT'));
+    expect(l.lastIndexOf('END:VALARM')).toBeLessThan(l.indexOf('END:VEVENT'));
+  });
 });
 
 describe('googleCalendarUrl', () => {

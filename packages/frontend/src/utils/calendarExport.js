@@ -5,6 +5,11 @@
 export const CALENDAR_TIME_ZONE = 'America/Chicago'
 const UID_DOMAIN = 'ozark-fellowship.netlify.app'
 const DEFAULT_DURATION_MS = 60 * 60 * 1000
+// Reminder offsets before DTSTART. An all-day event starts at local midnight,
+// so -PT15H is 9 AM the day before. Google ignores these in subscribed
+// calendars and applies the member's own defaults instead.
+const TIMED_REMINDERS = ['-P1D', '-PT2H']
+const ALL_DAY_REMINDERS = ['-PT15H']
 
 const pad = (n) => String(n).padStart(2, '0')
 
@@ -87,19 +92,34 @@ const foldLine = (line) => {
   return parts.join('\r\n ')
 }
 
+const alarmLines = (trigger, summary) => [
+  'BEGIN:VALARM',
+  'ACTION:DISPLAY',
+  `TRIGGER:${trigger}`,
+  `DESCRIPTION:${summary}`,
+  'END:VALARM',
+]
+
 function eventLines(event, now) {
   const range = eventRange(event)
   const dateProp = (name, value) => (range.allDay ? `${name};VALUE=DATE:${value}` : `${name}:${value}`)
+  const title = event.title || 'Fellowship event'
+  // Some apps ignore STATUS, so cancelled events also say so in the title.
+  const summary = escapeText(event.cancelled ? `Cancelled: ${title}` : title)
+  const reminders = event.cancelled ? [] : range.allDay ? ALL_DAY_REMINDERS : TIMED_REMINDERS
   return [
     'BEGIN:VEVENT',
     `UID:${event.id}@${UID_DOMAIN}`,
     `DTSTAMP:${formatUtc(now)}`,
+    `SEQUENCE:${event.sequence ?? 0}`,
+    `STATUS:${event.cancelled ? 'CANCELLED' : 'CONFIRMED'}`,
     dateProp('DTSTART', range.start),
     dateProp('DTEND', range.end),
-    `SUMMARY:${escapeText(event.title || 'Fellowship event')}`,
+    `SUMMARY:${summary}`,
     ...(eventDetailsText(event) ? [`DESCRIPTION:${escapeText(eventDetailsText(event))}`] : []),
     ...(event.location ? [`LOCATION:${escapeText(event.location)}`] : []),
     ...(event.url ? [`URL:${event.url}`] : []),
+    ...reminders.flatMap((trigger) => alarmLines(trigger, summary)),
     'END:VEVENT',
   ]
 }

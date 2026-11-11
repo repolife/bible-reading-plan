@@ -99,7 +99,7 @@ export const MonthlyEventsPreview = () => {
     return allEvents
       .filter(event => {
         const eventDate = new Date(event.event_start)
-        return eventDate >= startOfToday && eventDate <= thirtyDaysFromNow
+        return !event.cancelled_at && eventDate >= startOfToday && eventDate <= thirtyDaysFromNow
       })
       .sort((a, b) => new Date(a.event_start) - new Date(b.event_start))
       .slice(0, 4)

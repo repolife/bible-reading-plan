@@ -6,7 +6,7 @@ import {
   Typography,
   IconButton
 } from '@material-tailwind/react'
-import { XMarkIcon, PencilIcon, TrashIcon, MapPinIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, PencilIcon, NoSymbolIcon, MapPinIcon, CalendarIcon, ClockIcon } from '@heroicons/react/24/outline'
 import {  useFamilyStore } from '@/store/useFamilyGroupStore'
 import { useProfileStore } from '@/store/useProfileStore'
 import { useAuthStore } from '@/store/useAuthStore'
@@ -19,7 +19,7 @@ export const EventDetailsModal = ({
   isOpen, 
   onClose, 
   onEdit, 
-  onDelete 
+  onCancelEvent 
 }) => {
   const { loading: calendarLoading } = useFamilyCalendarStore()
   
@@ -319,41 +319,13 @@ export const EventDetailsModal = ({
                         
                         <Button
                           className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white"
-                          onClick={() => {
-                            console.log('Delete button clicked in EventDetailsModal')
-                            console.log('onDelete function:', onDelete)
-                            console.log('Event to delete:', event)
-                            if (onDelete) {
-                              onDelete()
-                            } else {
-                              console.error('onDelete function not provided!')
-                            }
-                          }}
+                          onClick={onCancelEvent}
                           disabled={calendarLoading}
                         >
-                          <TrashIcon className="h-4 w-4" />
-                          {calendarLoading ? 'Deleting...' : 'Delete Event'}
+                          <NoSymbolIcon className="h-4 w-4" />
+                          {calendarLoading ? 'Saving...' : 'Cancel Event'}
                         </Button>
                         
-                        {/* Debug: Direct delete test */}
-                        {process.env.NODE_ENV === 'development' && (
-                          <Button
-                            className="w-full flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white"
-                            onClick={async () => {
-                              console.log('Direct delete test clicked')
-                              try {
-                                const { useFamilyCalendarStore } = await import('@/store/useFamilyCalendarStore')
-                                const result = await useFamilyCalendarStore.getState().deleteEvent(event.id)
-                                console.log('Direct delete result:', result)
-                              } catch (error) {
-                                console.error('Direct delete error:', error)
-                              }
-                            }}
-                            disabled={calendarLoading}
-                          >
-                            🧪 Test Direct Delete
-                          </Button>
-                        )}
                       </>
                     ) : (
                       <div className="text-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">

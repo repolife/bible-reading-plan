@@ -9,6 +9,7 @@ import enUS from 'date-fns/locale/en-US'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 import { NewEvent } from './CreateEvent'
 import { EventDetailsModal } from './EventDetailsModal'
+import { CalendarSubscribe } from './CalendarSubscribe'
 import { Card } from '@material-tailwind/react'
 import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '../../store/useFamilyCalendarStore'
 import { useProfileStore } from '../../store/useProfileStore'
@@ -313,6 +314,8 @@ export const Calendar = () => {
         </div>
       )}
       <NewEvent onEventCreate={handleEventCreate} />
+      {/* Keyed by user so a different sign-in never sees the previous person's link. */}
+      <CalendarSubscribe key={authUser?.id ?? 'signed-out'} />
       
       {loading && (
         <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded">

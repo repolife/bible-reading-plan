@@ -21,7 +21,10 @@ export const CalendarSubscribe = () => {
 
   const load = useCallback(async () => {
     try {
-      setStatus(await callServer('calendar-subscription'))
+      const latest = await callServer('calendar-subscription')
+      setStatus(latest)
+      // The server is authoritative: never keep showing a link it no longer accepts.
+      if (!latest.subscribed) setLinks(null)
       setError(null)
     } catch (err) {
       setError(err)
@@ -36,6 +39,8 @@ export const CalendarSubscribe = () => {
     setBusy(true)
     setError(null)
     setConfirmReset(false)
+    // Replacing or turning off invalidates the shown link, even if the request fails.
+    setLinks(null)
     try {
       const result = await callServer('calendar-subscription', { body: { action } })
       setLinks(action === 'create' ? result : null)

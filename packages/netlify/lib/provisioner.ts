@@ -16,6 +16,8 @@ export interface Provisioner {
   createAccount(input: { profileId: string; localpart: string; idempotencyKey: string }): Promise<CreateAccountResult>;
   issuePassword(input: { profileId: string; userId: string }): Promise<{ password: string }>;
   sendLinkCode(input: { userId: string; code: string }): Promise<void>;
+  /** Posts to the "Calendar alerts" room configured on the service. */
+  announce(input: { text: string; idempotencyKey: string }): Promise<void>;
 }
 
 // Canonical string signed by both sides. Keep in sync with
@@ -95,6 +97,13 @@ export function createHttpProvisioner(options: { baseUrl?: string; secret?: stri
       const { status, body } = await request('/v1/link-codes', { user_id: userId, code });
       if (status === 202 || status === 200) return;
       throw new ProvisionerError(status >= 500 ? 'provisioner_unavailable' : errorCode(body, 'provisioner_rejected'));
+    },
+
+    async announce({ text, idempotencyKey }) {
+      const { status, body } = await request('/v1/announcements', { text, idempotency_key: idempotencyKey });
+      if (status === 202) return;
+      // Keep the service's code (e.g. announcements_room_unavailable) so it is logged and stored.
+      throw new ProvisionerError(errorCode(body, status >= 500 ? 'provisioner_unavailable' : 'provisioner_rejected'));
     },
   };
 }

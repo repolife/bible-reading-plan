@@ -17,6 +17,8 @@ const config = {
   serverName: process.env.MATRIX_SERVER_NAME || 'ozark-fellowship.netlify.app',
   hmacSecret: required('PROVISIONER_HMAC_SECRET'),
   stateFile: process.env.STATE_FILE || '/var/lib/matrix-provisioner/state.json',
+  // Optional: without it, POST /v1/announcements returns 503.
+  announcementsRoomId: process.env.ANNOUNCEMENTS_ROOM_ID || undefined,
 };
 
 if (config.hmacSecret.length < 32) {

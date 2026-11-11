@@ -14,6 +14,7 @@ import { createHttpProvisioner, type Provisioner } from '../lib/provisioner';
 // fake Synapse behind it) so the signed wire contract cannot drift.
 const SERVER = 'ozark-fellowship.netlify.app';
 const SECRET = 's'.repeat(40);
+const ALERTS_ROOM = `!alerts:${SERVER}`;
 
 let fake: any;
 let server: Server;
@@ -24,7 +25,7 @@ beforeAll(async () => {
   fake = await startFakeSynapse({ sharedSecret: 'shared', adminToken: 'admin-token', serverName: SERVER });
   dir = await mkdtemp(join(tmpdir(), 'contract-'));
   server = createProvisioner({
-    config: { serverName: SERVER, hmacSecret: SECRET },
+    config: { serverName: SERVER, hmacSecret: SECRET, announcementsRoomId: ALERTS_ROOM },
     store: await openStore(join(dir, 'state.json')),
     synapse: createSynapseClient({ baseUrl: fake.url, registrationSharedSecret: 'shared', adminToken: 'admin-token' }),
     log: () => {},
@@ -76,6 +77,19 @@ describe('Netlify client ↔ provisioning service contract', () => {
     await expect(client.sendLinkCode({ userId: `@david:${SERVER}`, code: 'ABCD2345' })).resolves.toBeUndefined();
     await expect(client.sendLinkCode({ userId: `@nobody:${SERVER}`, code: 'ABCD2345' })).rejects.toMatchObject({
       code: 'user_not_found',
+    });
+  });
+
+  it('posts announcements to the configured room once per idempotency key', async () => {
+    fake.rooms.set(ALERTS_ROOM, { messages: [], forbidden: false });
+    const idempotencyKey = randomUUID();
+    await client.announce({ text: 'Shabbat moved', idempotencyKey });
+    await client.announce({ text: 'Shabbat moved', idempotencyKey });
+    expect(fake.rooms.get(ALERTS_ROOM).messages.map((m: any) => [m.msgtype, m.body])).toEqual([['m.text', 'Shabbat moved']]);
+
+    fake.rooms.get(ALERTS_ROOM).forbidden = true;
+    await expect(client.announce({ text: 'Again', idempotencyKey: randomUUID() })).rejects.toMatchObject({
+      code: 'announcements_room_unavailable',
     });
   });
 

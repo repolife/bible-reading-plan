@@ -39,11 +39,14 @@ No runtime dependencies; Node ≥ 20.
   Logs contain method, path, status and error code only.
 - **Blocked:** `@jared.duel` (the misspelled duplicate) can never be created,
   reset or messaged. Reserved names (`admin`, `root`, `provisioner`, …) cannot be created.
+- **One announcements room:** `POST /v1/announcements` posts only to the room
+  in `ANNOUNCEMENTS_ROOM_ID`. Callers cannot name a room, so the HMAC secret
+  alone cannot reach members' direct chats or other rooms.
 
 **Residual risk:** password resets and user lookups need a Synapse
 server-admin access token (the `@provisioner` bot). That token is powerful.
-It never leaves this host, sits in a root-owned `0600` file, and only the three
-operations above can be triggered remotely. If the host is compromised, rotate
+It never leaves this host, sits in a root-owned `0600` file, and only the
+operations below can be triggered remotely. If the host is compromised, rotate
 it (log the bot out) along with the HMAC secret.
 
 ## API
@@ -78,6 +81,21 @@ service did not create for that profile.
 reuses) a direct chat with the user and posts the code. `404 user_not_found`
 for unknown or deactivated users. The room is not end-to-end encrypted; codes
 expire after 15 minutes and are single-use on the website side.
+
+### `POST /v1/announcements`
+
+`{ "text": "…", "idempotency_key": "<uuid>" }` → `202`. Posts `text` (plain
+text, at most 2,000 characters, newlines allowed) as an `m.text` message to the
+"Calendar alerts" room configured in `ANNOUNCEMENTS_ROOM_ID`. `m.text` rather
+than `m.notice`, because clients mute notices by default. The idempotency key
+is the Matrix transaction ID, so a retry does not post twice.
+`503 announcements_not_configured` without the room setting;
+`502 announcements_room_unavailable` if the bot can no longer post there.
+
+**Setup:** create the room, invite `@provisioner`, accept the invite as the bot
+(or create the room as the bot), and let it post if the room limits who can.
+Put the room ID (`!…`, from the room's advanced settings) in
+`/etc/matrix-provisioner/env` and restart the service.
 
 ### `GET /healthz`
 

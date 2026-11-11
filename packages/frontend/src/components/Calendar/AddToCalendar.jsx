@@ -1,10 +1,11 @@
+import { Link } from 'react-router-dom'
 import { buildCalendar, googleCalendarUrl } from '@/utils/calendarExport'
 
 const buttonClass =
   'flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg text-sm font-medium transition-colors'
 
 // One-off copy of a single event into a personal calendar. For automatic
-// updates, members subscribe to the whole calendar from the Calendar page.
+// updates, the link opens the subscription panel on the Calendar page.
 export const AddToCalendar = ({ event, hostFamily }) => {
   const calendarEvent = {
     id: event.id,
@@ -48,9 +49,14 @@ export const AddToCalendar = ({ event, hostFamily }) => {
         </button>
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        Adds a copy of this event. If the host changes it later, your copy won&apos;t update. Subscribe from the
-        Calendar page to stay in sync.
+        Adds a copy of this event. If the host changes it later, your copy won&apos;t update.
       </p>
+      <Link
+        to="/calendar#subscribe"
+        className="block text-sm font-medium text-[#0e9496] dark:text-[#5ecfcf] hover:underline"
+      >
+        Get every event automatically: subscribe to the fellowship calendar →
+      </Link>
     </div>
   )
 }

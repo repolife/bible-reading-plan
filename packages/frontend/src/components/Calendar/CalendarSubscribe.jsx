@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { callServer } from '@/utils/serverApi'
+
+// Links to /calendar#subscribe (e.g. from event pages) open this panel.
+const ANCHOR = 'subscribe'
 
 const primary =
   'inline-flex items-center justify-center py-2 px-3 rounded-lg bg-[#0e9496] text-white text-sm font-medium hover:bg-[#0c7c7e] transition-colors disabled:opacity-50'
@@ -11,7 +15,9 @@ const formatDate = (value) => (value ? new Date(value).toLocaleDateString() : nu
 // Private, per-member subscription link to the whole fellowship calendar.
 // The link is only shown right after it is created; the server keeps a hash.
 export const CalendarSubscribe = () => {
-  const [open, setOpen] = useState(false)
+  const { hash } = useLocation()
+  const panelRef = useRef(null)
+  const [open, setOpen] = useState(hash === `#${ANCHOR}`)
   const [status, setStatus] = useState(null)
   const [links, setLinks] = useState(null)
   const [busy, setBusy] = useState(false)
@@ -34,6 +40,12 @@ export const CalendarSubscribe = () => {
   useEffect(() => {
     if (open && !status) load()
   }, [open, status, load])
+
+  useEffect(() => {
+    if (hash !== `#${ANCHOR}`) return
+    setOpen(true)
+    panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [hash])
 
   const run = async (action) => {
     setBusy(true)
@@ -61,7 +73,11 @@ export const CalendarSubscribe = () => {
   }
 
   return (
-    <div className="mb-4 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl">
+    <div
+      id={ANCHOR}
+      ref={panelRef}
+      className="mb-4 scroll-mt-20 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-xl"
+    >
       <button
         onClick={() => setOpen(!open)}
         aria-expanded={open}

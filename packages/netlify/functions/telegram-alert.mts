@@ -88,8 +88,10 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
 
           // Filter for Shabbat events in JS (more reliable for debugging)
           const shabbatEvents = allEvents.filter(e => 
-            e.event_title?.toLowerCase().includes('shabbat') || 
-            e.event_description?.toLowerCase().includes('shabbat')
+            !e.cancelled_at && (
+              e.event_title?.toLowerCase().includes('shabbat') || 
+              e.event_description?.toLowerCase().includes('shabbat')
+            )
           );
 
           console.log(`Found ${shabbatEvents.length} Shabbat events`);
@@ -178,6 +180,10 @@ export const handler: Handler = async (event: HandlerEvent, context: HandlerCont
     
     if (action === 'delete') {
        message = `🗑️ *Event Deleted*\n\n*${eventTitle}*\nDate: ${eventDate}`;
+    } else if (action === 'cancel') {
+       message = `🚫 *Event Cancelled*\n\n*${eventTitle}*\nDate: ${eventDate}\nLink: ${eventUrl}`;
+    } else if (action === 'restore') {
+       message = `✅ *Event Back On*\n\n*${eventTitle}*\nDate: ${eventDate}\nLink: ${eventUrl}`;
     }
 
     // Send to Telegram

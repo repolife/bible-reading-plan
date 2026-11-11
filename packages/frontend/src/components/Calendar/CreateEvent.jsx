@@ -429,20 +429,18 @@ export const NewEvent = ({ onEventCreate, onClose, selectedSlot, isOpen, editing
           {isEdit && (
             <button
               onClick={() => {
-                if (window.confirm('Delete this event?')) {
-                  if (onEventCreate && editingEvent) onEventCreate({ ...editingEvent, _action: 'delete' })
-                }
+                if (onEventCreate && editingEvent) onEventCreate({ ...editingEvent, _action: 'cancel' })
               }}
               className="px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 border border-red-200 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-950/30 transition-colors"
             >
-              Delete
+              Cancel event
             </button>
           )}
           <button
             onClick={handleClose}
             className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
           >
-            Cancel
+            Close
           </button>
           <button
             onClick={handleSubmit}

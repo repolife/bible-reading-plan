@@ -1,25 +1,22 @@
-import { execSync } from 'node:child_process';
 import type { HandlerEvent } from '@netlify/functions';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { calendarFeed, FEED_PAGE_SIZE, getCalendarSubscription, manageCalendarSubscription } from '../lib/handlers/calendar';
 import { createHandler } from '../lib/http';
-import { call, cleanupUsers, createTestUser, db, FakeProvisioner, makeDeps, type TestUser } from './helpers';
+import {
+  call,
+  cleanupUsers,
+  createTestUser,
+  db,
+  disableProductionCalendarWebhook,
+  FakeProvisioner,
+  makeDeps,
+  type TestUser,
+} from './helpers';
 
 const deps = makeDeps(new FakeProvisioner(), { siteUrl: 'https://ozark-fellowship.netlify.app' });
 let member: TestUser;
 let familyId: string;
 const eventIds: string[] = [];
-
-// The legacy "FMC Alert" trigger posts every family_calendar change to the
-// PRODUCTION send-fcm function. Disable it in the local test database before
-// inserting events, and refuse to continue if that cannot be confirmed.
-function disableProductionCalendarWebhook() {
-  const container = 'supabase_db_mo-fellowship-edge';
-  const sql = `ALTER TABLE public.family_calendar DISABLE TRIGGER "FMC Alert";
-    SELECT tgenabled FROM pg_trigger WHERE tgname = 'FMC Alert' AND tgrelid = 'public.family_calendar'::regclass;`;
-  const out = execSync(`docker exec -i ${container} psql -U postgres -t -A -q`, { input: sql, encoding: 'utf8' }).trim();
-  if (out !== 'D') throw new Error('Could not confirm the production FMC Alert webhook is disabled locally');
-}
 
 async function fetchFeed(token: string) {
   const handler = createHandler(['GET'], (event) => calendarFeed(event, deps));

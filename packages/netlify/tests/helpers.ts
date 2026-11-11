@@ -33,6 +33,17 @@ function readLocalSupabaseEnv() {
 export const local = readLocalSupabaseEnv();
 export const db = createServiceClient(local.url, local.serviceRoleKey);
 
+// The legacy "FMC Alert" trigger posts every family_calendar change to the
+// PRODUCTION send-fcm function. Disable it in the local test database before
+// inserting events, and refuse to continue if that cannot be confirmed.
+export function disableProductionCalendarWebhook() {
+  const container = 'supabase_db_mo-fellowship-edge';
+  const sql = `ALTER TABLE public.family_calendar DISABLE TRIGGER "FMC Alert";
+    SELECT tgenabled FROM pg_trigger WHERE tgname = 'FMC Alert' AND tgrelid = 'public.family_calendar'::regclass;`;
+  const out = execSync(`docker exec -i ${container} psql -U postgres -t -A -q`, { input: sql, encoding: 'utf8' }).trim();
+  if (out !== 'D') throw new Error('Could not confirm the production FMC Alert webhook is disabled locally');
+}
+
 export interface TestUser {
   id: string;
   email: string;
@@ -103,12 +114,14 @@ export class FakeProvisioner implements Provisioner {
   accounts = new Map<string, { profileId: string | null; managed: boolean }>();
   passwords: string[] = [];
   linkCodes: { userId: string; code: string }[] = [];
+  announcements: { text: string; idempotencyKey: string }[] = [];
   createCalls = 0;
   idempotencyKeys: string[] = [];
   // 'before' = fail without creating; 'after' = create, then lose the response.
   failNextCreate: 'before' | 'after' | null = null;
   failNextPassword = false;
   failNextLinkCode: string | null = null;
+  failNextAnnounce: string | null = null;
 
   seedExisting(localpart: string) {
     this.accounts.set(localpart, { profileId: null, managed: false });
@@ -164,6 +177,16 @@ export class FakeProvisioner implements Provisioner {
     const localpart = userId.slice(1, userId.indexOf(':'));
     if (!this.accounts.has(localpart)) throw new ProvisionerError('user_not_found');
     this.linkCodes.push({ userId, code });
+  }
+
+  async announce({ text, idempotencyKey }: { text: string; idempotencyKey: string }) {
+    if (this.failNextAnnounce) {
+      const reason = this.failNextAnnounce;
+      this.failNextAnnounce = null;
+      throw new ProvisionerError(reason);
+    }
+    // Like the real service, a repeated idempotency key posts only once.
+    if (!this.announcements.some((a) => a.idempotencyKey === idempotencyKey)) this.announcements.push({ text, idempotencyKey });
   }
 }
 

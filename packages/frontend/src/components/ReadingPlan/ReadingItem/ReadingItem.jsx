@@ -13,27 +13,19 @@ export const ReadingItem = ({ passage }) => {
   if (!preparedPassage?.filteredBook?.[0]) return <p className="text-sm text-[#3d6e70]">{passage}</p>;
 
   const { filteredBook, chapter } = preparedPassage;
-  const audioBible = `https://www.bible.com/bible/111/${filteredBook[0].code}.${chapter}`;
-  const blueLetter = `https://www.blueletterbible.org/esv/${filteredBook[0].code}/${chapter}`;
+  // Seed Scroll's canonical chapter link: a web reader in the browser, and
+  // opens the Seed Scroll app instead on phones that have it installed.
+  const bookSlug = filteredBook[0].name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const seedScroll = `https://seedscroll.app/bible/${bookSlug}/${chapter}`;
 
   return (
-    <div className="flex gap-2 items-center">
-      <a
-        href={blueLetter}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex-1 flex items-center justify-center bg-[#e7f4f5] border border-[#9fd4d5] text-[#0b7678] text-sm font-medium rounded-xl py-2.5 px-3 no-underline"
-      >
-        {passage}
-      </a>
-      <a
-        href={audioBible}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="flex items-center justify-center bg-[#0e9496] text-white text-xs font-semibold rounded-xl py-2.5 px-3 no-underline w-20"
-      >
-        Mobile
-      </a>
-    </div>
+    <a
+      href={seedScroll}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="flex items-center justify-center bg-[#e7f4f5] border border-[#9fd4d5] text-[#0b7678] text-sm font-medium rounded-xl py-2.5 px-3 no-underline"
+    >
+      {passage}
+    </a>
   );
 };

@@ -89,12 +89,12 @@ export const FilteredReadingPlan = () => {
         <p className="text-center text-[#3d6e70] text-sm py-6">No readings scheduled for this week.</p>
       )}
 
-      {/* YouVersion links */}
+      {/* Seed Scroll app links */}
       <div className="space-y-3 pt-2">
-        <p className="text-center text-xs text-[#3d6e70]">Listen on mobile via YouVersion</p>
+        <p className="text-center text-xs text-[#3d6e70]">Read on mobile with the Seed Scroll app</p>
         <div className="flex gap-3 justify-center">
           <a
-            href="https://play.google.com/store/apps/details?id=com.sirma.mobile.bible.android&hl=en_US"
+            href="https://play.google.com/store/apps/details?id=com.anonymous.socialbibleapp"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 bg-[#0e9496] text-white text-sm font-semibold px-4 py-2.5 rounded-full"
@@ -105,7 +105,7 @@ export const FilteredReadingPlan = () => {
             Android
           </a>
           <a
-            href="https://app.bible.com/app-ios"
+            href="https://apps.apple.com/us/app/seed-scroll-bible-study/id6759810895"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-2 bg-[#0e9496] text-white text-sm font-semibold px-4 py-2.5 rounded-full"

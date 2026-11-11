@@ -81,6 +81,10 @@ export const CalendarSubscribe = () => {
             Apple and Outlook check for changes about every hour. Google Calendar can take up to a day, so check the
             website for last-minute changes.
           </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Apple and Outlook remind you a day and two hours before each event (9 AM the day before all-day events). If
+            Apple asks, leave alerts on. Google uses your own default notifications instead.
+          </p>
 
           {error && <p role="alert" className="text-red-600 dark:text-red-400">{error.message}</p>}
 

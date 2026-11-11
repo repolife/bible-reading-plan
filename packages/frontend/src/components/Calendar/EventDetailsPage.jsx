@@ -16,6 +16,7 @@ import { useFamilyCalendarStore, useFamilyCalendarSelectors } from '@store/useFa
 import { Cutlery, Group, InfoCircle, Eye } from 'iconoir-react'
 import { FamilyAllergiesTable } from '@components/FamilyAllergiesTable'
 import { EventRSVPButton } from './EventRSVPButton'
+import { AddToCalendar } from './AddToCalendar'
 import { DateTimePicker } from '../Shared/DateTimePicker'
 import { toast } from 'react-toastify'
 import { useEventType } from '../../hooks/useEventType'
@@ -746,6 +747,18 @@ export const EventDetailsPage = () => {
                 />
               </CardBody>
             </Card>
+
+            {/* Add to personal calendar */}
+            {!isEditing && (
+              <Card className="shadow-sm border border-gray-200 dark:border-gray-700">
+                <CardBody className="p-6">
+                  <Typography variant="h5" className="text-gray-700 dark:text-gray-300 mb-4">
+                    Add to your calendar
+                  </Typography>
+                  <AddToCalendar event={event} hostFamily={familyGroup?.family_last_name} />
+                </CardBody>
+              </Card>
+            )}
 
             {/* Family Allergies Table */}
             <Card className="shadow-sm border border-gray-200 dark:border-gray-700">

@@ -39,6 +39,8 @@ export const CalendarSubscribe = () => {
     try {
       const result = await callServer('calendar-subscription', { body: { action } })
       setLinks(action === 'create' ? result : null)
+      // Reflect the change immediately, even if the follow-up refresh fails.
+      setStatus({ subscribed: result.subscribed, createdAt: result.createdAt ?? null, lastUsedAt: null })
       await load()
     } catch (err) {
       setError(err)
@@ -77,7 +79,7 @@ export const CalendarSubscribe = () => {
 
           {error && <p role="alert" className="text-red-600 dark:text-red-400">{error.message}</p>}
 
-          {links ? (
+          {links && (
             <div className="space-y-3">
               <div className="flex flex-col sm:flex-row gap-2">
                 <a href={links.googleUrl} target="_blank" rel="noopener noreferrer" className={primary}>
@@ -95,12 +97,16 @@ export const CalendarSubscribe = () => {
                 only now. If you lose it, get a new one here (the old one stops working).
               </p>
             </div>
-          ) : status?.subscribed ? (
+          )}
+
+          {status?.subscribed ? (
             <div className="space-y-2">
-              <p>
-                You have a calendar link from {formatDate(status.createdAt)}
-                {status.lastUsedAt ? `, last checked by your calendar ${formatDate(status.lastUsedAt)}` : ', not used yet'}.
-              </p>
+              {!links && (
+                <p>
+                  You have a calendar link from {formatDate(status.createdAt)}
+                  {status.lastUsedAt ? `, last checked by your calendar ${formatDate(status.lastUsedAt)}` : ', not used yet'}.
+                </p>
+              )}
               {confirmReset ? (
                 <div className="flex flex-wrap gap-2 items-center">
                   <span>Your current link will stop working.</span>
@@ -114,12 +120,12 @@ export const CalendarSubscribe = () => {
                 </div>
               )}
             </div>
-          ) : status ? (
+          ) : status && !links ? (
             <button onClick={() => run('create')} disabled={busy} className={primary}>
               {busy ? 'Creating…' : 'Create my calendar link'}
             </button>
           ) : (
-            !error && <p className="text-gray-500">Loading…</p>
+            !status && !error && <p className="text-gray-500">Loading…</p>
           )}
         </div>
       )}

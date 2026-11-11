@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import type { HandlerEvent } from '@netlify/functions';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { calendarFeed, getCalendarSubscription, manageCalendarSubscription } from '../lib/handlers/calendar';
+import { calendarFeed, FEED_PAGE_SIZE, getCalendarSubscription, manageCalendarSubscription } from '../lib/handlers/calendar';
 import { createHandler } from '../lib/http';
 import { call, cleanupUsers, createTestUser, db, FakeProvisioner, makeDeps, type TestUser } from './helpers';
 
@@ -114,6 +114,25 @@ describe('calendar feed', () => {
 
     const { data } = await db.from('calendar_feed_tokens').select('last_used_at').eq('profile_id', member.id).single();
     expect(data!.last_used_at).not.toBeNull();
+  });
+
+  it('includes every event beyond the 1,000-row API page limit', async () => {
+    const extra = Array.from({ length: FEED_PAGE_SIZE + 50 }, (_, i) => ({
+      event_title: `Feed paging ${i}`,
+      event_description: '',
+      event_start: new Date(Date.now() + (10 + i) * 36e5).toISOString(),
+      all_day: false,
+      family_id: familyId,
+    }));
+    const { data, error } = await db.from('family_calendar').insert(extra).select('id');
+    if (error) throw error;
+    eventIds.push(...data.map((e) => e.id));
+
+    const created = await call(manageCalendarSubscription, deps, { token: member.token, body: { action: 'create' } });
+    const res = await fetchFeed(tokenFrom(created.body.feedUrl));
+    expect(res.status).toBe(200);
+    const pagingEvents = res.body.match(/SUMMARY:Feed paging \d+/g) ?? [];
+    expect(new Set(pagingEvents).size).toBe(FEED_PAGE_SIZE + 50);
   });
 
   it('returns the same 404 for missing, malformed and unknown tokens', async () => {

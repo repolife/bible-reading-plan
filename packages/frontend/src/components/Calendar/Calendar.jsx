@@ -314,7 +314,8 @@ export const Calendar = () => {
         </div>
       )}
       <NewEvent onEventCreate={handleEventCreate} />
-      <CalendarSubscribe />
+      {/* Keyed by user so a different sign-in never sees the previous person's link. */}
+      <CalendarSubscribe key={authUser?.id ?? 'signed-out'} />
       
       {loading && (
         <div className="mb-4 p-4 bg-blue-100 border border-blue-400 text-blue-700 rounded">

@@ -9,6 +9,8 @@ export const FEED_PATH = '/.netlify/functions/calendar-feed';
 // Past events older than this are left out to keep the feed small.
 const FEED_HISTORY_DAYS = 365;
 const LAST_USED_UPDATE_INTERVAL_MS = 60 * 60 * 1000;
+// Matches the API's max_rows limit (packages/supabase/config.toml).
+export const FEED_PAGE_SIZE = 1000;
 // 32 random bytes, base64url without padding.
 const TOKEN_RE = /^[A-Za-z0-9_-]{43}$/;
 
@@ -47,14 +49,23 @@ export async function calendarFeed(event: HandlerEvent, deps: Deps): Promise<Han
   if (!user || banned) return text(404, 'Calendar not found');
 
   const since = new Date(deps.now().getTime() - FEED_HISTORY_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  const { data: rows, error: eventsError } = await deps.db
-    .from('family_calendar')
-    .select('id, event_title, event_description, event_start, event_end, all_day, location, food_theme, family_groups(family_last_name)')
-    .gte('event_start', since)
-    .order('event_start', { ascending: true });
-  if (eventsError) return text(503, 'Calendar temporarily unavailable');
+  // The API returns at most FEED_PAGE_SIZE rows per request, so page through
+  // everything rather than serving a silently truncated calendar.
+  const rows: any[] = [];
+  for (let from = 0; ; from += FEED_PAGE_SIZE) {
+    const { data: page, error: eventsError } = await deps.db
+      .from('family_calendar')
+      .select('id, event_title, event_description, event_start, event_end, all_day, location, food_theme, family_groups(family_last_name)')
+      .gte('event_start', since)
+      .order('event_start', { ascending: true })
+      .order('id', { ascending: true })
+      .range(from, from + FEED_PAGE_SIZE - 1);
+    if (eventsError) return text(503, 'Calendar temporarily unavailable');
+    rows.push(...(page ?? []));
+    if (!page || page.length < FEED_PAGE_SIZE) break;
+  }
 
-  const events = (rows ?? []).map((row: any) => ({
+  const events = rows.map((row: any) => ({
     id: row.id,
     title: row.event_title,
     description: row.event_description,

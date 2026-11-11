@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  provisioner:
+    name: Matrix provisioner
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Unit and HTTP tests (fake Synapse)
+        working-directory: packages/matrix-provisioner
+        run: npm test
+
+  server:
+    name: Database and Netlify Functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Throwaway local stack inside the runner. No secrets: tests refuse to
+      # run against anything but localhost.
+      - name: Start local Supabase
+        working-directory: packages/supabase
+        run: npx --no-install supabase start -x studio,imgproxy,realtime,edge-runtime,logflare,vector,supavisor,postgres-meta
+
+      - name: Database authorization tests (pgTAP)
+        working-directory: packages/supabase
+        run: npx --no-install supabase test db
+
+      - name: Typecheck Netlify Functions
+        run: pnpm --filter netlify-functions typecheck
+
+      - name: Netlify Functions tests
+        run: pnpm --filter netlify-functions test
+
+      - name: Stop local Supabase
+        if: always()
+        working-directory: packages/supabase
+        run: npx --no-install supabase stop --no-backup

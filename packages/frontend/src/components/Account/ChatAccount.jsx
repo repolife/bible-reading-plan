@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { callServer } from "@/utils/serverApi";
 import { MATRIX_SERVER, checkLocalpart, suggestLocalpart } from "@/utils/matrixLocalpart";
 import { useProfileStore } from "@store/useProfileStore";
@@ -119,9 +119,15 @@ export const ChatAccount = () => {
     }
   }, []);
 
+  const mounted = useRef(false);
+
   useEffect(() => {
+    mounted.current = true;
     load();
-    return () => setIssued(null);
+    return () => {
+      mounted.current = false;
+      setIssued(null);
+    };
   }, [load]);
 
   const claim = async () => {
@@ -143,6 +149,9 @@ export const ChatAccount = () => {
     setError(null);
     try {
       await callServer("member-matrix", { body: { action: "setup", localpart } });
+      // The password can be collected only once. If the member left while the
+      // account was being created, leave it for them to collect on return.
+      if (!mounted.current) return;
       setIssued(await callServer("member-matrix", { body: { action: "claim-password" } }));
       load();
     } catch (err) {

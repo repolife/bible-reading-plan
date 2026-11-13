@@ -16,9 +16,9 @@ export const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     if (loading ) return;
     if (!isAuthenticated) {
-      navigate("/login");
+      navigate("/login", { state: { from: location.pathname + location.search } });
     }
-  }, [isAuthenticated, loading, navigate, , location.pathname]);
+  }, [isAuthenticated, loading, navigate, , location.pathname, location.search]);
 
   if (loading) {
     return <Loader />;

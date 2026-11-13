@@ -212,6 +212,31 @@ describe('password onboarding', () => {
     expect(provisioner.passwords).toHaveLength(1);
   });
 
+  it('a duplicate setup request that finishes late never re-opens a collected password', async () => {
+    const release: (() => void)[] = [];
+    const createAccount = provisioner.createAccount.bind(provisioner);
+    provisioner.createAccount = async (args) => {
+      const result = await createAccount(args);
+      await new Promise<void>((resolve) => release.push(resolve));
+      return result;
+    };
+    const name = uniq();
+    const first = provision(name);
+    await vi.waitFor(() => expect(release).toHaveLength(1));
+    const second = provision(name);
+    await vi.waitFor(() => expect(release).toHaveLength(2));
+
+    release[0]();
+    expect((await first).status).toBe(201);
+    expect((await claim(member)).status).toBe(200);
+
+    release[1]();
+    expect((await second).status).toBe(200);
+    expect(await accountRow()).toMatchObject({ status: 'active', password_claim_allowed: false });
+    expect((await claim(member)).status).toBe(409);
+    expect(provisioner.passwords).toHaveLength(1);
+  });
+
   it('restores the claim when the provisioner fails', async () => {
     await provision(uniq());
     provisioner.failNextPassword = true;

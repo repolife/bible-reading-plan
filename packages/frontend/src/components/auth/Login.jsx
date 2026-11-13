@@ -3,14 +3,17 @@ import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/supabaseClient";
 import { useAuthStore } from "@store/useAuthStore";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export const Login = () => {
   const { loading, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    if (isAuthenticated) navigate("/");
+    // Return to the page that sent the visitor here; only same-site paths.
+    const from = location.state?.from;
+    if (isAuthenticated) navigate(typeof from === "string" && /^\/(?!\/)/.test(from) ? from : "/");
   }, [isAuthenticated]);
 
   const customTheme = {

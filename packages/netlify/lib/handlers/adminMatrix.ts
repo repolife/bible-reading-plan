@@ -43,15 +43,16 @@ async function closeOpenChallenges(deps: Deps, profileId: string) {
     .is('consumed_at', null);
 }
 
-async function provision(deps: Deps, admin: SessionUser, body: Record<string, unknown>) {
-  const profileId = requireUuid(body.profileId, 'profileId');
-  const check = validateLocalpart(body.localpart);
+// Shared by the admin action and member self-setup. Callers must authorize
+// the actor for this profile first.
+export async function provisionAccount(deps: Deps, actorId: string, profileId: string, rawLocalpart: unknown, action: string) {
+  const check = validateLocalpart(rawLocalpart);
   if (!check.ok) throw new HttpError(400, check.reason, check.message);
   const { localpart } = check;
   const matrixUserId = toMatrixUserId(localpart);
   await requireProfile(deps, profileId);
 
-  const base = { actorId: admin.id, action: 'matrix.provision', targetProfileId: profileId, targetMatrixUserId: matrixUserId };
+  const base = { actorId, action, targetProfileId: profileId, targetMatrixUserId: matrixUserId };
 
   // Reserve the (profile, Matrix ID) pair. Unique constraints make concurrent
   // or repeated requests converge on one row and one idempotency key.
@@ -66,7 +67,7 @@ async function provision(deps: Deps, admin: SessionUser, body: Record<string, un
         origin: 'provisioned',
         status: 'provisioning',
         request_id: randomUUID(),
-        created_by: admin.id,
+        created_by: actorId,
       })
       .select('*')
       .single();
@@ -142,17 +143,21 @@ async function provision(deps: Deps, admin: SessionUser, body: Record<string, un
     throw new HttpError(502, 'provisioner_mismatch', 'The provisioner returned an unexpected account');
   }
 
+  // Allow the first password claim only while none has been collected. The
+  // check runs in the database, not on `row`: a duplicate request that
+  // finishes late must not re-open a password the member already collected.
+  await deps.db.from('matrix_accounts').update({ password_claim_allowed: true }).eq('id', row.id).is('password_claimed_at', null);
   await deps.db
     .from('matrix_accounts')
-    .update({
-      status: 'active',
-      last_error_code: null,
-      password_claim_allowed: row.password_claimed_at === null,
-      updated_at: deps.now().toISOString(),
-    })
+    .update({ status: 'active', last_error_code: null, updated_at: deps.now().toISOString() })
     .eq('id', row.id);
   await audit(deps.db, { ...base, outcome: 'success', details: { created: result.kind === 'created', attempt: row.attempts } });
   return json(result.kind === 'created' ? 201 : 200, { status: 'active', matrixUserId });
+}
+
+async function provision(deps: Deps, admin: SessionUser, body: Record<string, unknown>) {
+  const profileId = requireUuid(body.profileId, 'profileId');
+  return provisionAccount(deps, admin.id, profileId, body.localpart, 'matrix.provision');
 }
 
 async function startLink(deps: Deps, admin: SessionUser, body: Record<string, unknown>) {

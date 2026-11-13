@@ -212,6 +212,31 @@ describe('password onboarding', () => {
     expect(provisioner.passwords).toHaveLength(1);
   });
 
+  it('a duplicate setup request that finishes late never re-opens a collected password', async () => {
+    const release: (() => void)[] = [];
+    const createAccount = provisioner.createAccount.bind(provisioner);
+    provisioner.createAccount = async (args) => {
+      const result = await createAccount(args);
+      await new Promise<void>((resolve) => release.push(resolve));
+      return result;
+    };
+    const name = uniq();
+    const first = provision(name);
+    await vi.waitFor(() => expect(release).toHaveLength(1));
+    const second = provision(name);
+    await vi.waitFor(() => expect(release).toHaveLength(2));
+
+    release[0]();
+    expect((await first).status).toBe(201);
+    expect((await claim(member)).status).toBe(200);
+
+    release[1]();
+    expect((await second).status).toBe(200);
+    expect(await accountRow()).toMatchObject({ status: 'active', password_claim_allowed: false });
+    expect((await claim(member)).status).toBe(409);
+    expect(provisioner.passwords).toHaveLength(1);
+  });
+
   it('restores the claim when the provisioner fails', async () => {
     await provision(uniq());
     provisioner.failNextPassword = true;
@@ -236,6 +261,105 @@ describe('password onboarding', () => {
     expect((await claim(member)).status).toBe(409);
     const allow = await call(adminMatrix, deps, { token: admin.token, body: { action: 'allow-password-claim', profileId: member.id } });
     expect(allow.status).toBe(409);
+  });
+});
+
+describe('self-serve setup', () => {
+  const setup = (user: TestUser, localpart: string, extra: Record<string, unknown> = {}) =>
+    call(memberMatrixAction, deps, { token: user.token, body: { action: 'setup', localpart, ...extra } });
+  const status = (user: TestUser) => call(getMemberMatrix, deps, { token: user.token });
+
+  it('lets an invited member create their own ordinary account and collect a password', async () => {
+    const invited = await createTestUser({ invited: true });
+    expect((await status(invited)).body).toMatchObject({ selfSetupAllowed: true, account: null });
+
+    const name = uniq();
+    const res = await setup(invited, name);
+    expect(res.status).toBe(201);
+    expect(res.body).toEqual({ status: 'active', matrixUserId: mx(name) });
+    expect(provisioner.accounts.get(name)).toEqual({ profileId: invited.id, managed: true });
+    expect(await accountRow(invited.id)).toMatchObject({
+      matrix_user_id: mx(name),
+      origin: 'provisioned',
+      status: 'active',
+      password_claim_allowed: true,
+      created_by: invited.id,
+    });
+    expect(await auditRows(invited.id)).toEqual([
+      expect.objectContaining({ action: 'matrix.self_setup', outcome: 'success', actor_id: invited.id }),
+    ]);
+
+    const claim = await call(memberMatrixAction, deps, { token: invited.token, body: { action: 'claim-password' } });
+    expect(claim.status).toBe(200);
+    expect(claim.body.password).toBe(provisioner.passwords[0]);
+  });
+
+  it('refuses a member who was not invited by an admin and creates nothing', async () => {
+    expect((await status(member)).body.selfSetupAllowed).toBe(false);
+    const res = await setup(member, uniq());
+    expect(res.status).toBe(403);
+    expect(res.body.error).toBe('self_setup_not_allowed');
+    expect(provisioner.createCalls).toBe(0);
+    expect(await accountRow()).toBeNull();
+    expect(await auditRows(member.id)).toEqual([
+      expect.objectContaining({ action: 'matrix.self_setup', outcome: 'denied', actor_id: member.id }),
+    ]);
+  });
+
+  it('requires a signed-in user', async () => {
+    const res = await call(memberMatrixAction, deps, { body: { action: 'setup', localpart: uniq() } });
+    expect(res.status).toBe(401);
+    expect(provisioner.createCalls).toBe(0);
+  });
+
+  it('only ever creates the account for the caller, whatever profileId is sent', async () => {
+    const invited = await createTestUser({ invited: true });
+    const name = uniq();
+    expect((await setup(invited, name, { profileId: member.id })).status).toBe(201);
+    expect(await accountRow(invited.id)).toMatchObject({ matrix_user_id: mx(name) });
+    expect(await accountRow(member.id)).toBeNull();
+    expect(provisioner.accounts.get(name)!.profileId).toBe(invited.id);
+  });
+
+  it('applies the same username rules as admin provisioning', async () => {
+    const invited = await createTestUser({ invited: true });
+    for (const [localpart, error] of [['Uppercase', 'invalid_username'], ['admin', 'reserved_username'], ['jared.duel', 'blocked_username']]) {
+      const res = await setup(invited, localpart);
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe(error);
+    }
+    expect(provisioner.createCalls).toBe(0);
+  });
+
+  it('never adopts an existing Matrix account, and lets the member choose again', async () => {
+    const invited = await createTestUser({ invited: true });
+    const taken = uniq();
+    provisioner.seedExisting(taken);
+    const res = await setup(invited, taken);
+    expect(res.status).toBe(409);
+    expect(res.body.error).toBe('username_taken');
+    expect(await accountRow(invited.id)).toBeNull();
+    expect((await setup(invited, uniq())).status).toBe(201);
+  });
+
+  it('allows one account per member', async () => {
+    const invited = await createTestUser({ invited: true });
+    expect((await setup(invited, uniq())).status).toBe(201);
+    const res = await setup(invited, uniq());
+    expect(res.status).toBe(409);
+    expect(res.body.error).toBe('profile_has_account');
+    expect(provisioner.accounts.size).toBe(1);
+  });
+
+  it('retries an unfinished attempt with the same username', async () => {
+    const invited = await createTestUser({ invited: true });
+    const name = uniq();
+    provisioner.failNextCreate = 'after';
+    expect((await setup(invited, name)).status).toBe(502);
+    expect(await accountRow(invited.id)).toMatchObject({ status: 'failed' });
+    expect((await setup(invited, name)).status).toBe(200);
+    expect(await accountRow(invited.id)).toMatchObject({ status: 'active', password_claim_allowed: true });
+    expect(provisioner.accounts.size).toBe(1);
   });
 });
 

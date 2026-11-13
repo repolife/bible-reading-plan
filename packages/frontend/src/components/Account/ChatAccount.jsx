@@ -1,5 +1,7 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { callServer } from "@/utils/serverApi";
+import { MATRIX_SERVER, checkLocalpart, suggestLocalpart } from "@/utils/matrixLocalpart";
+import { useProfileStore } from "@store/useProfileStore";
 
 const button =
   "w-full py-2.5 rounded-lg bg-[#0e9496] text-white text-sm font-medium hover:bg-[#0c7c7e] transition-colors disabled:opacity-50";
@@ -24,19 +26,75 @@ const CopyRow = ({ label, value }) => {
   );
 };
 
+// Opens Element X with our server already chosen, so nobody types a homeserver.
+const elementXLink = (matrixUserId) =>
+  `https://mobile.element.io/element?account_provider=${matrixUserId.slice(matrixUserId.indexOf(":") + 1)}&login_hint=${encodeURIComponent(`mxid:${matrixUserId}`)}`;
+
 const SignInSteps = ({ homeserver, matrixUserId }) => (
-  <ol className="list-decimal pl-5 text-sm text-gray-700 space-y-1">
-    <li>
-      Open Element (<a className="text-[#0e9496] underline" href="https://app.element.io" target="_blank" rel="noreferrer">app.element.io</a> or the Element app) and choose <strong>Sign in</strong>.
-    </li>
-    <li>
-      Next to the homeserver, choose <strong>Edit</strong> and enter <strong>{homeserver}</strong>.
-    </li>
-    <li>
-      Username: <strong>{matrixUserId.slice(1, matrixUserId.indexOf(":"))}</strong>
-    </li>
-  </ol>
+  <div className="space-y-3">
+    <a href={elementXLink(matrixUserId)} target="_blank" rel="noreferrer" className={`${button} block text-center`}>
+      Open chat in Element X
+    </a>
+    <p className="text-xs text-gray-500">
+      On your phone, this opens the Element X app with our server already chosen. Enter your password when it asks.
+    </p>
+    <p className="text-sm font-medium text-gray-900">On a computer, or the button didn&apos;t work?</p>
+    <ol className="list-decimal pl-5 text-sm text-gray-700 space-y-1">
+      <li>
+        Open Element (<a className="text-[#0e9496] underline" href="https://app.element.io" target="_blank" rel="noreferrer">app.element.io</a> or the Element app) and choose <strong>Sign in</strong>.
+      </li>
+      <li>
+        Next to the homeserver, choose <strong>Edit</strong> and enter <strong>{homeserver}</strong>.
+      </li>
+      <li>
+        Username: <strong>{matrixUserId.slice(1, matrixUserId.indexOf(":"))}</strong>
+      </li>
+    </ol>
+  </div>
 );
+
+const SETUP_ERRORS = {
+  username_taken: "That username is taken. Try another.",
+  matrix_id_in_use: "That username is taken. Try another.",
+};
+
+const SetupForm = ({ defaultName, busy, error, onSubmit }) => {
+  const [localpart, setLocalpart] = useState(() => suggestLocalpart(defaultName));
+  const localpartError = checkLocalpart(localpart);
+  const submit = (e) => {
+    e.preventDefault();
+    onSubmit(localpart);
+  };
+  return (
+    <form onSubmit={submit} className="space-y-3">
+      <h3 className="font-semibold text-gray-900">Set up chat</h3>
+      <p className="text-sm text-gray-700">
+        Choose a username for chat. Most people use their name, like <strong>jane.doe</strong>. It can&apos;t be changed later.
+      </p>
+      <input
+        value={localpart}
+        onChange={(e) => setLocalpart(e.target.value)}
+        placeholder="jane.doe"
+        aria-label="Chat username"
+        autoCapitalize="none"
+        autoComplete="off"
+        spellCheck={false}
+        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#0e9496] focus:border-transparent"
+      />
+      {localpartError ? (
+        <p className="text-xs text-red-600">{localpartError}</p>
+      ) : (
+        <p className="text-xs text-gray-500">
+          Your chat ID: <strong className="break-all">@{localpart}:{MATRIX_SERVER}</strong>
+        </p>
+      )}
+      {error && <p role="alert" className="text-sm text-red-600">{SETUP_ERRORS[error.code] || error.message}</p>}
+      <button type="submit" disabled={busy || !!localpartError} className={button}>
+        {busy ? "Creating your account…" : "Create my chat account"}
+      </button>
+    </form>
+  );
+};
 
 // The one-time password lives only in this component's state. It is never
 // stored, logged, or sent anywhere else.
@@ -48,6 +106,7 @@ export const ChatAccount = () => {
   const [issued, setIssued] = useState(null);
   const [code, setCode] = useState("");
   const [codeError, setCodeError] = useState(null);
+  const { profile } = useProfileStore();
 
   const load = useCallback(async () => {
     try {
@@ -60,9 +119,15 @@ export const ChatAccount = () => {
     }
   }, []);
 
+  const mounted = useRef(false);
+
   useEffect(() => {
+    mounted.current = true;
     load();
-    return () => setIssued(null);
+    return () => {
+      mounted.current = false;
+      setIssued(null);
+    };
   }, [load]);
 
   const claim = async () => {
@@ -75,6 +140,26 @@ export const ChatAccount = () => {
     } finally {
       setBusy(false);
       load();
+    }
+  };
+
+  // Creates the account, then collects the password in the same step.
+  const setup = async (localpart) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await callServer("member-matrix", { body: { action: "setup", localpart } });
+      // The password can be collected only once. If the member left while the
+      // account was being created, leave it for them to collect on return.
+      if (!mounted.current) return;
+      setIssued(await callServer("member-matrix", { body: { action: "claim-password" } }));
+      load();
+    } catch (err) {
+      // Reload first: load() clears the error on success.
+      await load();
+      setError(err);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -103,7 +188,7 @@ export const ChatAccount = () => {
     );
   }
 
-  const { account, pendingLink, homeserver } = status;
+  const { account, pendingLink, homeserver, selfSetupAllowed } = status;
 
   if (issued) {
     return (
@@ -155,6 +240,10 @@ export const ChatAccount = () => {
     );
   }
 
+  if (!account && selfSetupAllowed) {
+    return <SetupForm defaultName={profile?.name} busy={busy} error={error} onSubmit={setup} />;
+  }
+
   if (!account || account.status === "link_pending") {
     return (
       <div className="space-y-2">
@@ -162,6 +251,27 @@ export const ChatAccount = () => {
         <p className="text-sm text-gray-700">
           Chat isn&apos;t set up for your account yet. Ask an admin to enable it.
         </p>
+      </div>
+    );
+  }
+
+  // An unfinished attempt must be retried with the same username.
+  if (account.status !== "active" && account.origin === "provisioned" && selfSetupAllowed) {
+    return (
+      <div className="space-y-3">
+        <h3 className="font-semibold text-gray-900">Set up chat</h3>
+        <p className="text-sm text-gray-700">
+          Setting up <strong className="break-all">{account.matrixUserId}</strong> didn&apos;t finish. It is safe to try again.
+        </p>
+        {error && <p role="alert" className="text-sm text-red-600">{error.message}</p>}
+        <button
+          onClick={() => setup(account.matrixUserId.slice(1, account.matrixUserId.indexOf(":")))}
+          disabled={busy}
+          className={button}
+        >
+          {busy ? "Creating your account…" : "Try again"}
+        </button>
+        <p className="text-xs text-gray-500">Still stuck? Tell an admin.</p>
       </div>
     );
   }

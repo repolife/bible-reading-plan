@@ -6,7 +6,7 @@ import type { Deps } from '../deps';
 import { HttpError, json, parseJsonBody } from '../http';
 import { MATRIX_CLIENT_URL } from '../matrix';
 import { ProvisionerError } from '../provisioner';
-import { hashLinkCode } from './adminMatrix';
+import { hashLinkCode, provisionAccount } from './adminMatrix';
 
 export const MAX_LINK_ATTEMPTS = 5;
 
@@ -20,9 +20,18 @@ async function getOwnAccount(deps: Deps, user: SessionUser) {
   return data;
 }
 
+// Self-setup is limited to website accounts an admin invited; anyone who
+// signed up on their own still needs an admin. Read with the service role and
+// fail closed.
+async function wasInvited(deps: Deps, user: SessionUser) {
+  const { data, error } = await deps.db.auth.admin.getUserById(user.id);
+  return !error && Boolean(data.user?.invited_at);
+}
+
 export async function getMemberMatrix(event: HandlerEvent, deps: Deps) {
   const user = await requireUser(event, deps.db);
   const account = await getOwnAccount(deps, user);
+  const selfSetupAllowed = await wasInvited(deps, user);
   const { data: challenge } = await deps.db
     .from('matrix_link_challenges')
     .select('matrix_user_id, expires_at')
@@ -31,6 +40,7 @@ export async function getMemberMatrix(event: HandlerEvent, deps: Deps) {
     .maybeSingle();
   return json(200, {
     homeserver: MATRIX_CLIENT_URL,
+    selfSetupAllowed,
     account: account
       ? {
           matrixUserId: account.matrix_user_id,
@@ -45,6 +55,21 @@ export async function getMemberMatrix(event: HandlerEvent, deps: Deps) {
         ? { matrixUserId: challenge.matrix_user_id, expiresAt: challenge.expires_at }
         : null,
   });
+}
+
+// The account is always created for the caller; a profileId in the body is ignored.
+async function setup(deps: Deps, user: SessionUser, body: Record<string, unknown>) {
+  if (!(await wasInvited(deps, user))) {
+    await audit(deps.db, {
+      actorId: user.id,
+      action: 'matrix.self_setup',
+      outcome: 'denied',
+      targetProfileId: user.id,
+      details: { reason: 'not_invited' },
+    });
+    throw new HttpError(403, 'self_setup_not_allowed', 'Ask an admin to set up chat for your account');
+  }
+  return provisionAccount(deps, user.id, user.id, body.localpart, 'matrix.self_setup');
 }
 
 async function claimPassword(deps: Deps, user: SessionUser) {
@@ -143,6 +168,7 @@ async function confirmLink(deps: Deps, user: SessionUser, body: Record<string, u
 export async function memberMatrixAction(event: HandlerEvent, deps: Deps) {
   const user = await requireUser(event, deps.db);
   const body = parseJsonBody(event);
+  if (body.action === 'setup') return setup(deps, user, body);
   if (body.action === 'claim-password') return claimPassword(deps, user);
   if (body.action === 'confirm-link') return confirmLink(deps, user, body);
   throw new HttpError(400, 'unknown_action', 'Unknown action');

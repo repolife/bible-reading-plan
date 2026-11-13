@@ -52,10 +52,15 @@ export interface TestUser {
 
 const createdUserIds: string[] = [];
 
-export async function createTestUser(options: { admin?: boolean; profile?: boolean; name?: string } = {}): Promise<TestUser> {
+// `invited: true` creates the user the way an admin invitation does and signs
+// in by accepting that invitation, so `invited_at` is set as in production.
+export async function createTestUser(
+  options: { admin?: boolean; profile?: boolean; name?: string; invited?: boolean } = {},
+): Promise<TestUser> {
   const email = `test-${randomUUID()}@example.test`;
   const password = `pw-${randomUUID()}`;
-  const { data, error } = await db.auth.admin.createUser({ email, password, email_confirm: true });
+  const invite = options.invited ? await db.auth.admin.generateLink({ type: 'invite', email }) : null;
+  const { data, error } = invite ?? (await db.auth.admin.createUser({ email, password, email_confirm: true }));
   if (error || !data.user) throw error ?? new Error('createUser failed');
   createdUserIds.push(data.user.id);
 
@@ -67,7 +72,9 @@ export async function createTestUser(options: { admin?: boolean; profile?: boole
   }
 
   const anon = createClient(local.url, local.anonKey, { auth: { persistSession: false } });
-  const { data: session, error: signInError } = await anon.auth.signInWithPassword({ email, password });
+  const { data: session, error: signInError } = invite?.data.properties
+    ? await anon.auth.verifyOtp({ token_hash: invite.data.properties.hashed_token, type: 'invite' })
+    : await anon.auth.signInWithPassword({ email, password });
   if (signInError || !session.session) throw signInError ?? new Error('sign-in failed');
   return { id: data.user.id, email, token: session.session.access_token };
 }

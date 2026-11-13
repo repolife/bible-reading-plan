@@ -3,36 +3,7 @@ import { Typography } from '@material-tailwind/react'
 import { toast } from 'react-toastify'
 import { useProfileStore } from '@store/useProfileStore'
 import { callServer } from '@/utils/serverApi'
-
-const MATRIX_SERVER = 'ozark-fellowship.netlify.app'
-
-// Mirrors server-side rules in packages/netlify/lib/matrix.ts; the server
-// re-validates everything.
-const LOCALPART_RE = /^[a-z0-9](?:[a-z0-9._-]{1,30})[a-z0-9]$/
-const RESERVED = ['abuse', 'admin', 'administrator', 'bot', 'help', 'matrix', 'mod', 'moderator', 'noreply', 'notices', 'postmaster', 'provisioner', 'root', 'security', 'server', 'support', 'synapse', 'system', 'webmaster']
-
-const checkLocalpart = (value) => {
-  if (!value) return 'Enter a username'
-  if (value !== value.toLowerCase()) return 'Use lowercase letters only'
-  if (!LOCALPART_RE.test(value) || /[._-]{2}/.test(value)) {
-    return '3–32 characters: letters, digits, dots, dashes or underscores, starting and ending with a letter or digit'
-  }
-  if (value === 'jared.duel') return 'This account is blocked'
-  if (RESERVED.includes(value)) return 'This username is reserved'
-  return null
-}
-
-const suggestLocalpart = (name) =>
-  (name || '')
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .trim()
-    .replace(/\s+/g, '.')
-    .replace(/[^a-z0-9._-]/g, '')
-    .replace(/[._-]{2,}/g, '.')
-    .replace(/^[._-]+|[._-]+$/g, '')
-    .slice(0, 32)
+import { MATRIX_SERVER, checkLocalpart, suggestLocalpart } from '@/utils/matrixLocalpart'
 
 const inputClass =
   'w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#0e9496] focus:border-transparent dark:bg-neutral-800 dark:text-white text-sm'

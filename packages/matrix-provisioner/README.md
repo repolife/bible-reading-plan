@@ -13,6 +13,10 @@ Nothing else is exposed. The general Synapse admin API stays private.
 Admin UI → Netlify Function (session + is_admin checked) → HTTPS /provision/* → this service (127.0.0.1:8787) → Synapse (127.0.0.1:8008)
 ```
 
+Members whom an admin invited to the website can also create their own account
+from `/chat/join`. That goes through the `member-matrix` function, which checks
+the invitation server-side and only ever creates the account for the caller.
+
 No runtime dependencies; Node ≥ 20.
 
 ## Security model

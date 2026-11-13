@@ -15,6 +15,7 @@ import { EventDetailsPage } from "@components/Calendar/EventDetailsPage";
 import { Directory } from "@components/Directory/Directory";
 import { Files } from "@components/Files/Files";
 import { MembersChat } from "@components/Admin/MembersChat";
+import { JoinChat } from "@components/Chat/JoinChat";
 import { ProtectedRoute } from "@components/ProtectedRoute/ProtectedRoute";
 import { Nav } from "@components/Shared/Nav/Nav";
 import { BottomTabBar } from "@components/Shared/Nav/BottomTabBar";
@@ -127,6 +128,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <MembersChat />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "chat/join",
+        element: (
+          <ProtectedRoute>
+            <JoinChat />
           </ProtectedRoute>
         ),
       },

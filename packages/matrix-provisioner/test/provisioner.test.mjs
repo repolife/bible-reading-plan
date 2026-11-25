@@ -247,6 +247,41 @@ describe('POST /v1/accounts/password', () => {
     assert.ok(!(await readFile(stateFile, 'utf8')).includes(res.body.password));
   });
 
+  it('sets a caller-chosen password without echoing, logging, or storing it', async () => {
+    await createAccount('alice');
+    const chosen = 'My-New-Passphrase-2026!';
+    const res = await post('/v1/accounts/password', {
+      profile_id: profileA,
+      user_id: `@alice:${SERVER}`,
+      password: chosen,
+      logout_devices: false,
+    });
+    assert.equal(res.status, 200);
+    assert.deepEqual(res.body, { ok: true });
+    assert.equal(fake.users.get(`@alice:${SERVER}`).password, chosen);
+    assert.deepEqual(fake.resets, [{ userId: `@alice:${SERVER}`, logoutDevices: false }]);
+    assert.ok(!logs.join('\n').includes(chosen));
+    assert.ok(!(await readFile(stateFile, 'utf8')).includes(chosen));
+  });
+
+  it('rejects invalid caller-chosen passwords and non-boolean logout_devices', async () => {
+    await createAccount('alice');
+    for (const password of ['', 'short9999', 'x'.repeat(129), 'bad\npassword', 1234567890]) {
+      const res = await post('/v1/accounts/password', { profile_id: profileA, user_id: `@alice:${SERVER}`, password });
+      assert.equal(res.status, 400);
+      assert.equal(res.body.error, 'invalid_password');
+    }
+    const badFlag = await post('/v1/accounts/password', {
+      profile_id: profileA,
+      user_id: `@alice:${SERVER}`,
+      password: 'valid-password-123',
+      logout_devices: 'no',
+    });
+    assert.equal(badFlag.status, 400);
+    assert.equal(badFlag.body.error, 'invalid_request');
+    assert.equal(fake.resets.length, 0);
+  });
+
   it('refuses accounts it did not create', async () => {
     fake.seed('david', { admin: true });
     const res = await post('/v1/accounts/password', { profile_id: profileA, user_id: `@david:${SERVER}` });

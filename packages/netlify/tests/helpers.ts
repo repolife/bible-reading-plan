@@ -120,6 +120,7 @@ export async function call(
 export class FakeProvisioner implements Provisioner {
   accounts = new Map<string, { profileId: string | null; managed: boolean }>();
   passwords: string[] = [];
+  passwordUpdates: { userId: string; password: string; logoutDevices: boolean }[] = [];
   linkCodes: { userId: string; code: string }[] = [];
   announcements: { text: string; idempotencyKey: string }[] = [];
   createCalls = 0;
@@ -173,6 +174,17 @@ export class FakeProvisioner implements Provisioner {
     const password = `secret-${randomUUID()}`;
     this.passwords.push(password);
     return { password };
+  }
+
+  async setPassword({ profileId, userId, password, logoutDevices }: { profileId: string; userId: string; password: string; logoutDevices: boolean }) {
+    if (this.failNextPassword) {
+      this.failNextPassword = false;
+      throw new ProvisionerError('provisioner_unavailable');
+    }
+    const localpart = userId.slice(1, userId.indexOf(':'));
+    const account = this.accounts.get(localpart);
+    if (!account?.managed || account.profileId !== profileId) throw new ProvisionerError('not_managed');
+    this.passwordUpdates.push({ userId, password, logoutDevices });
   }
 
   async sendLinkCode({ userId, code }: { userId: string; code: string }) {

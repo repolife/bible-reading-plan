@@ -73,6 +73,20 @@ describe('Netlify client ↔ provisioning service contract', () => {
     await expect(client.issuePassword({ profileId, userId: `@david:${SERVER}` })).rejects.toMatchObject({ code: 'not_managed' });
   });
 
+  it('sets a caller-chosen password without logging out devices when requested', async () => {
+    await client.setPassword({
+      profileId,
+      userId: `@contract:${SERVER}`,
+      password: 'Chosen-Password-2026!',
+      logoutDevices: false,
+    });
+    expect(fake.users.get(`@contract:${SERVER}`).password).toBe('Chosen-Password-2026!');
+    expect(fake.resets.at(-1)).toEqual({ userId: `@contract:${SERVER}`, logoutDevices: false });
+    await expect(
+      client.setPassword({ profileId, userId: `@david:${SERVER}`, password: 'Chosen-Password-2026!', logoutDevices: false }),
+    ).rejects.toMatchObject({ code: 'not_managed' });
+  });
+
   it('sends link codes and reports unknown users', async () => {
     await expect(client.sendLinkCode({ userId: `@david:${SERVER}`, code: 'ABCD2345' })).resolves.toBeUndefined();
     await expect(client.sendLinkCode({ userId: `@nobody:${SERVER}`, code: 'ABCD2345' })).rejects.toMatchObject({

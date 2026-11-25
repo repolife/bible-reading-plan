@@ -64,6 +64,20 @@ describe('provisioner HTTP client', () => {
     expect(String(error.message)).not.toContain('hunter2');
   });
 
+  it('sends caller-chosen password and logout_devices flag for setPassword', async () => {
+    const fetchImpl = fakeFetch(200, { ok: true });
+    const client = createHttpProvisioner({ baseUrl: 'https://p/', secret: SECRET, fetchImpl });
+    await client.setPassword({ profileId: 'p1', userId: '@a:x', password: 'my-chosen-password', logoutDevices: false });
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://p/v1/accounts/password');
+    expect(JSON.parse(init!.body as string)).toEqual({
+      profile_id: 'p1',
+      user_id: '@a:x',
+      password: 'my-chosen-password',
+      logout_devices: false,
+    });
+  });
+
   it('fails closed when not configured', async () => {
     const client = createHttpProvisioner({});
     await expect(client.createAccount({ profileId: 'p', localpart: 'a', idempotencyKey: 'k' })).rejects.toMatchObject({

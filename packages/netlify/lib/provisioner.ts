@@ -15,6 +15,7 @@ export type CreateAccountResult =
 export interface Provisioner {
   createAccount(input: { profileId: string; localpart: string; idempotencyKey: string }): Promise<CreateAccountResult>;
   issuePassword(input: { profileId: string; userId: string }): Promise<{ password: string }>;
+  setPassword(input: { profileId: string; userId: string; password: string; logoutDevices: boolean }): Promise<void>;
   sendLinkCode(input: { userId: string; code: string }): Promise<void>;
   /** Posts to the "Calendar alerts" room configured on the service. */
   announce(input: { text: string; idempotencyKey: string }): Promise<void>;
@@ -90,6 +91,17 @@ export function createHttpProvisioner(options: { baseUrl?: string; secret?: stri
     async issuePassword({ profileId, userId }) {
       const { status, body } = await request('/v1/accounts/password', { profile_id: profileId, user_id: userId });
       if (status === 200 && typeof body.password === 'string') return { password: body.password };
+      throw new ProvisionerError(status >= 500 ? 'provisioner_unavailable' : errorCode(body, 'provisioner_rejected'));
+    },
+
+    async setPassword({ profileId, userId, password, logoutDevices }) {
+      const { status, body } = await request('/v1/accounts/password', {
+        profile_id: profileId,
+        user_id: userId,
+        password,
+        logout_devices: logoutDevices,
+      });
+      if (status === 200) return;
       throw new ProvisionerError(status >= 500 ? 'provisioner_unavailable' : errorCode(body, 'provisioner_rejected'));
     },
 

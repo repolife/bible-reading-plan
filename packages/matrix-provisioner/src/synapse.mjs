@@ -95,10 +95,10 @@ export function createSynapseClient({ baseUrl, registrationSharedSecret, adminTo
       };
     },
 
-    async resetPassword(userId, newPassword) {
+    async resetPassword(userId, newPassword, { logoutDevices = true } = {}) {
       const res = await call('POST', `/_synapse/admin/v1/reset_password/${encodeURIComponent(userId)}`, {
         token: adminToken,
-        body: { new_password: newPassword, logout_devices: true },
+        body: { new_password: newPassword, logout_devices: Boolean(logoutDevices) },
       });
       if (res.status !== 200) throw new SynapseError(res.status >= 500 ? 'synapse_unavailable' : 'synapse_rejected', res.status);
     },

@@ -9,6 +9,9 @@ import { ProvisionerError } from '../provisioner';
 import { hashLinkCode, provisionAccount } from './adminMatrix';
 
 export const MAX_LINK_ATTEMPTS = 5;
+export const MIN_CHAT_PASSWORD_LENGTH = 10;
+export const MAX_CHAT_PASSWORD_LENGTH = 128;
+const PASSWORD_CONTROL_RE = /[\u0000-\u001f\u007f]/;
 
 async function getOwnAccount(deps: Deps, user: SessionUser) {
   const { data, error } = await deps.db
@@ -108,6 +111,48 @@ async function claimPassword(deps: Deps, user: SessionUser) {
   return json(200, { matrixUserId: account.matrix_user_id, homeserver: MATRIX_CLIENT_URL, password });
 }
 
+async function setPassword(deps: Deps, user: SessionUser, body: Record<string, unknown>) {
+  const account = await getOwnAccount(deps, user);
+  if (!account || account.status !== 'active' || account.origin !== 'provisioned') {
+    throw new HttpError(409, 'not_managed', 'You can only set a password for a chat account created here.');
+  }
+  const password = body.password;
+  if (typeof password !== 'string' || password.length < MIN_CHAT_PASSWORD_LENGTH) {
+    throw new HttpError(400, 'invalid_password', `Password must be at least ${MIN_CHAT_PASSWORD_LENGTH} characters.`);
+  }
+  if (password.length > MAX_CHAT_PASSWORD_LENGTH) {
+    throw new HttpError(400, 'invalid_password', `Password must be at most ${MAX_CHAT_PASSWORD_LENGTH} characters.`);
+  }
+  if (PASSWORD_CONTROL_RE.test(password)) {
+    throw new HttpError(400, 'invalid_password', 'Password contains unsupported characters.');
+  }
+
+  const logoutDevices = body.logoutDevices === true;
+  const base = { actorId: user.id, action: 'matrix.password_set', targetProfileId: user.id, targetMatrixUserId: account.matrix_user_id };
+
+  try {
+    await deps.provisioner.setPassword({
+      profileId: user.id,
+      userId: account.matrix_user_id,
+      password,
+      logoutDevices,
+    });
+  } catch (error) {
+    const reason = error instanceof ProvisionerError ? error.code : 'provisioner_error';
+    await audit(deps.db, { ...base, outcome: 'failure', details: { reason, logoutDevices } });
+    throw new HttpError(502, reason, 'Could not update your chat password. Please try again.', { retryable: true });
+  }
+
+  const nowIso = deps.now().toISOString();
+  await deps.db
+    .from('matrix_accounts')
+    .update({ password_claim_allowed: false, password_claimed_at: nowIso, updated_at: nowIso })
+    .eq('profile_id', user.id);
+
+  await audit(deps.db, { ...base, outcome: 'success', details: { logoutDevices } });
+  return json(200, { ok: true, matrixUserId: account.matrix_user_id, homeserver: MATRIX_CLIENT_URL });
+}
+
 const normalizeCode = (raw: unknown) => (typeof raw === 'string' ? raw.toUpperCase().replace(/[\s-]/g, '') : '');
 
 async function confirmLink(deps: Deps, user: SessionUser, body: Record<string, unknown>) {
@@ -170,6 +215,7 @@ export async function memberMatrixAction(event: HandlerEvent, deps: Deps) {
   const body = parseJsonBody(event);
   if (body.action === 'setup') return setup(deps, user, body);
   if (body.action === 'claim-password') return claimPassword(deps, user);
+  if (body.action === 'set-password') return setPassword(deps, user, body);
   if (body.action === 'confirm-link') return confirmLink(deps, user, body);
   throw new HttpError(400, 'unknown_action', 'Unknown action');
 }

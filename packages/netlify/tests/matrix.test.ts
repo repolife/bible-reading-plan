@@ -264,6 +264,72 @@ describe('password onboarding', () => {
   });
 });
 
+describe('self-service password set/change', () => {
+  const setPw = (user: TestUser, password: unknown, extra: Record<string, unknown> = {}) =>
+    call(memberMatrixAction, deps, { token: user.token, body: { action: 'set-password', password, ...extra } });
+
+  it('lets a provisioned member set and later change their own password without logging out devices by default', async () => {
+    const name = uniq();
+    await provision(name);
+
+    const first = await setPw(member, 'My-First-Passphrase!');
+    expect(first.status).toBe(200);
+    expect(first.body).toMatchObject({ ok: true, matrixUserId: mx(name) });
+    expect(first.body.password).toBeUndefined();
+    expect(provisioner.passwordUpdates).toEqual([
+      { userId: mx(name), password: 'My-First-Passphrase!', logoutDevices: false },
+    ]);
+    expect(await accountRow()).toMatchObject({ password_claim_allowed: false });
+    expect((await accountRow())!.password_claimed_at).not.toBeNull();
+
+    const second = await setPw(member, 'My-Second-Passphrase!', { logoutDevices: true });
+    expect(second.status).toBe(200);
+    expect(provisioner.passwordUpdates.at(-1)).toEqual({
+      userId: mx(name),
+      password: 'My-Second-Passphrase!',
+      logoutDevices: true,
+    });
+
+    const rows = await auditRows(member.id);
+    expect(rows.filter((r) => r.action === 'matrix.password_set' && r.outcome === 'success')).toHaveLength(2);
+    expect(JSON.stringify(rows)).not.toContain('My-First-Passphrase!');
+    expect(JSON.stringify(rows)).not.toContain('My-Second-Passphrase!');
+  });
+
+  it('rejects too-short, too-long, or control-char passwords', async () => {
+    await provision(uniq());
+    for (const bad of ['', 'short9999', 'x'.repeat(129), 'bad\npassword', 1234567890]) {
+      const res = await setPw(member, bad);
+      expect(res.status).toBe(400);
+      expect(res.body.error).toBe('invalid_password');
+    }
+    expect(provisioner.passwordUpdates).toHaveLength(0);
+  });
+
+  it('refuses linked (pre-existing) accounts and members without a chat account', async () => {
+    expect((await setPw(member, 'Valid-Passphrase-2026!')).status).toBe(409);
+
+    const existing = uniq();
+    provisioner.seedExisting(existing);
+    await startLink(mx(existing));
+    const code = provisioner.linkCodes.at(-1)!.code;
+    await call(memberMatrixAction, deps, { token: member.token, body: { action: 'confirm-link', code } });
+
+    const res = await setPw(member, 'Valid-Passphrase-2026!');
+    expect(res.status).toBe(409);
+    expect(res.body.error).toBe('not_managed');
+    expect(provisioner.passwordUpdates).toHaveLength(0);
+  });
+
+  it('preserves password_claim_allowed when the provisioner fails', async () => {
+    await provision(uniq());
+    provisioner.failNextPassword = true;
+    const res = await setPw(member, 'Valid-Passphrase-2026!');
+    expect(res.status).toBe(502);
+    expect(await accountRow()).toMatchObject({ password_claim_allowed: true, password_claimed_at: null });
+  });
+});
+
 describe('self-serve setup', () => {
   const setup = (user: TestUser, localpart: string, extra: Record<string, unknown> = {}) =>
     call(memberMatrixAction, deps, { token: user.token, body: { action: 'setup', localpart, ...extra } });

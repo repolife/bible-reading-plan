@@ -2,7 +2,7 @@ import { randomInt, randomUUID } from 'node:crypto';
 import { createServer } from 'node:http';
 import { verifyRequest } from './auth.mjs';
 import { SynapseError } from './synapse.mjs';
-import { checkLocalpart, isUuid, localpartOf } from './validate.mjs';
+import { checkLocalpart, checkPassword, isUuid, localpartOf } from './validate.mjs';
 
 const MAX_BODY_BYTES = 16 * 1024;
 // Tolerance when deciding whether an account found during recovery was the
@@ -114,18 +114,24 @@ export function createProvisioner({ config, store, synapse, now = () => Date.now
   }
 
   async function issuePassword(body) {
-    const { profile_id: profileId, user_id: userId } = body;
+    const { profile_id: profileId, user_id: userId, password: customPassword, logout_devices: logoutDevices } = body;
     const localpart = localpartOf(userId, config.serverName);
     if (!isUuid(profileId) || !localpart) throw new ApiError(400, 'invalid_request');
+    if (logoutDevices !== undefined && typeof logoutDevices !== 'boolean') throw new ApiError(400, 'invalid_request');
+    const isCustom = customPassword !== undefined;
+    if (isCustom) {
+      const invalid = checkPassword(customPassword);
+      if (invalid) throw new ApiError(400, invalid);
+    }
     const record = state.accounts[localpart];
     // Only accounts this service created, for this exact profile.
     if (record?.state !== 'created' || record.profile_id !== profileId) throw new ApiError(403, 'not_managed');
 
-    const password = generatePassword();
-    await synapse.resetPassword(userId, password).catch((error) => {
+    const password = isCustom ? customPassword : generatePassword();
+    await synapse.resetPassword(userId, password, { logoutDevices: logoutDevices ?? true }).catch((error) => {
       throw synapseFailure(error);
     });
-    return { status: 200, body: { password } };
+    return isCustom ? { status: 200, body: { ok: true } } : { status: 200, body: { password } };
   }
 
   async function sendLinkCode(body) {

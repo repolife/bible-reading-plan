@@ -13,8 +13,25 @@ const BLOCKED_LOCALPARTS = new Set(['jared.duel']);
 
 const LOCALPART_RE = /^[a-z0-9](?:[a-z0-9._-]{1,30})[a-z0-9]$/;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const PASSWORD_CONTROL_RE = /[\u0000-\u001f\u007f]/;
+
+export const MIN_PASSWORD_LENGTH = 10;
+export const MAX_PASSWORD_LENGTH = 128;
 
 export const isUuid = (value) => typeof value === 'string' && UUID_RE.test(value);
+
+/** Returns an error code, or null when a user-chosen password is acceptable. */
+export function checkPassword(password) {
+  if (
+    typeof password !== 'string' ||
+    password.length < MIN_PASSWORD_LENGTH ||
+    password.length > MAX_PASSWORD_LENGTH ||
+    PASSWORD_CONTROL_RE.test(password)
+  ) {
+    return 'invalid_password';
+  }
+  return null;
+}
 
 /** Returns an error code, or null when the localpart may be provisioned. */
 export function checkLocalpart(localpart) {

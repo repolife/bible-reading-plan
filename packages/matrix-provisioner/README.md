@@ -75,9 +75,12 @@ Errors are `{ "error": "<code>" }`. `401` codes: `missing_signature`,
 
 ### `POST /v1/accounts/password`
 
-`{ "profile_id": "<uuid>", "user_id": "@jane.doe:…" }` → `200 { "password": "xxxx-xxxx-xxxx-xxxx-xxxx-xxxx" }`.
-Logs out the account's other sessions. `403 not_managed` for any account this
-service did not create for that profile.
+`{ "profile_id": "<uuid>", "user_id": "@jane.doe:…", "password"?: "…", "logout_devices"?: true }`
+
+- Without `password`: generates a fresh password and returns `200 { "password": "xxxx-xxxx-xxxx-xxxx-xxxx-xxxx" }`.
+- With `password` (10–128 characters, no control characters): sets that password and returns `200 { "ok": true }` without echoing it back.
+- `logout_devices` defaults to `true`; pass `false` to keep existing sessions signed in when changing a password.
+- `403 not_managed` for any account this service did not create for that profile. `400 invalid_password` when a supplied password fails validation.
 
 ### `POST /v1/link-codes`
 
